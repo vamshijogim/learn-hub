@@ -74,16 +74,17 @@ const scrub=t=>str(t).replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[email]').replace(/\+
 const clean=t=>scrub(t).trim();
 
 /* ============ state ============ */
-const DEF={model:'gemini-3.8-flash',fast:'gemini-3.5-flash-lite',limit:0,research:true,bg:true,bgMax:40,role:'Executive / VP-level SAP leader',background:'',focus:'Order-to-Cash (SD) and its integrations',rate:1,voiceA:'',voiceB:'',stage:'prep'};
+const DEF={model:'gemini-3.8-flash',fast:'gemini-3.5-flash-lite',limit:0,research:true,bg:true,bgMax:40,level:'scratch',role:'SAP Order-to-Cash (OTC) consultant',background:'',focus:'Order-to-Cash (SD) and its integrations',rate:1,voiceA:'',voiceB:'',stage:'prep'};
 let S=normState(LS.get('sc_state',null));
-function normState(s){s=s||{};s.set=Object.assign({},DEF,s.set||{});s.usage=s.usage||{day:'',calls:0,tokens:0,bg:0};s.cache=s.cache||{};s.lib=Array.isArray(s.lib)?s.lib:[];s.chat=Array.isArray(s.chat)?s.chat:[];return s}
+function normState(s){s=s||{};s.set=Object.assign({},DEF,s.set||{});s.usage=s.usage||{day:'',calls:0,tokens:0,bg:0};s.cache=s.cache||{};if(s.set.role==='Executive / VP-level SAP leader'&&!s.set.level)s.set.role=DEF.role;s.prog=s.prog||{};s.queue=Array.isArray(s.queue)?s.queue:[];s.lib=Array.isArray(s.lib)?s.lib:[];s.chat=Array.isArray(s.chat)?s.chat:[];return s}
 function save(){if(!LS.set('sc_state',S)){S.cache={};if(!LS.set('sc_state',S))toast('Browser storage is full. Delete old items in Library.',true)}}
 const hasKey=()=>!!LS.raw('sc_key');
 let LASTSRC=[];
 
 /* ============ Gemini ============ */
-const sysPrompt=()=>`You are SAP Coach: a patient senior SAP mentor and executive interview coach. The learner knows NOTHING about SAP or configuration. Teach like they are five years old first: plain words, everyday analogies, define every term and acronym the first time. Then go deeper, down to real configuration detail. ${S.set.stage==='role'?`The learner NOW HOLDS the role of ${S.set.role}. Help them perform it: decisions to make, governance, steering committees, budgets, vendor and system-integrator management, risks, KPIs, and the questions to ask their teams and partners (with what a good answer sounds like). Where a format asks for interview questions, give the questions a leader in this role gets asked by the board, peers, auditors and teams, plus questions to ask their own team.`:`Prepare them for ${S.set.role} interviews: business outcomes, risk, controls, program delivery and stakeholder language, in addition to hands-on detail.`} Accuracy rules: use real transaction codes, Fiori app names/IDs, SPRO/IMG paths, tables and SAP Note numbers only when you are confident; otherwise say "verify on help.sap.com". Prefer SAP S/4HANA (latest releases; mention Cloud Public Edition vs Private Edition/on-premise differences) and say which release introduced a feature when known. Never invent facts about a company; say what is publicly known and mark guesses as assumptions. Plain text only, no markdown, no LaTeX. Learner profile: target role: ${S.set.role}; background: ${S.set.background||'not given'}; focus area: ${S.set.focus||'general SAP'}. Today is ${dkey()}.${S.set.research?' '+ORDER:''}`;
-const ORDER='When you search, check sources in this order and prefer the earlier ones when they disagree: (1) official SAP documentation on help.sap.com, including product documentation, What\'s New / release notes and the Feature Scope Description; (2) the official SAP website: sap.com, SAP Learning, SAP Roadmap Explorer, SAP Best Practices / Signavio Process Navigator, SAP Fiori Apps Reference Library; (3) SAP Notes and Knowledge Base Articles (me.sap.com, support.sap.com, userapps.support.sap.com) for standard, SAP-recommended workarounds; (4) SAP Community (community.sap.com) blogs and question threads for real-world discussions and workarounds; (5) SAP Joule: what the Joule copilot can do for this topic and in which products/releases; (6) training videos and courses: YouTube (SAP official channels first, then reputable trainers) and the public pages of Udemy courses (use their titles, descriptions and curriculum outlines; you cannot watch paid content); (7) any other publicly available documentation (partner blogs, analyst and consulting articles). Say which kind of source a key fact comes from when it matters.';
+const LEVELS={scratch:'LEVEL: complete beginner. Teach from zero in very small steps, one idea at a time, always starting with the business story before any SAP screen or configuration, and check understanding often.',consultant:'LEVEL: junior to mid OTC consultant. Go to hands-on depth: configuration paths, tcodes, Fiori apps, tables, issue analysis, and consultant-style interview questions.',lead:'LEVEL: senior/lead consultant. Focus on solution design, integration trade-offs, global template decisions, risk, and lead/architect interview questions.',vp:'LEVEL: executive. Focus on business value, transformation, governance, KPIs, vendor management, and VP-level interview questions; keep technical detail brief but accurate.'};
+const sysPrompt=()=>`${LEVELS[S.set.level||'scratch']} You are SAP Coach: a patient senior SAP mentor and executive interview coach. The learner knows NOTHING about SAP or configuration. Teach like they are five years old first: plain words, everyday analogies, define every term and acronym the first time. Then go deeper, down to real configuration detail. ${S.set.stage==='role'?`The learner NOW HOLDS the role of ${S.set.role}. Help them perform it: decisions to make, governance, steering committees, budgets, vendor and system-integrator management, risks, KPIs, and the questions to ask their teams and partners (with what a good answer sounds like). Where a format asks for interview questions, give the questions a leader in this role gets asked by the board, peers, auditors and teams, plus questions to ask their own team.`:`Prepare them for ${S.set.role} interviews: business outcomes, risk, controls, program delivery and stakeholder language, in addition to hands-on detail.`} Accuracy rules: use real transaction codes, Fiori app names/IDs, SPRO/IMG paths, tables and SAP Note numbers only when you are confident; otherwise say "verify on help.sap.com". Prefer SAP S/4HANA (latest releases; mention Cloud Public Edition vs Private Edition/on-premise differences) and say which release introduced a feature when known. Never invent facts about a company; say what is publicly known and mark guesses as assumptions. Plain text only, no markdown, no LaTeX. Learner profile: target role: ${S.set.role}; background: ${S.set.background||'not given'}; focus area: ${S.set.focus||'general SAP'}. Today is ${dkey()}.${S.set.research?' '+ORDER:''}`;
+const ORDER='When you search, check sources in this order and prefer the earlier ones when they disagree: (1) official SAP documentation on help.sap.com, including product documentation, What\'s New / release notes and the Feature Scope Description; (2) the official SAP website: sap.com, SAP Learning, SAP Roadmap Explorer, SAP Best Practices / Signavio Process Navigator, SAP Fiori Apps Reference Library; (3) SAP Notes and Knowledge Base Articles (me.sap.com, support.sap.com, userapps.support.sap.com) for standard, SAP-recommended workarounds; (4) SAP Community (community.sap.com) blogs and question threads for real-world discussions and workarounds; (5) SAP Joule: what the Joule copilot can do for this topic and in which products/releases; (6) training videos and courses: YouTube (SAP official channels first, then reputable trainers) and the public pages of Udemy courses (use their titles, descriptions and curriculum outlines; you cannot watch paid content); (7) public GitHub repositories (SAP-samples, SAP-docs, SAP-archive, and community study repos; treat community repos as unverified, and mention their licence when you cite code); (8) any other publicly available documentation (partner blogs, analyst and consulting articles). Say which kind of source a key fact comes from when it matters.';
 const RETRY_MS=()=>window.__fcFast?5:900;
 function errMsg(e){
   const m=String(e&&e.message||e);
@@ -191,7 +192,7 @@ function listen(cb){
 }
 
 /* ============ UI state + helpers ============ */
-const U={tab:'research',m:{},load:null,open:{},listening:false,iv:null,quiz:{}};
+const U={stg:{},tab:'roadmap',m:{},load:null,open:{},listening:false,iv:null,quiz:{}};
 async function run(label,fn){if(U.load)return toast('Still working on the last request…');U.load=label;render();try{await fn()}catch(e){toast(errMsg(e),true)}finally{U.load=null;render()}}
 const M=k=>esc(U.m[k]||'');
 const inp=(k,ph,en)=>`<input data-m="${k}" value="${M(k)}" placeholder="${esc(ph||'')}" ${en?`data-en="${en}"`:''}>`;
@@ -201,13 +202,73 @@ const li=(a,ord)=>arr(a).length?`<${ord?'ol':'ul'}>${arr(a).map(x=>`<li>${esc(st
 const SPK={};let spkN=0;
 function say(text,title){const id='s'+(++spkN);SPK[id]={text,title};return `<button class="btn sm alt" data-a="say" data-id="${id}" title="Listen">🔊 Listen</button>`}
 const sec=(title,html,speech)=>html?`<div class="card"><h3>${title} ${speech?say(speech,title.replace(/^\S+\s/,'')):''}</h3>${html}</div>`:'';
-const TIERS=[[/help\.sap\.com/i,'Official docs'],[/(me|support|userapps\.support|launchpad\.support)\.sap\.com/i,'SAP Notes/KBA'],[/community\.sap\.com|blogs\.sap\.com|answers\.sap\.com/i,'SAP Community'],[/(^|[./ ])sap\.com/i,'SAP website']];
-const tierOf=x=>{const t=str(x.title)+' '+str(x.uri);const order=[0,3,1,2];for(const i of order)if(TIERS[i][0].test(t))return [[0,2,3,1][i],TIERS[i][1]];return [9,'Other public']};
+const TR=[[/help\.sap\.com/i,1,'Official docs'],[/(^|[./ ])(me|support|userapps\.support|launchpad\.support)\.sap\.com/i,3,'SAP Notes/KBA'],[/community\.sap\.com|blogs\.sap\.com|answers\.sap\.com/i,4,'SAP Community'],[/(^|[./ ])sap\.com/i,2,'SAP website'],[/youtube\.com|youtu\.be|udemy\.com/i,6,'Video/course'],[/github\.com/i,7,'GitHub (community)']];
+const tierOf=x=>{const t=str(x.title)+' '+str(x.uri);const m=TR.find(r=>r[0].test(t));return m?[m[1],m[2]]:[9,'Other public']};
 const srcHtml=s=>arr(s).length?`<div class="mut">🔎 Pages searched (official first): ${arr(s).map(x=>({x,t:tierOf(x)})).sort((a,b)=>a.t[0]-b.t[0]).map(o=>`<span class="pill">${o.t[1]}</span>${link(o.x.uri,o.x.title||'source')}`).join(' · ')}</div>`:'';
 const libOf=k=>S.lib.filter(x=>x.kind===k);
 const findLib=(k,title)=>S.lib.find(x=>x.kind===k&&norm(x.title)===norm(title));
 function getOpen(k){return S.lib.find(x=>x.id===U.open[k]&&x.kind===k)}
 function recent(k,act){const l=libOf(k).slice(0,12);return l.length?`<div class="mut" style="margin-top:6px">Saved:</div>${l.map(x=>`<button class="lib ready" data-a="${act}" data-id="${x.id}">${esc(x.title)}</button>`).join('')}`:''}
+
+
+var views=views||{};
+/* ============ ROADMAP DATA ============ */
+const CORE=[
+['Foundations: what SAP and OTC are','🧱','Start here. No SAP knowledge needed.',['What is an ERP and why companies use SAP','Order-to-Cash in one picture (the whole story)','Enterprise structure: company code, sales organization, distribution channel, division','Business Partner and customer master data','Material master (sales views)','Condition records and the master data needed before the first order','Fiori launchpad and navigating S/4HANA']],
+['Pre-sales','📨','Before the order: inquiry, quotation, contracts',['Customer inquiry (pre-sales document)','Sales quotation','Quotation validity and conversion to a sales order','Quantity contract','Value contract','Scheduling agreement','Lead and opportunity hand-off from CRM or Sales Cloud to quotation']],
+['Sales order processing','🧾','The heart of OTC',['Standard sales order end to end','Sales document types, item categories and schedule line categories','Partner determination','Text, output and incompletion procedures','Copy control','Cash sale and rush order','Free-of-charge delivery and sample orders','Consignment process','Third-party (drop-ship) order','Make-to-order and variant configuration','Sales order change, rejection and backorder processing']],
+['Pricing and conditions','💲','How the price is found',['Pricing procedure basics','Condition types, access sequences and condition records','Taxes in sales pricing','Rebates and settlement management','Free goods and bonus buy','Customer-specific price agreements','Intercompany pricing']],
+['Availability and credit','✅','Can we deliver? Should we deliver?',['Availability check and ATP','Advanced ATP (aATP) and product allocation','Credit management and credit block release','Delivery and billing blocks: reasons and release']],
+['Logistics and delivery','🚚','From order to goods leaving the door',['Outbound delivery creation','Shipping point, route and storage location determination','Picking, packing and goods issue (PGI)','Batch and serial number handling in delivery','Warehouse integration: WM and EWM','Transportation management and shipments','Proof of delivery','Export, foreign trade and customs']],
+['Billing and invoicing','🧮','Getting the invoice and the revenue right',['Billing document types and invoice creation','Billing plans: milestone and periodic billing','Collective billing and invoice lists','Credit memo, debit memo and invoice cancellation','Intercompany billing','Account determination: revenue posting to FI','Revenue recognition (RAR and BRIM)','Invoice output, e-invoicing and compliance']],
+['Receivables and cash','💰','Getting paid',['Accounts receivable and incoming payments','Automatic cash application','Dunning and collections','Dispute management','Payment terms, DSO and cash forecasting']],
+['Returns and after-sales','↩️','When things come back',['Returns process and returns delivery','Complaints, claims and credit memo requests','Warranty and service orders in S/4HANA','Refund and replacement scenarios']],
+['Integrations','🔌','How OTC talks to other modules and systems',['SD to FI/CO integration: what posts where','SD to MM: stock transfer orders, third-party and intercompany','SD to PP: make-to-order and production','SD to EWM, WM and TM','EDI and IDoc for sales orders (B2B)','SAP Integration Suite (CPI) for order integration','CRM, SAP Sales Cloud and Salesforce to S/4HANA','E-commerce: SAP Commerce Cloud and web shops','SAP Business Network and Ariba collaboration','Tax engines (Vertex, Avalara) and e-invoicing','OData APIs and events for order integration','Data migration for OTC with the Migration Cockpit']],
+['S/4HANA specifics and clean core','🆕','What is different in S/4HANA',['What changed from ECC SD to S/4HANA SD','Fiori apps for sales and billing','Output management (BRF+ and adaptation)','Cloud Public Edition vs Private Edition for OTC','Clean core and extensibility: key user and side-by-side','SAP Business Technology Platform for OTC extensions','Embedded analytics and order monitoring']],
+['Joule and Business AI','✨','SAP copilot and AI in OTC',['What is SAP Joule (explained simply)','Joule for sales orders: status check and issue resolution','Joule for billing and receivables','Sales order completion and smart summarization','Joule agents and skills: what exists and what is roadmap','How to prompt Joule well: an OTC prompt library','Joule licensing and prerequisites: Base vs Premium']],
+['Run and support','🛠️','Keeping it running',['Top 20 production issues in OTC and how to fix them','Incident handling and root cause analysis','Month-end and period-end for billing','Testing OTC: unit, integration, UAT','Cutover and hypercare for OTC','Authorizations and segregation of duties in OTC']],
+['Executive and VP','👔','Leading OTC programs',['OTC transformation strategy and business case','Global template and process ownership','KPIs: DSO, OTIF, order cycle time, perfect order','Governance, steering committee and risk','Managing system integrators and vendors','RISE with SAP and the move to S/4HANA','Org design: center of excellence and support model','Interview: how to talk about OTC as a leader']]
+];
+const IND=[
+['Retail and wholesale','🛒','',['Direct store delivery (DSD) in retail','Drop-ship and cross-docking in wholesale','Promotion pricing and markdowns in retail','Store replenishment orders']],
+['Oil and gas','🛢️','',['Dynamic and formula-based pricing in oil and gas (IS-Oil)','Bulk shipments, tank trucks and delivery tickets','Exchange agreements and netting in oil and gas','Quantity conversion and density in oil products','Excise duty and fuel taxes in sales']],
+['Pharma and life sciences','💊','',['Batch management and expiry in pharma sales','Serialization and track-and-trace','Chargebacks and government pricing','Cold-chain shipping']],
+['Automotive','🚗','',['Scheduling agreements with JIT and JIS','Vendor-managed inventory and consignment in automotive','Returnable packaging and containers','Volume rebates for OEM customers']],
+['High tech and electronics','💻','',['Product allocation for scarce supply','Configure-to-order in high tech','Subscription and usage billing','Returns, RMA and warranty in high tech']],
+['Consumer products','🧴','',['Trade promotion management and claims','Rebate agreements in consumer products','Customer hierarchies and key accounts','Direct vs indirect sales channels']],
+['Food and beverage','🥫','',['Shelf life and batch selection in food','Catch weight in food and meat','Deposits and returnable packaging in beverage','Route sales and van sales']],
+['Chemicals','🧪','',['Dangerous goods in sales and delivery','Characteristic-based batch determination','Units of measure and quantity conversion in chemicals','Bulk and packaged goods logistics']],
+['Industrial manufacturing','🏗️','',['Engineer-to-order and configure-to-order','Project-based billing: milestone and percentage of completion','Spare parts and aftermarket sales','Long-lead-time orders and change management']],
+['Fashion and apparel','🧵','',['Seasonal ordering and size grids','Allocation runs in fashion','Wholesale vs retail channels in fashion']],
+['Telecom, media and subscription','📡','',['Subscription billing with BRIM','Usage-based and convergent charging integration','Revenue recognition for bundles']],
+['Aerospace and defense','✈️','',['Government contracts and cost-plus billing','Export controls and compliance','Long-cycle project orders']]
+];
+const allTopics=()=>CORE.flatMap(s=>s[3]);
+const isDone=t=>!!S.prog[norm(t)];
+const nextTopic=()=>allTopics().find(t=>!isDone(t))||null;
+function rowHtml(t){
+  const h=k=>findLib(k,t)?'•':'',e=esc(t);
+  return `<div class="row" style="border-bottom:1px solid var(--line);padding:4px 0"><button class="btn sm ${isDone(t)?'':'alt'}" style="flex:0 0 auto" data-a="rmDone" data-t="${e}">${isDone(t)?'✅':'⬜'}</button><div style="flex:1 1 230px">${e}</div><div style="flex:0 0 auto">
+  <button class="btn sm alt" title="Course" data-a="toCourse" data-t="${e}">🎓${h('course')}</button><button class="btn sm alt" title="SOP" data-a="toSop" data-t="${e}">📋${h('sop')}</button><button class="btn sm alt" title="Research" data-a="packTag" data-t="${e}">🔎${h('pack')}</button><button class="btn sm alt" title="Mock interview" data-a="toInterview" data-t="${e}">🎙️</button></div></div>`;
+}
+function stageHtml(id,s){
+  const open=!!(U.stg&&U.stg[id]),n=s[3].filter(isDone).length;
+  return `<button class="opt ${open?'ok':''}" data-a="stg" data-id="${id}">${s[1]} <b>${esc(s[0])}</b> <span class="mut">${n}/${s[3].length} done${s[2]?' · '+esc(s[2]):''}</span></button>`+(open?`<div class="card">${s[3].map(rowHtml).join('')}<button class="btn sm" data-a="rmQueue" data-id="${id}">⚡ Auto-build SOPs for this whole section (background)</button><div class="mut">🎓 course · 📋 SOP · 🔎 research · 🎙️ mock interview · • = already built</div></div>`:'');
+}
+const GH=[['SAP-samples/s4hana-ext-migrate-historical-data','https://github.com/SAP-samples/s4hana-ext-migrate-historical-data','Official SAP sample: migrated sales order data (extensibility tutorial code)'],['SAP-archive/teched2023-AD163','https://github.com/SAP-archive/teched2023-AD163','Archived TechEd session: extend the sales order process with SAP Build'],['neurozeljko/sap-cpi-b2b-edifact-orders-tpm-cleancore','https://github.com/neurozeljko/sap-cpi-b2b-edifact-orders-tpm-cleancore','Community: B2B EDIFACT orders into S/4HANA through Integration Suite'],['shardabhavya/sap-s4hana-o2c-design','https://github.com/shardabhavya/sap-s4hana-o2c-design','Community: functional design document for an O2C scenario'],['Jeet313/SAP-SD-implementation','https://github.com/Jeet313/SAP-SD-implementation','Community: end-to-end O2C implementation write-up'],['lahrisaumya/SAP-SD-S2C-Analytics','https://github.com/lahrisaumya/SAP-SD-S2C-Analytics','Community: sold-to-cash case study with KPIs'],['igor-barral/SAP-Order-to-Cash-erp-study','https://github.com/igor-barral/SAP-Order-to-Cash-erp-study','Community: study guide with table references (Portuguese)']];
+views.roadmap=()=>{
+  const all=allTopics(),done=all.filter(isDone).length,nx=nextTopic(),e=nx?esc(nx):'';
+  return `<div class="card"><h2>🗺️ OTC Roadmap: learn from zero</h2><p class="mut">Follow it top to bottom like a course. Every topic has a course, an SOP, a research pack and a mock interview. Tick topics off as you learn them and your Mentor knows where you are.</p>
+  <div class="mut">${done} of ${all.length} core topics done · level: ${esc(({scratch:'Beginner',consultant:'Consultant',lead:'Lead / architect',vp:'VP / executive'})[S.set.level||'scratch'])} (change in Settings)</div>
+  <div style="background:var(--line);border-radius:99px;height:10px;margin:6px 0"><div style="width:${all.length?Math.round(100*done/all.length):0}%;height:10px;border-radius:99px;background:var(--ok)"></div></div>
+  ${nx?`<h3>📍 Next up: ${e}</h3><button class="btn" data-a="toCourse" data-t="${e}">🎓 Teach me (course)</button><button class="btn alt" data-a="mentorNext">🧑‍🏫 Mentor, teach me like I am five</button><button class="btn alt" data-a="toSop" data-t="${e}">📋 SOP</button><button class="btn alt" data-a="packTag" data-t="${e}">🔎 Research</button><button class="btn alt" data-a="toInterview" data-t="${e}">🎙️ Interview</button><button class="btn alt" data-a="rmDone" data-t="${e}">✅ I got it</button>`:'<p>🎉 Core path finished. Now do the industries below and mock interviews.</p>'}
+  ${done?`<button class="btn sm alt" data-a="mentorQuiz">📝 Quiz me on what I finished</button>`:''}</div>
+  ${bgLine()}
+  <h2 style="margin-top:14px">Core path</h2>${CORE.map((s,i)=>stageHtml('c'+i,s)).join('')}
+  <h2 style="margin-top:14px">🏭 Industry processes</h2><p class="mut">Same OTC flow, different twists: for example DSD in retail, dynamic pricing in oil and gas.</p>${IND.map((s,i)=>stageHtml('i'+i,s)).join('')}
+  <div class="card"><h3>📦 Public GitHub material (links, not copies)</h3><p class="mut">Found by web search. Only the first is an official SAP sample; the rest are community projects with unchecked licences and accuracy. I link them instead of copying their code, because copying needs each licence checked, and these are mostly developer samples or personal study notes rather than teaching material.</p>${GH.map(g=>`<div>• ${link(g[1],g[0])} <span class="mut">${esc(g[2])}</span></div>`).join('')}</div>`;
+};
+function stageById(id){return id[0]==='c'?CORE[+id.slice(1)]:IND[+id.slice(1)]}
 
 /* ============ RESEARCH PACK ============ */
 const KINDS=[['topic','SAP topic / scenario'],['industry','Industry'],['company','Company']];
@@ -217,7 +278,7 @@ function packPrompt(part,q,kind){
   if(part==='a')return head+`{"eli5":"explain it to a five-year-old in 6-9 sentences with an everyday analogy","context":"for a company or industry: what they do, what is publicly known about their SAP landscape and programs, and why it matters; for a topic: where it sits in SAP","scenario":"a concrete business scenario told as a short story","where_used":["industries, company types or situations where it is used"],"process_flow":["step in order, who does it"],"modules":["module or component — its role here"],"key_terms":[{"term":"","meaning":"simple meaning"}],"s4_look":[{"app":"Fiori app or transaction name","id":"Fiori app ID or tcode","what_you_see":"what the screen shows and what the user does"}],"related":["6 related topics to study next"]}`;
   if(part==='b')return head+`{"prerequisites":["what must exist first"],"config_steps":[{"step":"","where":"SPRO/IMG path, tcode or Fiori config app","what":"what you set and why, in simple words","example":"example value"}],"master_data":["master data needed and where it is maintained"],"implementation":{"approach":"how to implement it in an S/4HANA environment","phases":[{"phase":"","activities":[""]}],"testing":["key test scenarios"],"risks":["risk and mitigation"]},"versions":[{"release":"S/4HANA release or year","what":"what is available or changed"}],"whats_new":["newest changes in the latest releases, with release names"],"cloud_vs_onprem":"differences between Cloud Public Edition and Private Edition/on-premise"}. Give 8-14 config steps in the real order.`;
   if(part==='v')return `Use Google Search to find the best learning videos and courses for ${what}, especially ones that walk through the configuration on a real S/4HANA system. Return ONLY JSON, no other text: {"youtube":[{"title":"","url":"https://www.youtube.com/watch?v=...","channel":"","covers":"what it shows, extracted from its title, description and transcript if available","best_for":"which configuration step or section it helps with"}],"udemy":[{"title":"","url":"https://www.udemy.com/course/...","level":"","covers":"summary of the public curriculum: the sections and what you learn"}],"watch_order":["what to watch first, second, third and why"]}. 4-6 real YouTube videos (SAP official channels first) and 2-4 real Udemy courses. Only include items you actually found; never invent a URL.`;
-  return head+`{"issues":[{"issue":"common production issue","symptom":"error message/number or what the user sees","cause":"","fix":"step-by-step fix","prevent":""}],"interview":[{"level":"basic|functional|executive","q":"","answer":"strong model answer in first person, 3-6 sentences","tip":"what the interviewer is really checking"}],"exec_points":["talking point a VP would make: value, risk, cost, governance"],"numbers":["KPI or metric to know"],"workarounds":[{"problem":"","workaround":"the standard or community-proven workaround","source":"SAP Note/KBA number, help.sap.com page or community thread title"}],"joule":["what SAP Joule can do for this topic today, and in which product/release (say if nothing is available yet)"],"references":[{"tier":"1 official documentation|2 SAP website|3 SAP Note/KBA|4 SAP Community|5 Joule|6 other public","title":"","url":"","what":"what it covers"}],"story":"a STAR-format story template the learner can adapt"}. Give 6-8 issues, 12 interview questions (4 basic, 4 functional, 4 executive/VP level), 3-6 workarounds, and 6-12 references sorted by tier 1 to 6 (only real pages you found; leave url empty if unsure).`;
+  return head+`{"issues":[{"issue":"common production issue","symptom":"error message/number or what the user sees","cause":"","fix":"step-by-step fix","prevent":""}],"interview":[{"level":"basic|functional|executive","q":"","answer":"strong model answer in first person, 3-6 sentences","tip":"what the interviewer is really checking"}],"exec_points":["talking point a VP would make: value, risk, cost, governance"],"numbers":["KPI or metric to know"],"workarounds":[{"problem":"","workaround":"the standard or community-proven workaround","source":"SAP Note/KBA number, help.sap.com page or community thread title"}],"joule":["what SAP Joule can do for this topic today, and in which product/release (say if nothing is available yet)"],"references":[{"tier":"1 official documentation|2 SAP website|3 SAP Note/KBA|4 SAP Community|5 Joule|6 video or course|7 GitHub or other public","title":"","url":"","what":"what it covers"}],"story":"a STAR-format story template the learner can adapt"}. Give 6-8 issues, 12 interview questions (4 basic, 4 functional, 4 executive/VP level), 3-6 workarounds, and 6-12 references sorted by tier 1 to 6 (only real pages you found; leave url empty if unsure).`;
 }
 const PARTS=['a','b','c','v'];
 async function buildPack(it,fresh){
@@ -306,7 +367,6 @@ async function vidSum(i){
     x.summary=await callGemini(body,S.set.model);save();
   });
 }
-const views={};
 views.research=()=>{
   const it=getOpen('pack');
   return `<div class="card"><h2>🔎 Research any topic, industry or company</h2><p class="mut">You get: simple explanation, business scenario, where it is used, configuration steps, how to implement, what it looks like in S/4HANA, versions and what is new, production issues with fixes, and interview questions with model answers.</p>
@@ -316,14 +376,16 @@ views.research=()=>{
 };
 
 /* ============ SOP ============ */
+async function buildSop(q){
+  let it=findLib('sop',q);if(it)return it;
+    const d=await aj(`Write a Standard Operating Procedure for the SAP scenario "${q}" in S/4HANA that anyone can follow. Start from what triggers this process (what happens just before it) and end with the hand-off to the next process. ${S.set.research?'Use Google Search for current S/4HANA details. ':''}Return ONLY JSON: {"story":"the scenario in simple words, like a story","roles":[{"who":"","does":""}],"steps":[{"step":"what to do","who":"role","where":"tcode or Fiori app (ID)","config_needed":"what must be configured for this step to work, with SPRO path","if_missing":"what goes wrong if that config/step is missing: the SAP message text and number if known","fix":"how to fix it","check":"how to check the step worked"}],"handoffs":["module to module handoff"],"daily_ops":["how it runs day to day, monitoring"],"controls":["control or audit point"],"integrations":[{"system":"system or module it touches","how":"interface type and what data flows"}],"industry_variations":["how this differs in retail DSD, oil and gas dynamic pricing, pharma, automotive and similar, only where it truly differs"],"interview_angles":["how to talk about this in an interview"]}. 8-14 steps in the real order.`,{search:!!S.set.research});
+  if(!arr(d.steps).length)throw new Error('BADJSON');
+  it={id:uid(),kind:'sop',title:q,created:dkey(),data:d,src:LASTSRC.slice()};S.lib.unshift(it);save();return it;
+}
 async function doSop(q){
   q=clean(q);if(!q)return toast('Type a scenario first',true);
   let it=findLib('sop',q);
-  if(!it)await run(`Building the SOP for "${q}"…`,async()=>{
-    const d=await aj(`Write a Standard Operating Procedure for the SAP scenario "${q}" in S/4HANA that anyone can follow. ${S.set.research?'Use Google Search for current S/4HANA details. ':''}Return ONLY JSON: {"story":"the scenario in simple words, like a story","roles":[{"who":"","does":""}],"steps":[{"step":"what to do","who":"role","where":"tcode or Fiori app (ID)","config_needed":"what must be configured for this step to work, with SPRO path","if_missing":"what goes wrong if that config/step is missing: the SAP message text and number if known","fix":"how to fix it","check":"how to check the step worked"}],"handoffs":["module to module handoff"],"daily_ops":["how it runs day to day, monitoring"],"controls":["control or audit point"],"interview_angles":["how to talk about this in an interview"]}. 8-14 steps in the real order.`,{search:!!S.set.research});
-    if(!arr(d.steps).length)throw new Error('BADJSON');
-    it={id:uid(),kind:'sop',title:q,created:dkey(),data:d,src:LASTSRC.slice()};S.lib.unshift(it);save();
-  });
+  if(!it)await run(`Building the SOP for "${q}"…`,async()=>{it=await buildSop(q)});
   if(it){U.open.sop=it.id;U.tab='sop';render()}
 }
 function sopHtml(it){
@@ -333,7 +395,7 @@ function sopHtml(it){
   return `<div class="card"><h2>📋 ${esc(it.title)}</h2><button class="btn" data-a="say" data-id="${id}">🎧 Listen to the SOP</button><button class="btn alt" data-a="toInterview" data-t="${esc(it.title)}">🎙️ Mock interview</button><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>${srcHtml(it.src)}<p style="font-size:18px">${esc(str(d.story))}</p></div>
   ${sec('👥 Who does what',arr(d.roles).length?`<table>${arr(d.roles).map(r=>`<tr><td><b>${esc(str(r.who))}</b></td><td>${esc(str(r.does))}</td></tr>`).join('')}</table>`:'')}
   <div class="card"><h3>🪜 Steps</h3>${arr(d.steps).map((s,i)=>`<details ${i===0?'open':''}><summary>${i+1}. ${esc(str(s.step))}</summary><p>👤 <b>${esc(str(s.who))}</b> · 📍 ${esc(str(s.where))}</p><p>⚙️ <b>Config needed:</b> ${esc(str(s.config_needed))}</p><p>🚨 <b>If missing:</b> ${esc(str(s.if_missing))}</p><p>🔧 <b>Fix:</b> ${esc(str(s.fix))}</p><p>✅ <b>Check:</b> ${esc(str(s.check))}</p></details>`).join('')}</div>
-  ${sec('🤝 Handoffs',li(d.handoffs))}${sec('📆 Day-to-day running',li(d.daily_ops))}${sec('🛡️ Controls',li(d.controls))}${sec('🎤 Interview angles',li(d.interview_angles))}`;
+  ${sec('🔌 Integrations',arr(d.integrations).length?`<table>${arr(d.integrations).map(x=>`<tr><td><b>${esc(str(x.system))}</b></td><td>${esc(str(x.how))}</td></tr>`).join('')}</table>`:'')}${sec('🏭 Industry variations',li(d.industry_variations))}${sec('🤝 Handoffs',li(d.handoffs))}${sec('📆 Day-to-day running',li(d.daily_ops))}${sec('🛡️ Controls',li(d.controls))}${sec('🎤 Interview angles',li(d.interview_angles))}`;
 }
 views.sop=()=>{const it=getOpen('sop');return `<div class="card"><h2>📋 SOP Builder</h2><p class="mut">Type any SAP scenario. You get the story, each step, the config behind it, the error you see if it is missing, and the fix.</p><div class="row">${inp('sQ','e.g. STO, consignment, credit block on sales order, returns','sop')}<button class="btn" data-a="sop">Build the SOP</button></div>${recent('sop','openSop')}</div>${it?sopHtml(it):''}`};
 
@@ -376,7 +438,7 @@ function courseHtml(it){
 views.course=()=>{const it=getOpen('course');return `<div class="card"><h2>🎓 Learn a topic like a course</h2><p class="mut">Type any topic. You get 8-10 short lessons from zero to executive level, each with an analogy, the SAP screens, an example, a quiz and audio. Lessons are prepared in the background.</p><div class="row">${inp('cQ','e.g. SAP SD from scratch, pricing, S/4HANA migration','course')}<button class="btn" data-a="course">Create the course</button></div>${recent('course','openCourse')}</div>${bgLine()}${it?courseHtml(it):''}`};
 
 /* ============ INTERVIEW ============ */
-const ROUNDS=['Executive / VP panel','Functional deep-dive','Leadership and behavioral','Company-specific','Screening call'];
+const ROUNDS=['OTC consultant: technical and configuration','OTC consultant: scenario and case study','Lead / solution architect','Executive / VP panel','Functional deep-dive','Leadership and behavioral','Company-specific','Screening call'];
 async function doInterview(){
   const q=clean(U.m.iQ),round=U.m.iRound||ROUNDS[0],co=clean(U.m.iCo);
   if(!q&&!co)return toast('Type a topic or a company first',true);
@@ -424,27 +486,61 @@ views.interview=()=>{const it=getOpen('interview');return `<div class="card"><h2
   <label>Round</label>${sel('iRound',ROUNDS,ROUNDS[0])}<div class="row"><div><label>Topic</label>${inp('iQ','e.g. Order-to-Cash transformation, S/4HANA migration','interview')}</div><div><label>Company (optional)</label>${inp('iCo','e.g. a company you are interviewing with','interview')}</div></div>
   <button class="btn" data-a="interview">Create the interview</button>${recent('interview','openInterview')}</div>${it?interviewHtml(it):''}`};
 
+
+/* ============ JOULE ============ */
+const PERSONAS=['OTC consultant','Sales manager','Order desk / customer service','Finance: credit and collections','Logistics and warehouse','VP / executive'];
+async function doJoule(){
+  const persona=U.m.jPersona||PERSONAS[0],stage=clean(U.m.jStage)||'the whole order-to-cash process';
+  const title=`Joule prompts: ${persona} · ${stage}`;let it=findLib('joule',title);
+  if(!it)await run('Building the Joule prompt library…',async()=>{
+    const d=await aj(`Research what SAP Joule can actually do today inside SAP S/4HANA (Cloud Public Edition and Private Edition) and related SAP products for ${stage}, for this person: ${persona}. Use SAP Learning, help.sap.com, SAP product pages and SAP Community. Return ONLY JSON: {"summary":"3 simple sentences on what Joule can do here","prompts":[{"prompt":"the exact natural-language prompt to type into Joule","what_happens":"what Joule does and returns","needs":"app, catalog, OData service or licence (Joule Base or Premium) it relies on","status":"available now|limited|roadmap|unknown","limits":"what it cannot do"}],"tips":["how to prompt Joule better"],"fallback":"what to do in standard Fiori apps or transactions when Joule cannot help"}. Give 10 prompts. Mark anything you cannot confirm as unknown. Never invent features.`,{search:!!S.set.research});
+    if(!arr(d.prompts).length)throw new Error('BADJSON');
+    it={id:uid(),kind:'joule',title,created:dkey(),data:d,src:LASTSRC.slice()};S.lib.unshift(it);save();
+  });
+  if(it){U.open.joule=it.id;U.tab='joule';render()}
+}
+async function jouleTry(){
+  const t=clean(U.m.jTry);if(t.length<5)return toast('Type a prompt to try',true);
+  await run('Reviewing your prompt…',async()=>{
+    U.jTry=await aj(`A learner is practising prompts for SAP Joule in S/4HANA order-to-cash. Their prompt: "${t}". You cannot run Joule. Coach the prompt and predict, carefully and honestly, what Joule would likely do. Return ONLY JSON: {"score":7,"clear":["what is good"],"improve":["what to add: object, document number, time period, customer, goal"],"better_prompt":"an improved prompt","expected_result":"what Joule would likely return and the data or app it would use","could_go_wrong":"what might fail, for example missing catalog, service not activated or edition not supported"}`,{nocache:true,temp:0.3});
+  });
+}
+views.joule=()=>{
+  const it=getOpen('joule'),d=it&&it.data;
+  return `<div class="card"><h2>✨ Joule: SAP's AI copilot</h2>
+  <p>Joule is SAP's AI assistant inside SAP products. You talk to it in plain language, and it can look things up, explain, summarize and in some cases act. <b>Joule only runs inside SAP products you are licensed for. This app cannot connect to it.</b> What this tab does is teach you what Joule can do in order-to-cash, give you prompts to try in a real system, and let you practise prompting.</p>
+  <h3>What SAP Learning says (checked Nov 2026; verify for your release)</h3>
+  <ul><li>Joule has four kinds of capability: transactional (create, read, update), navigational, informational and analytical.</li><li>Sales order status check: tells you if an order is on track and flags blocks such as credit, delivery and billing, with likely causes and next steps. SAP lists it under Joule Base.</li><li>Sales order fulfillment monitoring is listed under Joule Premium, priced by AI units. Check your edition.</li><li>Related Business AI features: sales order completion (suggests values for empty fields) and smart summarization of object pages.</li><li>It needs the right Fiori catalogs for the user and the backend OData services activated.</li></ul>
+  <div>• ${link('https://learning.sap.com/courses/implementing-sap-s-4hana-cloud-public-edition-sales-fundamental-business-processes/introducing-sap-joule-core-capabilities','SAP Learning: Introducing SAP Joule core capabilities')}</div><div>• ${link('https://learning.sap.com/courses/implementing-sap-s-4hana-cloud-public-edition-sales-fundamental-business-processes/checking-sales-order-status-with-joule','SAP Learning: Checking sales order status with Joule')}</div>
+  <button class="btn" data-a="packTag" data-t="SAP Joule for Order-to-Cash">🔎 Full research pack on Joule for OTC</button><button class="btn alt" data-a="toCourse" data-t="SAP Joule and Business AI for Order-to-Cash">🎓 Course</button><button class="btn alt" data-a="toInterview" data-t="Joule and AI in Order-to-Cash">🎙️ Mock interview</button></div>
+  <div class="card"><h2>🧰 Joule prompt library</h2><p class="mut">Researched prompts for a role and a part of the process, with what each needs and what it cannot do.</p>
+  <div class="row"><div><label>Who is asking</label>${sel('jPersona',PERSONAS,PERSONAS[0])}</div><div><label>Part of OTC (optional)</label>${inp('jStage','e.g. credit blocks, billing, returns','joule')}</div></div><button class="btn" data-a="joule">Build the prompt library</button>${recent('joule','openJoule')}</div>
+  ${d?`<div class="card"><h3>${esc(it.title)}</h3><p>${esc(str(d.summary))}</p>${srcHtml(it.src)}${arr(d.prompts).map(p=>`<details><summary><span class="pill">${esc(str(p.status))}</span>${esc(str(p.prompt))}</summary><p><b>What happens:</b> ${esc(str(p.what_happens))}</p><p><b>Needs:</b> ${esc(str(p.needs))}</p><p><b>Limits:</b> ${esc(str(p.limits))}</p>${say(str(p.prompt)+'. '+str(p.what_happens),'Joule prompt')}</details>`).join('')}${sec('💡 Prompting tips',li(d.tips))}${sec('🛟 When Joule cannot help',d.fallback?`<p>${esc(str(d.fallback))}</p>`:'')}<button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button></div>`:''}
+  <div class="card"><h2>🎯 Practise a prompt</h2><textarea data-m="jTry" placeholder="e.g. Show me sales orders for customer ... that are blocked, and why">${M('jTry')}</textarea><button class="btn" data-a="jouleTry">Coach my prompt</button>
+  ${U.jTry?`<div class="fb info"><b>Score ${esc(str(U.jTry.score))}/10</b>${arr(U.jTry.clear).length?li(U.jTry.clear):''}<b>Improve:</b>${li(U.jTry.improve)}<b>Better prompt:</b> ${esc(str(U.jTry.better_prompt))}<br><b>Likely result:</b> ${esc(str(U.jTry.expected_result))}<br><b>Could go wrong:</b> ${esc(str(U.jTry.could_go_wrong))}<p class="mut">This is a prediction by the AI coach, not a real Joule answer. Try the prompt in your SAP system to confirm.</p></div>`:''}</div>`;
+};
+
 /* ============ MENTOR ============ */
 views.mentor=()=>`<div class="card"><h2>🧑‍🏫 Mentor</h2><div class="chat" id="chat">${S.chat.length?S.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}${m.r==='m'?' '+say(m.t,'Mentor'):''}${arr(m.src).length?`<div class="mut">🔎 ${arr(m.src).map(x=>link(x.uri,x.title||'source')).join(' · ')}</div>`:''}</div>`).join(''):'<p class="mut">Ask anything: "what is a pricing procedure?", "how do I answer why S/4HANA?", "explain ATP like I am five". I explain simply first, then go deeper.</p>'}${U.load?'<div class="msg m">…</div>':''}</div>
-  <div class="row"><textarea data-m="chatIn" style="min-height:64px" placeholder="Type your question…">${M('chatIn')}</textarea><button class="btn" data-a="send">Send ➤</button><button class="btn alt" data-a="mic">${U.listening?'🔴':'🎤'}</button></div><button class="btn sm alt" data-a="chatClear">🧹 Clear chat</button></div>`;
+  <div class="row"><textarea data-m="chatIn" style="min-height:64px" placeholder="Type your question…">${M('chatIn')}</textarea><button class="btn" data-a="send">Send ➤</button><button class="btn alt" data-a="mic">${U.listening?'🔴':'🎤'}</button></div><div><button class="btn alt" data-a="mentorNext">📍 Teach me the next topic</button><button class="btn alt" data-a="mentorQuiz">📝 Quiz me</button><button class="btn alt" data-a="mentorWhy">🤔 Why does this matter in an interview?</button></div><button class="btn sm alt" data-a="chatClear">🧹 Clear chat</button></div>`;
 async function sendChat(){
   const t=clean(U.m.chatIn);if(!t)return;U.m.chatIn='';S.chat.push({r:'u',t});S.chat=S.chat.slice(-60);save();
   await run('Mentor is thinking…',async()=>{
     const hist=S.chat.slice(-12).map(m=>({role:m.r==='u'?'user':'model',text:m.t}));while(hist.length&&hist[0].role!=='user')hist.shift();
-    const reply=await at('',{contents:hist,temp:0.6,search:!!S.set.research,sys:'You are chatting as the mentor. Answer in under 170 words: first the simple explanation with an analogy, then the real SAP detail (tcode/app/config), then how to say it in an executive interview. End with one question that checks understanding or one next step.'});
+    const reply=await at('',{contents:hist,temp:0.6,search:!!S.set.research,sys:`Learner progress on the OTC roadmap: ${allTopics().filter(isDone).length} of ${allTopics().length} core topics done; most recent done: ${allTopics().filter(isDone).slice(-3).join('; ')||'none yet'}; next planned: ${nextTopic()||'finished'}. `+'You are chatting as the mentor. Answer in under 170 words: first the simple explanation with an analogy, then the real SAP detail (tcode/app/config), then how to say it in an executive interview. End with one question that checks understanding or one next step.'});
     S.chat.push({r:'m',t:reply,src:LASTSRC.slice(0,4)});S.chat=S.chat.slice(-60);save();
   });
 }
 
 /* ============ LIBRARY + SETTINGS ============ */
-const KNAME={pack:['🔎','Research packs','openPack'],sop:['📋','SOPs','openSop'],course:['🎓','Courses','openCourse'],interview:['🎙️','Interviews','openInterview']};
+const KNAME={joule:['✨','Joule prompt libraries','openJoule'],pack:['🔎','Research packs','openPack'],sop:['📋','SOPs','openSop'],course:['🎓','Courses','openCourse'],interview:['🎙️','Interviews','openInterview']};
 views.library=()=>`<div class="card"><h2>📚 My library</h2><p class="mut">Everything you built is saved in this browser and opens instantly, with no new AI call.</p>${Object.entries(KNAME).map(([k,[e,n,act]])=>`<h3>${e} ${n} (${libOf(k).length})</h3>${libOf(k).map(x=>`<div class="row" style="border-bottom:1px solid var(--line)"><button class="lib ready" style="text-align:left" data-a="${act}" data-id="${x.id}">${esc(x.title)}</button><span class="mut" style="flex:0 0 auto">${esc(x.created)}</span><button class="btn sm bad" data-a="del" data-id="${x.id}">🗑️</button></div>`).join('')||'<p class="mut">Nothing yet.</p>'}`).join('')}</div>
   <div class="card"><h2>💾 Backup (move to phone or another laptop)</h2><button class="btn" data-a="backup">⬇️ Download backup</button><label>Restore from a backup file</label><input type="file" accept=".json,application/json" id="restore"></div>`;
 views.settings=()=>{
   const u=S.usage.day===dkey()?S.usage:{calls:0,tokens:0,bg:0},v=enVoices(),vo=[['','Automatic']].concat(v.map(x=>[x.name,x.name+' ('+x.lang+')']));
   return `${!hasKey()?'<div class="card"><h2>👋 One step to start</h2><p>Paste your Gemini key below and press Save key. Then open Research and type any topic.</p></div>':''}
   <div class="card"><h2>🔑 Gemini key</h2><p class="mut">Saved only in this browser, sent only to Google. Get one at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>.</p><input type="password" data-m="keyIn" value="${M('keyIn')}" placeholder="${hasKey()?'●●●● key saved (paste to replace)':'Paste key'}" autocomplete="off"><button class="btn" data-a="saveKey">💾 Save key</button><button class="btn alt" data-a="testKey">🧪 Test</button><button class="btn alt" data-a="delKey">Remove</button></div>
-  <div class="card"><h2>🎯 About me (shapes every answer)</h2><label>Target role</label><input data-m="sRole" value="${esc(U.m.sRole??S.set.role)}"><label>Where I am now</label>${sel('sStage',[['prep','Preparing for interviews'],['role','I am in the role now (help me do the job)']],S.set.stage)}<label>My background (optional)</label><input data-m="sBack" value="${esc(U.m.sBack??S.set.background)}" placeholder="e.g. 15 years in supply chain operations, new to SAP config"><label>Focus area</label><input data-m="sFocus" value="${esc(U.m.sFocus??S.set.focus)}">
+  <div class="card"><h2>🎯 About me (shapes every answer)</h2><label>My level</label>${sel('sLevel',[['scratch','Beginner: teach me from zero'],['consultant','OTC consultant'],['lead','Lead / architect'],['vp','VP / executive']],S.set.level||'scratch')}<label>Target role</label><input data-m="sRole" value="${esc(U.m.sRole??S.set.role)}"><label>Where I am now</label>${sel('sStage',[['prep','Preparing for interviews'],['role','I am in the role now (help me do the job)']],S.set.stage)}<label>My background (optional)</label><input data-m="sBack" value="${esc(U.m.sBack??S.set.background)}" placeholder="e.g. 15 years in supply chain operations, new to SAP config"><label>Focus area</label><input data-m="sFocus" value="${esc(U.m.sFocus??S.set.focus)}">
   <h3>🔊 Voices</h3><label>Interviewer / narrator voice</label>${sel('sVA',vo,S.set.voiceA)}<label>Candidate voice</label>${sel('sVB',vo,S.set.voiceB)}<button class="btn sm alt" data-a="voiceTest">▶ Test both voices</button>
   <h3>⚙️ AI</h3><label>Research mode (live Google Search)</label>${sel('sRes',[['1','On — latest information'],['0','Off — faster, uses less quota']],S.set.research?'1':'0')}
   <label>Background builder (prepares course lessons and unfinished research while this page is open)</label>${sel('sBg',[['1','On'],['0','Off']],S.set.bg?'1':'0')}
@@ -464,6 +560,7 @@ async function builderTick(){
   let job=null;
   for(const c of libOf('course')){const i=c.data.lessons.findIndex(l=>!l.body&&(l.tries||0)<3);if(i>=0){job={label:`${c.title} — lesson ${i+1}`,fn:()=>buildLesson(c,i),fail:()=>{c.data.lessons[i].tries=(c.data.lessons[i].tries||0)+1}};break}}
   if(!job)for(const p of libOf('pack')){const part=PARTS.find(x=>!p.data[x]);if(part&&(p.tries||0)<3){job={label:`${p.title} — research`,fn:async()=>{p.data[part]=await aj(packPrompt(part,p.title,p.sub),{search:!!S.set.research});p.built=dkey()},fail:()=>{p.tries=(p.tries||0)+1}};break}}
+  if(!job){const q=S.queue.find(x=>(x.tries||0)<3);if(q)job={label:`${q.title} (SOP)`,fn:async()=>{await buildSop(q.title);S.queue=S.queue.filter(x=>x!==q)},fail:()=>{q.tries=(q.tries||0)+1}}}
   if(!job&&S.set.research){const old=libOf('pack').find(p=>p.built&&(Date.now()-new Date(p.built+'T12:00:00').getTime())>30*864e5&&PARTS.every(x=>p.data[x]));
     if(old)job={label:`${old.title} — monthly refresh for the latest information`,fn:async()=>{for(const part of PARTS){const keep=part==='v'&&old.data.v;const d=await aj(packPrompt(part,old.title,old.sub),{search:true,nocache:true});old.data[part]=d;S.usage.bg=(S.usage.bg||0)+1}old.built=dkey();old.refreshed=dkey()},fail:()=>{old.built=dkey()}}}
   if(!job){BG.note='';return}
@@ -471,16 +568,16 @@ async function builderTick(){
   try{await job.fn();BG.last=job.label}catch(e){job.fail();BG.note=errMsg(e)}
   S.usage.bg=(S.usage.bg||0)+1;BG.busy=false;BG.now='';save();softRender();
 }
-function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(['research','course','library','settings'].includes(U.tab))render()}
+function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(['roadmap','research','course','library','settings','joule'].includes(U.tab))render()}
 function bgLine(){
   if(!hasKey())return '<div class="bgl">🤖 Waiting for a Gemini key (Settings).</div>';
   if(!S.set.bg)return '<div class="bgl">🤖 Background builder is off (Settings).</div>';
-  const q=libOf('course').reduce((n,c)=>n+c.data.lessons.filter(l=>!l.body).length,0)+libOf('pack').filter(p=>PARTS.some(x=>!p.data[x])).length;
+  const q=S.queue.length+libOf('course').reduce((n,c)=>n+c.data.lessons.filter(l=>!l.body).length,0)+libOf('pack').filter(p=>PARTS.some(x=>!p.data[x])).length;
   return `<div class="bgl">🤖 <b>Background builder — On</b> (while this page is open, one item a minute) · ${BG.now?'building: <b>'+esc(BG.now)+'</b>':'idle'} · ${q} queued · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${BG.last?' · last built: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''}</div>`;
 }
 
 /* ============ render + events ============ */
-const TABS=[['research','🔎','Research','Topic, industry or company → everything'],['sop','📋','SOP Builder','Step by step, errors and fixes'],['course','🎓','Course','Learn a topic from zero, with audio'],['interview','🎙️','Mock Interview','Two voices, then your turn'],['mentor','🧑‍🏫','Mentor','Ask anything, explained simply'],['library','📚','Library','Everything you built, backup'],['settings','⚙️','Settings','Key, role, voices, models']];
+const TABS=[['roadmap','🗺️','OTC Roadmap','Start here: learn from zero, step by step'],['research','🔎','Research','Topic, industry or company → everything'],['sop','📋','SOP Builder','Step by step, errors and fixes'],['course','🎓','Course','Learn a topic from zero, with audio'],['interview','🎙️','Mock Interview','Two voices, then your turn'],['joule','✨','Joule','SAP AI copilot: what it does, prompts'],['mentor','🧑‍🏫','Mentor','Ask anything, explained simply'],['library','📚','Library','Everything you built, backup'],['settings','⚙️','Settings','Key, role, voices, models']];
 function render(){
   for(const k in SPK)delete SPK[k];
   const y=window.scrollY;
@@ -495,6 +592,12 @@ function go(t){U.tab=t;render();window.scrollTo(0,0)}
 const openIt=k=>d=>{U.open[k]=d.id;if(k==='course')U.lesson=null;if(k==='interview')U.iv=null;go(k==='pack'?'research':k)};
 const A={
   tab:d=>go(d.t),
+  stg:d=>{U.stg[d.id]=!U.stg[d.id];render()},
+  rmDone:d=>{const k=norm(d.t);if(S.prog[k])delete S.prog[k];else{S.prog[k]=dkey();toast('Nice. Topic done ✅')}save();render()},
+  rmQueue:d=>{const st=stageById(d.id);let n=0;st[3].forEach(t=>{if(!findLib('sop',t)&&!S.queue.some(q=>norm(q.title)===norm(t))){S.queue.push({kind:'sop',title:t,tries:0});n++}});save();toast(n?n+' SOPs queued. They build in the background while this page is open (one a minute).':'Everything here is already built or queued');render()},
+  mentorNext:()=>{const nx=nextTopic();U.m.chatIn=nx?`Teach me "${nx}" from scratch like I am five and I know nothing about SAP. Start with a story, then the SAP detail, then check my understanding with one question.`:'I finished the core roadmap. What should I master next to be ready for interviews?';go('mentor');sendChat()},
+  mentorQuiz:()=>{const d=allTopics().filter(isDone).slice(-4);U.m.chatIn=d.length?`Quiz me with 3 short questions, one at a time, on what I have learned: ${d.join('; ')}. Start with question 1.`:'Quiz me with 3 beginner questions about order-to-cash, one at a time.';go('mentor');sendChat()},
+  mentorWhy:()=>{const nx=nextTopic()||'order-to-cash';U.m.chatIn=`Why does "${nx}" matter in an OTC consultant interview, and how would an interviewer test me on it?`;go('mentor');sendChat()},
   pack:()=>doPack(U.m.pQ,U.m.pKind||'topic'),packTag:d=>{U.m.pQ=d.t;doPack(d.t,'topic')},openPack:openIt('pack'),
   packFresh:()=>{const it=getOpen('pack');if(it&&confirm('Research this again for the latest information?'))doPack(it.title,it.sub,true)},
   packResume:()=>{const it=getOpen('pack');if(it)run('Researching…',()=>buildPack(it))},
@@ -507,7 +610,7 @@ const A={
   vidPlay:(d,el)=>{const b=el.closest('.vid');el.outerHTML=`<iframe style="flex:1 1 100%;width:100%;aspect-ratio:16/9;border:0;border-radius:10px" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(d.id)}?rel=0" allow="accelerometer;encrypted-media;picture-in-picture" allowfullscreen></iframe>`},
   vidSum:d=>vidSum(+d.i),
   quiz:d=>{U.quiz[d.k]=+d.i;render()},
-  interview:doInterview,openInterview:openIt('interview'),
+  interview:doInterview,openInterview:openIt('interview'),openJoule:openIt('joule'),joule:doJoule,jouleTry:jouleTry,
   ivStart:()=>{const it=getOpen('interview');if(it)ivStart(it)},ivCheck:ivCheck,
   ivMic:()=>listen(t=>{U.m.ivAns=(U.m.ivAns?U.m.ivAns+' ':'')+t;render()}),
   ivNext:()=>{const V=U.iv;V.i++;V.fb=null;U.m.ivAns='';render();play([{text:V.qs[V.i],role:'a'}],'Interviewer')},
@@ -524,7 +627,7 @@ const A={
   delKey:()=>{LS.del('sc_key');toast('Key removed');render()},
   testKey:()=>run('Testing…',async()=>{const t=await at('Reply with the single word OK.',{fast:true});toast('✅ Works: '+t.slice(0,30))}),
   voiceTest:()=>{S.set.voiceA=U.m.sVA??S.set.voiceA;S.set.voiceB=U.m.sVB??S.set.voiceB;play([{text:'Hello, I am your interviewer. Tell me about your SAP experience.',role:'a'},{text:'Thank you. I have led order to cash programs on S four HANA.',role:'b'}],'Voice test')},
-  saveSet:()=>{const s=S.set,m=U.m;s.role=(m.sRole??s.role).trim()||DEF.role;s.background=clean(m.sBack??s.background);s.focus=(m.sFocus??s.focus).trim();s.stage=m.sStage??s.stage;s.voiceA=m.sVA??s.voiceA;s.voiceB=m.sVB??s.voiceB;
+  saveSet:()=>{const s=S.set,m=U.m;s.role=(m.sRole??s.role).trim()||DEF.role;s.background=clean(m.sBack??s.background);s.focus=(m.sFocus??s.focus).trim();s.stage=m.sStage??s.stage;s.level=m.sLevel??s.level;s.voiceA=m.sVA??s.voiceA;s.voiceB=m.sVB??s.voiceB;
     if(m.sRes!=null)s.research=m.sRes==='1';if(m.sBg!=null)s.bg=m.sBg==='1';s.bgMax=Math.max(0,parseInt(m.sBgMax??s.bgMax)||0);s.limit=Math.max(0,parseInt(m.sLimit??s.limit)||0);
     s.model=(m.sModel??s.model).trim()||DEF.model;s.fast=(m.sFast??s.fast).trim()||DEF.fast;save();toast('Settings saved ✅');render()},
   backup:()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'SAPCoach',v:1,date:new Date().toISOString(),state:Object.assign({},S,{cache:{}})})],{type:'application/json'}));a.download='SAPCoach-backup-'+dkey()+'.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded 💾 (the key is not included)')}
