@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAP Coach</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#1d2433;--mut:#5d6b82;--pri:#4f46e5;--pri2:#e0e7ff;--ok:#16a34a;--okbg:#dcfce7;--bad:#dc2626;--badbg:#fee2e2;--line:#d9e0ec;--warn:#fef3c7}
+@media (prefers-color-scheme:dark){:root{--bg:#10141d;--card:#1a2030;--ink:#eef1f8;--mut:#9aa7bf;--pri:#818cf8;--pri2:#2a3050;--ok:#4ade80;--okbg:#14301f;--bad:#f87171;--badbg:#3a1a1a;--line:#2c3550;--warn:#3a321a}}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:110px}
+header{background:var(--pri);color:#fff;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}header span{margin-left:auto;font-size:14px}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 16px;max-width:980px;margin:0 auto}
+nav button{border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:13px;padding:10px 12px;border-radius:14px;cursor:pointer;text-align:left;line-height:1.3}
+nav button b{display:block;font-size:16px}nav button span{color:var(--mut)}
+nav button.on{background:var(--pri2);border-color:var(--pri)}
+main{max-width:980px;margin:0 auto;padding:4px 16px 30px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0}
+h2{font-size:22px;margin:4px 0 8px}h3{font-size:18px;margin:4px 0 6px}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--pri);color:#fff;border:0;border-radius:12px;padding:10px 18px;font-size:16px;font-weight:600;cursor:pointer;margin:4px 4px 4px 0}
+.btn.alt{background:var(--pri2);color:var(--pri)}.btn.bad{background:var(--bad)}.btn.sm{padding:5px 11px;font-size:14px;border-radius:9px}
+input,select,textarea{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:4px 0}
+textarea{min-height:90px}label{font-size:14px;color:var(--mut);display:block;margin-top:6px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1 1 160px}.row>.btn{flex:0 0 auto}
+.mut{color:var(--mut);font-size:14px}
+.tag{display:inline-block;background:var(--pri2);color:var(--pri);border-radius:99px;padding:3px 12px;margin:3px 4px 3px 0;font-size:14px;cursor:pointer;border:0}
+.pill{display:inline-block;border-radius:99px;padding:1px 9px;font-size:12px;background:var(--warn);margin-right:6px}
+.load{background:var(--warn);padding:12px;border-radius:12px;font-weight:600;margin:10px 0}
+.bgl{font-size:13px;color:var(--mut);background:var(--okbg);border-radius:10px;padding:8px 12px;margin:10px 0}
+.lib{display:inline-block;border:2px solid var(--line);border-radius:10px;padding:4px 10px;margin:3px;font-size:14px;background:var(--card);color:var(--ink);cursor:pointer}.lib.ready{border-color:var(--ok);background:var(--okbg)}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 14px;margin:6px 0;font-size:16px;color:var(--ink);cursor:pointer}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}.opt.no{border-color:var(--bad);background:var(--badbg)}
+.fb{padding:10px 14px;border-radius:12px;margin:8px 0}.fb.ok{background:var(--okbg)}.fb.no{background:var(--badbg)}.fb.info{background:var(--warn)}
+.turn{padding:10px 14px;border-radius:14px;margin:8px 0;max-width:88%}.turn.a{background:var(--pri2)}.turn.b{background:var(--okbg);margin-left:auto}.turn.now{outline:3px solid var(--pri)}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto;padding:6px}
+.msg{padding:10px 14px;border-radius:16px;max-width:88%;white-space:pre-wrap}.msg.u{align-self:flex-end;background:var(--pri);color:#fff}.msg.m{align-self:flex-start;background:var(--pri2)}
+details{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0;background:var(--card)}summary{cursor:pointer;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:15px}td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+ol,ul{padding-left:22px;margin:6px 0}li{margin:4px 0}
+#bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--pri);padding:8px 14px;display:none;z-index:50}
+#bar .t{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 18px;border-radius:14px;z-index:99;max-width:90%;display:none}#toast.err{background:#b91c1c}
+a{color:var(--pri)}
+@media (max-width:640px){nav{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="bar"></div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ============ helpers ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const dkey=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const arr=x=>Array.isArray(x)?x:(x==null||x===''?[]:[x]);
+const str=x=>x==null?'':(typeof x==='object'?Object.values(x).map(v=>typeof v==='object'?JSON.stringify(v):v).join(' — '):String(x));
+const norm=s=>str(s).toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+const mem={};
+const LS={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return k in mem?JSON.parse(mem[k]):d}},
+  set(k,v){const s=JSON.stringify(v);try{localStorage.setItem(k,s);return true}catch(e){mem[k]=s;return false}},
+  raw(k){try{return localStorage.getItem(k)||''}catch(e){return mem['r'+k]||''}},
+  setRaw(k,v){try{localStorage.setItem(k,v)}catch(e){mem['r'+k]=v}},
+  del(k){try{localStorage.removeItem(k)}catch(e){delete mem['r'+k]}}
+};
+function toast(m,err){const t=$('#toast');t.textContent=m;t.className=err?'err':'';t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',err?7000:2600)}
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)+s.length.toString(36)};
+const scrub=t=>str(t).replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[email]').replace(/\+?\d[\d\s().-]{8,}\d/g,'[number]');
+const clean=t=>scrub(t).trim();
+
+/* ============ state ============ */
+const DEF={model:'gemini-3.8-flash',fast:'gemini-3.5-flash-lite',limit:0,research:true,bg:true,bgMax:40,role:'Executive / VP-level SAP leader',background:'',focus:'Order-to-Cash (SD) and its integrations',rate:1,voiceA:'',voiceB:'',stage:'prep'};
+let S=normState(LS.get('sc_state',null));
+function normState(s){s=s||{};s.set=Object.assign({},DEF,s.set||{});s.usage=s.usage||{day:'',calls:0,tokens:0,bg:0};s.cache=s.cache||{};s.lib=Array.isArray(s.lib)?s.lib:[];s.chat=Array.isArray(s.chat)?s.chat:[];return s}
+function save(){if(!LS.set('sc_state',S)){S.cache={};if(!LS.set('sc_state',S))toast('Browser storage is full. Delete old items in Library.',true)}}
+const hasKey=()=>!!LS.raw('sc_key');
+let LASTSRC=[];
+
+/* ============ Gemini ============ */
+const sysPrompt=()=>`You are SAP Coach: a patient senior SAP mentor and executive interview coach. The learner knows NOTHING about SAP or configuration. Teach like they are five years old first: plain words, everyday analogies, define every term and acronym the first time. Then go deeper, down to real configuration detail. ${S.set.stage==='role'?`The learner NOW HOLDS the role of ${S.set.role}. Help them perform it: decisions to make, governance, steering committees, budgets, vendor and system-integrator management, risks, KPIs, and the questions to ask their teams and partners (with what a good answer sounds like). Where a format asks for interview questions, give the questions a leader in this role gets asked by the board, peers, auditors and teams, plus questions to ask their own team.`:`Prepare them for ${S.set.role} interviews: business outcomes, risk, controls, program delivery and stakeholder language, in addition to hands-on detail.`} Accuracy rules: use real transaction codes, Fiori app names/IDs, SPRO/IMG paths, tables and SAP Note numbers only when you are confident; otherwise say "verify on help.sap.com". Prefer SAP S/4HANA (latest releases; mention Cloud Public Edition vs Private Edition/on-premise differences) and say which release introduced a feature when known. Never invent facts about a company; say what is publicly known and mark guesses as assumptions. Plain text only, no markdown, no LaTeX. Learner profile: target role: ${S.set.role}; background: ${S.set.background||'not given'}; focus area: ${S.set.focus||'general SAP'}. Today is ${dkey()}.${S.set.research?' '+ORDER:''}`;
+const ORDER='When you search, check sources in this order and prefer the earlier ones when they disagree: (1) official SAP documentation on help.sap.com, including product documentation, What\'s New / release notes and the Feature Scope Description; (2) the official SAP website: sap.com, SAP Learning, SAP Roadmap Explorer, SAP Best Practices / Signavio Process Navigator, SAP Fiori Apps Reference Library; (3) SAP Notes and Knowledge Base Articles (me.sap.com, support.sap.com, userapps.support.sap.com) for standard, SAP-recommended workarounds; (4) SAP Community (community.sap.com) blogs and question threads for real-world discussions and workarounds; (5) SAP Joule: what the Joule copilot can do for this topic and in which products/releases; (6) training videos and courses: YouTube (SAP official channels first, then reputable trainers) and the public pages of Udemy courses (use their titles, descriptions and curriculum outlines; you cannot watch paid content); (7) any other publicly available documentation (partner blogs, analyst and consulting articles). Say which kind of source a key fact comes from when it matters.';
+const RETRY_MS=()=>window.__fcFast?5:900;
+function errMsg(e){
+  const m=String(e&&e.message||e);
+  if(m==='NOKEY')return '🔑 Paste your Gemini key in Settings first.';
+  if(m==='LIMIT')return '⏸️ Daily AI limit reached (change it in Settings).';
+  if(/^HTTP 400/.test(m)&&/key/i.test(m))return '🔑 Google says the key is not valid. Check Settings.';
+  if(/^HTTP (401|403)/.test(m))return '🔑 Key rejected, or the Gemini API is not enabled for it.';
+  if(/^HTTP 404/.test(m))return '🤖 Model name not found. Fix the model names in Settings (see ai.google.dev/gemini-api/docs/models).';
+  if(/^HTTP 429/.test(m))return '🐢 Google rate limit hit. Wait a minute and try again.';
+  if(m==='BADJSON')return '😕 The AI answer was garbled. Please try again.';
+  if(/Failed to fetch|NetworkError|TypeError/i.test(m))return '📡 Cannot reach Google. Check the internet connection.';
+  return '⚠️ '+m.slice(0,200);
+}
+async function callGemini(body,model,fb){
+  const key=LS.raw('sc_key');if(!key)throw new Error('NOKEY');
+  const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0,bg:0};
+  if(Number(S.set.limit)>0&&S.usage.calls>=Number(S.set.limit))throw new Error('LIMIT');
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  let last;
+  for(let i=0;i<3;i++){
+    try{
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});
+      if(r.ok){
+        const j=await r.json();
+        S.usage.calls++;S.usage.tokens+=j.usageMetadata?.totalTokenCount||0;save();
+        LASTSRC=(j.candidates?.[0]?.groundingMetadata?.groundingChunks||[]).map(c=>c.web).filter(Boolean).slice(0,6);
+        const text=(j.candidates?.[0]?.content?.parts||[]).map(x=>x.text||'').join('').trim();
+        if(!text)throw new Error('The AI gave no answer ('+(j.promptFeedback?.blockReason||j.candidates?.[0]?.finishReason||'empty')+'). Try again.');
+        return text;
+      }
+      let msg='';try{msg=(await r.json()).error?.message||''}catch(e){}
+      last=new Error('HTTP '+r.status+' '+msg);
+      if(![429,500,502,503,504].includes(r.status))throw last;
+    }catch(e){
+      if(e===last&&!/^HTTP (429|5)/.test(e.message))throw e;
+      if(/^The AI gave no/.test(e.message))throw e;
+      last=e;
+    }
+    if(i<2)await new Promise(r=>setTimeout(r,RETRY_MS()*Math.pow(2,i)));
+  }
+  if(/^HTTP 429/.test(String(last&&last.message))&&model!==S.set.fast&&!fb)return callGemini(body,S.set.fast,true);
+  throw last;
+}
+function buildBody(prompt,o){
+  const contents=o.contents?o.contents.map(c=>({role:c.role,parts:[{text:scrub(c.text)}]})):[{role:'user',parts:[{text:scrub(prompt)}]}];
+  const body={systemInstruction:{parts:[{text:sysPrompt()+(o.sys?' '+o.sys:'')}]},contents,generationConfig:{temperature:o.temp??0.5}};
+  if(o.search)body.tools=[{google_search:{}}];else if(o.json)body.generationConfig.responseMimeType='application/json';
+  return body;
+}
+function parseJSON(t){
+  t=str(t).replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+  try{return JSON.parse(t)}catch(e){}
+  const a=t.search(/[\[{]/);if(a<0)throw new Error('BADJSON');
+  const b=t.lastIndexOf(t[a]==='{'?'}':']');
+  try{return JSON.parse(t.slice(a,b+1))}catch(e){throw new Error('BADJSON')}
+}
+async function aj(prompt,o={}){
+  const model=o.fast?S.set.fast:S.set.model;
+  const body=buildBody(prompt,Object.assign({json:true},o));
+  const ck=o.nocache?null:hash(model+JSON.stringify(body).replace(/Today is \d{4}-\d\d-\d\d/,''));
+  if(ck&&S.cache[ck]&&Date.now()-S.cache[ck].t<(o.search?7:30)*864e5){try{LASTSRC=S.cache[ck].s||[];return parseJSON(S.cache[ck].v)}catch(e){}}
+  let text,obj;
+  for(let k=0;k<2;k++){text=await callGemini(body,model);try{obj=parseJSON(text);break}catch(e){if(k)throw e}}
+  if(ck){S.cache[ck]={t:Date.now(),v:text,s:LASTSRC};const ks=Object.keys(S.cache);if(ks.length>60)ks.sort((a,b)=>S.cache[a].t-S.cache[b].t).slice(0,ks.length-40).forEach(k=>delete S.cache[k]);save()}
+  return obj;
+}
+const at=(prompt,o={})=>callGemini(buildBody(prompt,o),o.fast?S.set.fast:S.set.model);
+
+/* ============ voice player (two voices) ============ */
+const PL={q:[],i:0,on:false,title:'',cur:null,lock:null};
+const enVoices=()=>{try{return speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}catch(e){return []}};
+function pickVoice(role){const v=enVoices();if(!v.length)return null;const a=v.find(x=>x.name===S.set.voiceA)||v[0];const b=v.find(x=>x.name===S.set.voiceB)||v.find(x=>x!==a&&x.name.split(' ')[1]!==a.name.split(' ')[1])||v.find(x=>x!==a)||a;return role==='b'?b:a}
+function chunks(t){const out=[];str(t).split(/(?<=[.!?;:])\s+/).forEach(s=>{while(s.length>220){let k=s.lastIndexOf(' ',220);if(k<80)k=220;out.push(s.slice(0,k));s=s.slice(k)}if(s.trim())out.push(s.trim())});return out}
+function play(items,title){
+  if(!window.speechSynthesis)return toast('Voice is not supported in this browser',true);
+  speechSynthesis.cancel();PL.q=[];arr(items).forEach((it,n)=>chunks(it.text).forEach(c=>PL.q.push({t:c,r:it.role||'a',n})));
+  if(!PL.q.length)return;PL.i=0;PL.on=true;PL.title=title||'Listening';
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>PL.lock=l).catch(()=>{})}catch(e){}
+  speakNext();
+}
+function speakNext(){
+  if(!PL.on)return bar();
+  if(PL.i>=PL.q.length){PL.on=false;PL.i=0;try{PL.lock&&PL.lock.release()}catch(e){}return bar()}
+  const c=PL.q[PL.i],u=new SpeechSynthesisUtterance(c.t),v=pickVoice(c.r);
+  if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';
+  u.rate=Number(S.set.rate)||1;u.pitch=c.r==='b'?1.2:0.9;
+  u.onend=u.onerror=()=>{if(PL.cur!==u)return;PL.i++;speakNext()};
+  PL.cur=u;speechSynthesis.speak(u);bar();
+  document.querySelectorAll('.turn').forEach((e,i)=>e.classList.toggle('now',PL.on&&i===c.n&&U.tab==='interview'));
+}
+function plStop(){PL.on=false;PL.cur=null;try{speechSynthesis.cancel()}catch(e){}bar()}
+function bar(){
+  const b=$('#bar');if(!PL.q.length){b.style.display='none';return}
+  b.style.display='block';
+  b.innerHTML=`<div class="t">🎧 ${esc(PL.title)} · ${Math.min(PL.i+1,PL.q.length)}/${PL.q.length}</div>
+  <button class="btn sm alt" data-a="plBack">⏮ Back</button><button class="btn sm" data-a="plToggle">${PL.on?'⏸ Pause':'▶ Play'}</button><button class="btn sm alt" data-a="plFwd">Skip ⏭</button><button class="btn sm alt" data-a="plClose">✖ Close</button>
+  <select data-rate style="width:auto;display:inline-block;padding:4px 8px">${[0.8,1,1.2,1.5].map(r=>`<option value="${r}" ${Number(S.set.rate)===r?'selected':''}>${r}x</option>`).join('')}</select>`;
+}
+function listen(cb){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Microphone input is not supported here. Use Chrome or Edge, or type.',true);return}
+  plStop();const r=new SR();r.lang='en-US';r.interimResults=false;r.continuous=false;
+  r.onresult=e=>cb(e.results[0][0].transcript);r.onerror=e=>toast('Microphone: '+e.error,true);r.onend=()=>{U.listening=false;render()};
+  try{r.start();U.listening=true;render()}catch(e){toast('Could not start the microphone',true)}
+}
+
+/* ============ UI state + helpers ============ */
+const U={tab:'research',m:{},load:null,open:{},listening:false,iv:null,quiz:{}};
+async function run(label,fn){if(U.load)return toast('Still working on the last request…');U.load=label;render();try{await fn()}catch(e){toast(errMsg(e),true)}finally{U.load=null;render()}}
+const M=k=>esc(U.m[k]||'');
+const inp=(k,ph,en)=>`<input data-m="${k}" value="${M(k)}" placeholder="${esc(ph||'')}" ${en?`data-en="${en}"`:''}>`;
+const sel=(k,opts,dflt)=>`<select data-m="${k}">${opts.map(o=>{const v=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:o;return `<option value="${esc(v)}" ${(U.m[k]??dflt)===v?'selected':''}>${esc(l)}</option>`}).join('')}</select>`;
+const link=(u,t)=>/^https?:\/\//i.test(str(u))?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t||u)}</a>`:esc(t||'');
+const li=(a,ord)=>arr(a).length?`<${ord?'ol':'ul'}>${arr(a).map(x=>`<li>${esc(str(x))}</li>`).join('')}</${ord?'ol':'ul'}>`:'';
+const SPK={};let spkN=0;
+function say(text,title){const id='s'+(++spkN);SPK[id]={text,title};return `<button class="btn sm alt" data-a="say" data-id="${id}" title="Listen">🔊 Listen</button>`}
+const sec=(title,html,speech)=>html?`<div class="card"><h3>${title} ${speech?say(speech,title.replace(/^\S+\s/,'')):''}</h3>${html}</div>`:'';
+const TIERS=[[/help\.sap\.com/i,'Official docs'],[/(me|support|userapps\.support|launchpad\.support)\.sap\.com/i,'SAP Notes/KBA'],[/community\.sap\.com|blogs\.sap\.com|answers\.sap\.com/i,'SAP Community'],[/(^|[./ ])sap\.com/i,'SAP website']];
+const tierOf=x=>{const t=str(x.title)+' '+str(x.uri);const order=[0,3,1,2];for(const i of order)if(TIERS[i][0].test(t))return [[0,2,3,1][i],TIERS[i][1]];return [9,'Other public']};
+const srcHtml=s=>arr(s).length?`<div class="mut">🔎 Pages searched (official first): ${arr(s).map(x=>({x,t:tierOf(x)})).sort((a,b)=>a.t[0]-b.t[0]).map(o=>`<span class="pill">${o.t[1]}</span>${link(o.x.uri,o.x.title||'source')}`).join(' · ')}</div>`:'';
+const libOf=k=>S.lib.filter(x=>x.kind===k);
+const findLib=(k,title)=>S.lib.find(x=>x.kind===k&&norm(x.title)===norm(title));
+function getOpen(k){return S.lib.find(x=>x.id===U.open[k]&&x.kind===k)}
+function recent(k,act){const l=libOf(k).slice(0,12);return l.length?`<div class="mut" style="margin-top:6px">Saved:</div>${l.map(x=>`<button class="lib ready" data-a="${act}" data-id="${x.id}">${esc(x.title)}</button>`).join('')}`:''}
+
+/* ============ RESEARCH PACK ============ */
+const KINDS=[['topic','SAP topic / scenario'],['industry','Industry'],['company','Company']];
+function packPrompt(part,q,kind){
+  const what=kind==='company'?`the COMPANY "${q}" (research what it does, its publicly known SAP landscape, programs and news, and which SAP scenarios matter most there; tailor everything to it)`:kind==='industry'?`the INDUSTRY "${q}" (how SAP is used in it, the industry-specific processes and solutions, and which scenarios matter most)`:`the SAP topic or scenario "${q}"`;
+  const head=`Research ${what}. ${S.set.research?'Use Google Search for the latest information (SAP Help, SAP Community, SAP release notes, news). ':''}Return ONLY JSON, no other text: `;
+  if(part==='a')return head+`{"eli5":"explain it to a five-year-old in 6-9 sentences with an everyday analogy","context":"for a company or industry: what they do, what is publicly known about their SAP landscape and programs, and why it matters; for a topic: where it sits in SAP","scenario":"a concrete business scenario told as a short story","where_used":["industries, company types or situations where it is used"],"process_flow":["step in order, who does it"],"modules":["module or component — its role here"],"key_terms":[{"term":"","meaning":"simple meaning"}],"s4_look":[{"app":"Fiori app or transaction name","id":"Fiori app ID or tcode","what_you_see":"what the screen shows and what the user does"}],"related":["6 related topics to study next"]}`;
+  if(part==='b')return head+`{"prerequisites":["what must exist first"],"config_steps":[{"step":"","where":"SPRO/IMG path, tcode or Fiori config app","what":"what you set and why, in simple words","example":"example value"}],"master_data":["master data needed and where it is maintained"],"implementation":{"approach":"how to implement it in an S/4HANA environment","phases":[{"phase":"","activities":[""]}],"testing":["key test scenarios"],"risks":["risk and mitigation"]},"versions":[{"release":"S/4HANA release or year","what":"what is available or changed"}],"whats_new":["newest changes in the latest releases, with release names"],"cloud_vs_onprem":"differences between Cloud Public Edition and Private Edition/on-premise"}. Give 8-14 config steps in the real order.`;
+  if(part==='v')return `Use Google Search to find the best learning videos and courses for ${what}, especially ones that walk through the configuration on a real S/4HANA system. Return ONLY JSON, no other text: {"youtube":[{"title":"","url":"https://www.youtube.com/watch?v=...","channel":"","covers":"what it shows, extracted from its title, description and transcript if available","best_for":"which configuration step or section it helps with"}],"udemy":[{"title":"","url":"https://www.udemy.com/course/...","level":"","covers":"summary of the public curriculum: the sections and what you learn"}],"watch_order":["what to watch first, second, third and why"]}. 4-6 real YouTube videos (SAP official channels first) and 2-4 real Udemy courses. Only include items you actually found; never invent a URL.`;
+  return head+`{"issues":[{"issue":"common production issue","symptom":"error message/number or what the user sees","cause":"","fix":"step-by-step fix","prevent":""}],"interview":[{"level":"basic|functional|executive","q":"","answer":"strong model answer in first person, 3-6 sentences","tip":"what the interviewer is really checking"}],"exec_points":["talking point a VP would make: value, risk, cost, governance"],"numbers":["KPI or metric to know"],"workarounds":[{"problem":"","workaround":"the standard or community-proven workaround","source":"SAP Note/KBA number, help.sap.com page or community thread title"}],"joule":["what SAP Joule can do for this topic today, and in which product/release (say if nothing is available yet)"],"references":[{"tier":"1 official documentation|2 SAP website|3 SAP Note/KBA|4 SAP Community|5 Joule|6 other public","title":"","url":"","what":"what it covers"}],"story":"a STAR-format story template the learner can adapt"}. Give 6-8 issues, 12 interview questions (4 basic, 4 functional, 4 executive/VP level), 3-6 workarounds, and 6-12 references sorted by tier 1 to 6 (only real pages you found; leave url empty if unsure).`;
+}
+const PARTS=['a','b','c','v'];
+async function buildPack(it,fresh){
+  for(const [n,part] of PARTS.entries()){
+    if(it.data[part]&&!fresh)continue;
+    U.load=`Researching "${it.title}" — part ${n+1} of ${PARTS.length} (${['the basics','configuration and versions','issues and interview','videos and courses'][n]})…`;render();
+    it.data[part]=await aj(packPrompt(part,it.title,it.sub),{search:!!S.set.research,nocache:!!fresh});
+    it.src=arr(it.src).concat(LASTSRC).filter((x,i,a)=>x&&a.findIndex(y=>y.uri===x.uri)===i).slice(0,10);it.built=dkey();save();
+  }
+}
+async function doPack(q,kind,fresh){
+  q=clean(q);if(!q)return toast('Type a topic, industry or company first',true);
+  let it=findLib('pack',q);if(!it){it={id:uid(),kind:'pack',title:q,sub:kind||'topic',created:dkey(),data:{}};S.lib.unshift(it);save()}
+  U.open.pack=it.id;U.tab='research';
+  if(PARTS.every(p=>it.data[p])&&!fresh){render();return window.scrollTo(0,0)}
+  await run('Researching…',()=>buildPack(it,fresh));
+}
+function packSpeech(it){
+  const a=it.data.a||{},b=it.data.b||{},c=it.data.c||{},o=[];const add=(t)=>{if(str(t).trim())o.push({text:str(t)})};
+  add(it.title+'. Explained simply.');add(a.eli5);add(a.context);add('Business scenario. '+str(a.scenario));
+  arr(a.process_flow).forEach((s,i)=>add('Step '+(i+1)+'. '+str(s)));
+  arr(a.key_terms).forEach(t=>add(str(t.term)+' means '+str(t.meaning)));
+  arr(b.config_steps).forEach((s,i)=>add('Configuration step '+(i+1)+'. '+str(s.step)+'. '+str(s.what)));
+  if(b.implementation)add('How to implement. '+str(b.implementation.approach));
+  arr(b.whats_new).forEach(s=>add('New: '+str(s)));
+  arr(c.issues).forEach(s=>add('Production issue: '+str(s.issue)+'. Cause: '+str(s.cause)+'. Fix: '+str(s.fix)));
+  arr(c.interview).forEach(s=>{o.push({text:'Question. '+str(s.q),role:'a'});o.push({text:str(s.answer),role:'b'})});
+  arr(c.exec_points).forEach(s=>add('Executive point: '+str(s)));
+  return o;
+}
+function packHtml(it){
+  const a=it.data.a,b=it.data.b,c=it.data.c;let h='';
+  h+=`<div class="card"><h2>${esc(it.title)} <span class="pill">${esc(it.sub)}</span></h2>
+  <button class="btn" data-a="packListen">🎧 Listen to everything</button><button class="btn alt" data-a="toSop" data-t="${esc(it.title)}">📋 Build SOP</button><button class="btn alt" data-a="toCourse" data-t="${esc(it.title)}">🎓 Make a course</button><button class="btn alt" data-a="toInterview" data-t="${esc(it.title)}">🎙️ Mock interview</button><button class="btn alt sm" data-a="packFresh">🔄 Re-research (latest)</button>
+  <div class="mut">Researched ${esc(it.built||it.created)}${it.refreshed?' (auto-refreshed)':''}. Refreshes itself every 30 days while the page is open. AI research can contain mistakes: verify tcodes, paths and SAP Notes on help.sap.com before relying on them.</div>${srcHtml(it.src)}
+  ${PARTS.some(p=>!it.data[p])&&!U.load?`<div class="fb info">Some parts are missing. <button class="btn sm" data-a="packResume">Finish research</button></div>`:''}</div>`;
+  if(a){
+    h+=sec('🧸 Explain it like I am five',`<p style="font-size:19px">${esc(str(a.eli5))}</p>`,str(a.eli5));
+    h+=sec(it.sub==='topic'?'🧭 Where it sits':'🏢 About / SAP landscape',a.context?`<p>${esc(str(a.context))}</p>`:'',str(a.context));
+    h+=sec('📖 Business scenario',a.scenario?`<p>${esc(str(a.scenario))}</p>`:'',str(a.scenario));
+    h+=sec('🏭 Where it is used',li(a.where_used));
+    h+=sec('🔁 Process flow',li(a.process_flow,true),arr(a.process_flow).map(str).join('. '));
+    h+=sec('🧩 Modules involved',li(a.modules));
+    h+=sec('🔤 Key terms',arr(a.key_terms).length?`<table>${arr(a.key_terms).map(t=>`<tr><td><b>${esc(str(t.term))}</b></td><td>${esc(str(t.meaning))}</td></tr>`).join('')}</table>`:'');
+    h+=sec('🖥️ What it looks like in S/4HANA',arr(a.s4_look).length?`<table><tr><th>App / transaction</th><th>ID</th><th>What you see</th></tr>${arr(a.s4_look).map(t=>`<tr><td>${esc(str(t.app))}</td><td>${esc(str(t.id))}</td><td>${esc(str(t.what_you_see))}</td></tr>`).join('')}</table>`:'');
+  }
+  if(b){
+    h+=sec('✅ Prerequisites',li(b.prerequisites));
+    h+=sec('⚙️ Configuration steps',arr(b.config_steps).length?`<ol>${arr(b.config_steps).map(s=>`<li><b>${esc(str(s.step))}</b><br><span class="mut">📍 ${esc(str(s.where))}</span><br>${esc(str(s.what))}${s.example?`<br><i>Example: ${esc(str(s.example))}</i>`:''}<br>${link('https://www.youtube.com/results?search_query='+encodeURIComponent('SAP S/4HANA '+str(s.step)+' configuration'),'▶ Watch how (YouTube)')}</li>`).join('')}</ol>`:'',arr(b.config_steps).map((s,i)=>'Step '+(i+1)+'. '+str(s.step)+'. '+str(s.what)).join(' '));
+    h+=vidHtml(it);
+    h+=sec('🗂️ Master data',li(b.master_data));
+    const im=b.implementation||{};
+    h+=sec('🚀 How to implement it in S/4HANA',(im.approach?`<p>${esc(str(im.approach))}</p>`:'')+arr(im.phases).map(p=>`<b>${esc(str(p.phase))}</b>${li(p.activities)}`).join('')+(arr(im.testing).length?`<b>Testing</b>${li(im.testing)}`:'')+(arr(im.risks).length?`<b>Risks</b>${li(im.risks)}`:''),str(im.approach));
+    h+=sec('🆕 Versions and what is new',(arr(b.versions).length?`<table>${arr(b.versions).map(v=>`<tr><td><b>${esc(str(v.release))}</b></td><td>${esc(str(v.what))}</td></tr>`).join('')}</table>`:'')+li(b.whats_new),arr(b.whats_new).map(str).join('. '));
+    h+=sec('☁️ Cloud vs on-premise',b.cloud_vs_onprem?`<p>${esc(str(b.cloud_vs_onprem))}</p>`:'');
+  }
+  if(c){
+    h+=sec('🚨 Common production issues and fixes',arr(c.issues).map(s=>`<details><summary>${esc(str(s.issue))}</summary><p><b>What you see:</b> ${esc(str(s.symptom))}</p><p><b>Cause:</b> ${esc(str(s.cause))}</p><p><b>Fix:</b> ${esc(str(s.fix))}</p><p><b>Prevent:</b> ${esc(str(s.prevent))}</p></details>`).join(''));
+    h+=sec('🎤 Interview questions',arr(c.interview).map(s=>`<details><summary><span class="pill">${esc(str(s.level))}</span>${esc(str(s.q))}</summary><p>${esc(str(s.answer))} ${say(str(s.answer),'Model answer')}</p>${s.tip?`<p class="mut">💡 ${esc(str(s.tip))}</p>`:''}</details>`).join(''));
+    h+=sec('🛠️ Standard workarounds',arr(c.workarounds).map(w=>`<details><summary>${esc(str(w.problem))}</summary><p>${esc(str(w.workaround))}</p><p class="mut">📄 ${esc(str(w.source))}</p></details>`).join(''));
+    h+=sec('✨ Joule (SAP AI copilot)',li(c.joule),arr(c.joule).map(str).join('. '));
+    h+=sec('💼 Executive talking points',li(c.exec_points),arr(c.exec_points).map(str).join('. '));
+    h+=sec('🔢 Numbers to know',li(c.numbers));
+    h+=sec('⭐ Your STAR story',c.story?`<p>${esc(str(c.story))}</p>`:'',str(c.story));
+  }
+  if(c&&arr(c.references).length){const rs=arr(c.references).slice().sort((x,y)=>(parseInt(x.tier)||9)-(parseInt(y.tier)||9));let last='';
+    h+=sec('📚 References, in order of authority',rs.map(r=>{const t=str(r.tier)||'other';const head=t!==last?`<div class="mut" style="margin-top:8px"><b>${esc(t)}</b></div>`:'';last=t;return head+`<div>• ${r.url?link(r.url,str(r.title)||r.url):esc(str(r.title))} <span class="mut">${esc(str(r.what))}</span></div>`}).join('')+'<p class="mut">Listed by the AI from its search. Open each link to confirm it before quoting it.</p>')}
+  if(a&&arr(a.related).length)h+=`<div class="card"><h3>➡️ Study next</h3>${arr(a.related).map(t=>`<button class="tag" data-a="packTag" data-t="${esc(str(t))}">${esc(str(t))}</button>`).join('')}</div>`;
+  return h;
+}
+function ytId(u){const m=str(u).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:null}
+function vidHtml(it){
+  const v=it.data.v,q=encodeURIComponent('SAP S/4HANA '+it.title);
+  const more=`<p class="mut">${link('https://www.youtube.com/results?search_query='+q+'+configuration','🔍 More on YouTube')} · ${link('https://www.udemy.com/courses/search/?q='+q,'🔍 More on Udemy')}</p>`;
+  if(!v)return sec('🎬 Videos to go through','<p class="mut">⏳ Videos are being found…</p>'+more);
+  const yt=arr(v.youtube).map((x,i)=>({x,i,id:ytId(x.url)})).filter(o=>o.id);
+  return sec('🎬 Videos to go through (after the configuration steps)',
+   (arr(v.watch_order).length?`<b>Suggested order</b>${li(v.watch_order,true)}`:'')+
+   yt.map(o=>`<div class="vid" hidden style="border-top:1px solid var(--line);padding:8px 0"><div class="row"><img src="https://i.ytimg.com/vi/${o.id}/mqdefault.jpg" alt="" style="flex:0 0 200px;width:200px;border-radius:10px;cursor:pointer" data-a="vidPlay" data-id="${o.id}" onload="this.closest('.vid').hidden=false"><div><b>${esc(str(o.x.title))}</b> <span class="mut">${esc(str(o.x.channel))}</span><br>${esc(str(o.x.covers))}${o.x.best_for?`<br><span class="pill">Best for</span>${esc(str(o.x.best_for))}`:''}<br>${link('https://www.youtube.com/watch?v='+o.id,'Open on YouTube ↗')} <button class="btn sm alt" data-a="vidSum" data-i="${o.i}">📝 Extract the key points</button></div></div>${o.x.summary?`<div class="fb info" style="white-space:pre-wrap">${esc(o.x.summary)} ${say(o.x.summary,'Video summary')}</div>`:''}</div>`).join('')+
+   (arr(v.udemy).length?`<h3 style="margin-top:10px">🎓 Udemy courses</h3>`+arr(v.udemy).map(x=>`<p><b>${/^https:\/\/www\.udemy\.com\//.test(str(x.url))?link(x.url,str(x.title)):esc(str(x.title))}</b> <span class="pill">${esc(str(x.level)||'course')}</span><br>${esc(str(x.covers))}</p>`).join(''):'')+more+'<p class="mut">Videos appear only if YouTube confirms they exist. Udemy details come from the public course page, not the paid lessons.</p>');
+}
+async function vidSum(i){
+  const it=getOpen('pack'),x=it&&arr(it.data.v&&it.data.v.youtube)[i];if(!x)return;const id=ytId(x.url);
+  await run('Watching the video and extracting the key points…',async()=>{
+    const body={systemInstruction:{parts:[{text:sysPrompt()}]},contents:[{role:'user',parts:[{file_data:{file_uri:'https://www.youtube.com/watch?v='+id}},{text:`This video is about "${it.title}" in SAP. Extract for a beginner: 1) what it teaches in 3 sentences; 2) the configuration or process steps shown, in order, with transaction codes, Fiori apps and SPRO paths exactly as shown; 3) the key tables or settings mentioned; 4) anything that looks outdated compared with the latest S/4HANA; 5) three takeaways for an interview. Plain text, short lines.`}]}],generationConfig:{temperature:0.2}};
+    x.summary=await callGemini(body,S.set.model);save();
+  });
+}
+const views={};
+views.research=()=>{
+  const it=getOpen('pack');
+  return `<div class="card"><h2>🔎 Research any topic, industry or company</h2><p class="mut">You get: simple explanation, business scenario, where it is used, configuration steps, how to implement, what it looks like in S/4HANA, versions and what is new, production issues with fixes, and interview questions with model answers.</p>
+  <div class="row">${sel('pKind',KINDS,'topic')}${inp('pQ','e.g. intercompany billing · pharma industry · Nestlé','pack')}<button class="btn" data-a="pack">Research</button></div>
+  ${['Order-to-Cash overview','Credit management','Intercompany billing','ATP and backorders','Pricing procedure','Third-party order','Output management','Revenue recognition'].map(t=>`<button class="tag" data-a="packTag" data-t="${t}">${t}</button>`).join('')}
+  ${recent('pack','openPack')}</div>${bgLine()}${it?packHtml(it):''}`;
+};
+
+/* ============ SOP ============ */
+async function doSop(q){
+  q=clean(q);if(!q)return toast('Type a scenario first',true);
+  let it=findLib('sop',q);
+  if(!it)await run(`Building the SOP for "${q}"…`,async()=>{
+    const d=await aj(`Write a Standard Operating Procedure for the SAP scenario "${q}" in S/4HANA that anyone can follow. ${S.set.research?'Use Google Search for current S/4HANA details. ':''}Return ONLY JSON: {"story":"the scenario in simple words, like a story","roles":[{"who":"","does":""}],"steps":[{"step":"what to do","who":"role","where":"tcode or Fiori app (ID)","config_needed":"what must be configured for this step to work, with SPRO path","if_missing":"what goes wrong if that config/step is missing: the SAP message text and number if known","fix":"how to fix it","check":"how to check the step worked"}],"handoffs":["module to module handoff"],"daily_ops":["how it runs day to day, monitoring"],"controls":["control or audit point"],"interview_angles":["how to talk about this in an interview"]}. 8-14 steps in the real order.`,{search:!!S.set.research});
+    if(!arr(d.steps).length)throw new Error('BADJSON');
+    it={id:uid(),kind:'sop',title:q,created:dkey(),data:d,src:LASTSRC.slice()};S.lib.unshift(it);save();
+  });
+  if(it){U.open.sop=it.id;U.tab='sop';render()}
+}
+function sopHtml(it){
+  const d=it.data;
+  const sp=[{text:it.title+'. '+str(d.story)}].concat(arr(d.steps).map((s,i)=>({text:`Step ${i+1}. ${str(s.step)}. Done by ${str(s.who)} in ${str(s.where)}. If something is missing: ${str(s.if_missing)}. Fix: ${str(s.fix)}.`})));
+  const id='s'+(++spkN);SPK[id]={items:sp,title:'SOP: '+it.title};
+  return `<div class="card"><h2>📋 ${esc(it.title)}</h2><button class="btn" data-a="say" data-id="${id}">🎧 Listen to the SOP</button><button class="btn alt" data-a="toInterview" data-t="${esc(it.title)}">🎙️ Mock interview</button><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>${srcHtml(it.src)}<p style="font-size:18px">${esc(str(d.story))}</p></div>
+  ${sec('👥 Who does what',arr(d.roles).length?`<table>${arr(d.roles).map(r=>`<tr><td><b>${esc(str(r.who))}</b></td><td>${esc(str(r.does))}</td></tr>`).join('')}</table>`:'')}
+  <div class="card"><h3>🪜 Steps</h3>${arr(d.steps).map((s,i)=>`<details ${i===0?'open':''}><summary>${i+1}. ${esc(str(s.step))}</summary><p>👤 <b>${esc(str(s.who))}</b> · 📍 ${esc(str(s.where))}</p><p>⚙️ <b>Config needed:</b> ${esc(str(s.config_needed))}</p><p>🚨 <b>If missing:</b> ${esc(str(s.if_missing))}</p><p>🔧 <b>Fix:</b> ${esc(str(s.fix))}</p><p>✅ <b>Check:</b> ${esc(str(s.check))}</p></details>`).join('')}</div>
+  ${sec('🤝 Handoffs',li(d.handoffs))}${sec('📆 Day-to-day running',li(d.daily_ops))}${sec('🛡️ Controls',li(d.controls))}${sec('🎤 Interview angles',li(d.interview_angles))}`;
+}
+views.sop=()=>{const it=getOpen('sop');return `<div class="card"><h2>📋 SOP Builder</h2><p class="mut">Type any SAP scenario. You get the story, each step, the config behind it, the error you see if it is missing, and the fix.</p><div class="row">${inp('sQ','e.g. STO, consignment, credit block on sales order, returns','sop')}<button class="btn" data-a="sop">Build the SOP</button></div>${recent('sop','openSop')}</div>${it?sopHtml(it):''}`};
+
+/* ============ COURSE ============ */
+async function doCourse(q){
+  q=clean(q);if(!q)return toast('Type what you want to learn',true);
+  let it=findLib('course',q);
+  if(!it)await run(`Designing your course on "${q}"…`,async()=>{
+    const d=await aj(`Design a short video-course style curriculum (like a Udemy course) on "${q}" for a complete beginner who must reach ${S.set.role} interview level. Return ONLY JSON: {"promise":"what the learner can do after the course","lessons":[{"title":"","goal":"one sentence"}]}. 8-10 lessons: start from zero (what is it, why it exists), build to process, configuration, S/4HANA specifics, common issues, and finish with executive view and interview preparation.`,{});
+    const ls=arr(d.lessons).filter(l=>l&&l.title).map(l=>({title:str(l.title),goal:str(l.goal),body:null,done:false,tries:0}));
+    if(!ls.length)throw new Error('BADJSON');
+    it={id:uid(),kind:'course',title:q,created:dkey(),data:{promise:str(d.promise),lessons:ls}};S.lib.unshift(it);save();
+  });
+  if(it){U.open.course=it.id;U.lesson=null;U.tab='course';render()}
+}
+async function buildLesson(it,i){
+  const l=it.data.lessons[i];
+  l.body=await aj(`Course: "${it.title}". Write lesson ${i+1} of ${it.data.lessons.length}: "${l.title}" (goal: ${l.goal}). Other lessons: ${it.data.lessons.map(x=>x.title).join('; ')}. ${S.set.research?'Use Google Search so S/4HANA details are current. ':''}Return ONLY JSON: {"explain":"teach it like I am five, 8-12 sentences, building up step by step","analogy":"one everyday analogy","in_sap":[{"where":"tcode, Fiori app or SPRO path","what":"what you do or see there"}],"example":"a worked example walked through step by step","key_terms":[{"term":"","meaning":""}],"exec_view":"why a VP cares: value, risk, decisions","quiz":[{"q":"","options":["","","",""],"answer":0,"why":""}],"say_it":"a polished 2-sentence answer for interviews"}. 3 quiz questions; "answer" is the 0-based index.`,{search:!!S.set.research});
+  l.src=LASTSRC.slice(0,4);save();
+}
+function lessonSpeech(l){const b=l.body;return [{text:l.title+'. '+str(b.explain)},{text:'Think of it like this. '+str(b.analogy)},{text:'Example. '+str(b.example)},{text:'Why executives care. '+str(b.exec_view)},{text:'In an interview, say: '+str(b.say_it)}]}
+function courseHtml(it){
+  const d=it.data,done=d.lessons.filter(l=>l.done).length;
+  let h=`<div class="card"><h2>🎓 ${esc(it.title)}</h2><p>${esc(d.promise)}</p><div class="mut">${done}/${d.lessons.length} lessons done · ${d.lessons.filter(l=>l.body).length} ready to open instantly</div>
+  ${d.lessons.map((l,i)=>`<button class="opt ${U.lesson===i?'ok':''}" data-a="lesson" data-i="${i}">${l.done?'✅':l.body?'▶️':'⏳'} ${i+1}. ${esc(l.title)}<br><span class="mut">${esc(l.goal)}</span></button>`).join('')}
+  <button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️ Delete course</button></div>`;
+  const l=d.lessons[U.lesson];
+  if(l&&l.body){const b=l.body;const id='s'+(++spkN);SPK[id]={items:lessonSpeech(l),title:l.title};
+    h+=`<div class="card" id="lessonTop"><h2>${U.lesson+1}. ${esc(l.title)}</h2><button class="btn" data-a="say" data-id="${id}">🎧 Listen to this lesson</button>${srcHtml(l.src)}<p style="font-size:19px">${esc(str(b.explain))}</p></div>
+    ${sec('🧸 Think of it like this',b.analogy?`<p>${esc(str(b.analogy))}</p>`:'')}
+    ${sec('🖥️ In SAP',arr(b.in_sap).length?`<table>${arr(b.in_sap).map(x=>`<tr><td><b>${esc(str(x.where))}</b></td><td>${esc(str(x.what))}</td></tr>`).join('')}</table>`:'')}
+    ${sec('🧩 Worked example',b.example?`<p>${esc(str(b.example))}</p>`:'')}
+    ${sec('🔤 Key terms',arr(b.key_terms).length?`<table>${arr(b.key_terms).map(t=>`<tr><td><b>${esc(str(t.term))}</b></td><td>${esc(str(t.meaning))}</td></tr>`).join('')}</table>`:'')}
+    ${sec('💼 Why a VP cares',b.exec_view?`<p>${esc(str(b.exec_view))}</p>`:'')}
+    ${sec('🎤 Say it in the interview',b.say_it?`<p><i>${esc(str(b.say_it))}</i></p>`:'',str(b.say_it))}
+    <div class="card"><h3>🎯 Quick quiz</h3>${arr(b.quiz).map((q,qi)=>{const k=it.id+'|'+U.lesson+'|'+qi,s=U.quiz[k];return `<p><b>${esc(str(q.q))}</b></p>${arr(q.options).map((o,oi)=>`<button class="opt ${s==null?'':(oi===Number(q.answer)?'ok':(oi===s?'no':''))}" data-a="quiz" data-k="${k}" data-i="${oi}" ${s!=null?'disabled':''}>${esc(str(o))}</button>`).join('')}${s!=null?`<div class="fb ${s===Number(q.answer)?'ok':'no'}">${s===Number(q.answer)?'Correct. ':'Not quite. '}${esc(str(q.why))}</div>`:''}`}).join('')}
+    <button class="btn" data-a="lessonDone">${l.done?'↩️ Mark not done':'✅ Mark lesson done'}</button>${U.lesson<d.lessons.length-1?`<button class="btn alt" data-a="lesson" data-i="${U.lesson+1}">Next lesson ➡️</button>`:''}</div>`}
+  return h;
+}
+views.course=()=>{const it=getOpen('course');return `<div class="card"><h2>🎓 Learn a topic like a course</h2><p class="mut">Type any topic. You get 8-10 short lessons from zero to executive level, each with an analogy, the SAP screens, an example, a quiz and audio. Lessons are prepared in the background.</p><div class="row">${inp('cQ','e.g. SAP SD from scratch, pricing, S/4HANA migration','course')}<button class="btn" data-a="course">Create the course</button></div>${recent('course','openCourse')}</div>${bgLine()}${it?courseHtml(it):''}`};
+
+/* ============ INTERVIEW ============ */
+const ROUNDS=['Executive / VP panel','Functional deep-dive','Leadership and behavioral','Company-specific','Screening call'];
+async function doInterview(){
+  const q=clean(U.m.iQ),round=U.m.iRound||ROUNDS[0],co=clean(U.m.iCo);
+  if(!q&&!co)return toast('Type a topic or a company first',true);
+  const title=`${round}: ${q||'general SAP'}${co?' @ '+co:''}`;
+  let it=findLib('interview',title);
+  if(!it)await run('Writing the interview…',async()=>{
+    const d=await aj(`Write a realistic ${round} job interview for a ${S.set.role} role${co?' at the company "'+co+'" (use what is publicly known about the company and its SAP programs)':''}, focused on: ${q||'general SAP leadership and Order-to-Cash'}. ${S.set.research?'Use Google Search so the SAP content and company facts are current. ':''}Two speakers: the interviewer asks, probes and follows up; the candidate gives strong, structured answers in first person that start simple and show real SAP depth plus executive thinking (value, risk, people, governance). Return ONLY JSON: {"turns":[{"who":"interviewer|candidate","text":""}],"takeaways":["what made the answers strong"],"watch_out":["mistakes to avoid"]}. 16-20 turns, starting with the interviewer. Candidate answers 3-6 sentences each.`,{search:!!S.set.research,temp:0.7});
+    const turns=arr(d.turns).filter(t=>t&&t.text).map(t=>({who:/cand/i.test(str(t.who))?'candidate':'interviewer',text:str(t.text)}));
+    if(turns.length<4)throw new Error('BADJSON');
+    it={id:uid(),kind:'interview',title,created:dkey(),data:{turns,takeaways:arr(d.takeaways),watch_out:arr(d.watch_out),topic:q,co,round},src:LASTSRC.slice()};S.lib.unshift(it);save();
+  });
+  if(it){U.open.interview=it.id;U.iv=null;U.tab='interview';render()}
+}
+async function ivStart(it){
+  await run('Preparing your questions…',async()=>{
+    const d=await aj(`Give 8 interview questions for a ${it.data.round} interview for a ${S.set.role} role${it.data.co?' at '+it.data.co:''}, focus: ${it.data.topic||'SAP leadership'}. Mix: simple openers, functional depth, production problem scenarios, executive judgment. Return ONLY JSON: {"questions":[""]}`,{nocache:true,temp:0.8});
+    const qs=arr(d.questions).map(str).filter(Boolean);if(!qs.length)throw new Error('BADJSON');
+    U.iv={qs,i:0,fb:null,score:[]};U.m.ivAns='';
+  });
+  if(U.iv)play([{text:U.iv.qs[0],role:'a'}],'Interviewer');
+}
+async function ivCheck(){
+  const ans=clean(U.m.ivAns);if(ans.length<10)return toast('Answer first (speak or type a few sentences)',true);
+  const V=U.iv;
+  await run('Your coach is reviewing the answer…',async()=>{
+    V.fb=await aj(`Interview question: "${V.qs[V.i]}". The candidate (aiming for ${S.set.role}) answered: """${ans.slice(0,4000)}""". Coach them kindly and simply. Return ONLY JSON: {"score":7,"good":["what was good"],"missing":["what was missing or wrong, explained simply"],"model_answer":"a strong first-person answer, 4-7 sentences","exec_tip":"one tip to sound more executive"}. Score 0-10.`,{nocache:true,temp:0.3});
+    V.score.push(Number(V.fb.score)||0);
+  });
+}
+function interviewHtml(it){
+  const d=it.data,items=d.turns.map(t=>({text:t.text,role:t.who==='candidate'?'b':'a'}));
+  const id='s'+(++spkN);SPK[id]={items,title:it.title};
+  const V=U.iv;
+  let h=`<div class="card"><h2>🎙️ ${esc(it.title)}</h2><button class="btn" data-a="say" data-id="${id}">🎧 Play the interview (two voices)</button><button class="btn alt" data-a="ivStart">🎤 Now interview me</button><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>${srcHtml(it.src)}</div>`;
+  if(V){const f=V.fb;
+    h+=`<div class="card"><h3>🎤 Question ${V.i+1} of ${V.qs.length}</h3><p style="font-size:20px">${esc(V.qs[V.i])} ${say(V.qs[V.i],'Interviewer')}</p>
+    <textarea data-m="ivAns" placeholder="Speak with the microphone or type your answer…">${M('ivAns')}</textarea>
+    <button class="btn alt" data-a="ivMic">${U.listening?'🔴 Listening…':'🎤 Speak'}</button><button class="btn" data-a="ivCheck">Get feedback</button>${V.i<V.qs.length-1?`<button class="btn alt" data-a="ivNext">Next question ➡️</button>`:`<button class="btn alt" data-a="ivEnd">Finish</button>`}
+    ${f?`<div class="fb ${Number(f.score)>=7?'ok':'info'}"><b>Score: ${esc(str(f.score))}/10</b>${arr(f.good).length?`<br><b>Good:</b>${li(f.good)}`:''}${arr(f.missing).length?`<b>Missing:</b>${li(f.missing)}`:''}<b>Model answer:</b> ${esc(str(f.model_answer))} ${say(str(f.model_answer),'Model answer')}${f.exec_tip?`<br>💼 <b>Executive tip:</b> ${esc(str(f.exec_tip))}`:''}</div>`:''}</div>`}
+  h+=`<div class="card"><h3>Transcript</h3>${d.turns.map(t=>`<div class="turn ${t.who==='candidate'?'b':'a'}"><b>${t.who==='candidate'?'🙋 Candidate':'🧑‍💼 Interviewer'}</b><br>${esc(t.text)}</div>`).join('')}</div>
+  ${sec('✅ What made the answers strong',li(d.takeaways))}${sec('⚠️ Watch out',li(d.watch_out))}`;
+  return h;
+}
+views.interview=()=>{const it=getOpen('interview');return `<div class="card"><h2>🎙️ Mock interview</h2><p class="mut">Listen to a full interview with two voices (interviewer and candidate), then let the interviewer question you and coach your answers.</p>
+  <label>Round</label>${sel('iRound',ROUNDS,ROUNDS[0])}<div class="row"><div><label>Topic</label>${inp('iQ','e.g. Order-to-Cash transformation, S/4HANA migration','interview')}</div><div><label>Company (optional)</label>${inp('iCo','e.g. a company you are interviewing with','interview')}</div></div>
+  <button class="btn" data-a="interview">Create the interview</button>${recent('interview','openInterview')}</div>${it?interviewHtml(it):''}`};
+
+/* ============ MENTOR ============ */
+views.mentor=()=>`<div class="card"><h2>🧑‍🏫 Mentor</h2><div class="chat" id="chat">${S.chat.length?S.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}${m.r==='m'?' '+say(m.t,'Mentor'):''}${arr(m.src).length?`<div class="mut">🔎 ${arr(m.src).map(x=>link(x.uri,x.title||'source')).join(' · ')}</div>`:''}</div>`).join(''):'<p class="mut">Ask anything: "what is a pricing procedure?", "how do I answer why S/4HANA?", "explain ATP like I am five". I explain simply first, then go deeper.</p>'}${U.load?'<div class="msg m">…</div>':''}</div>
+  <div class="row"><textarea data-m="chatIn" style="min-height:64px" placeholder="Type your question…">${M('chatIn')}</textarea><button class="btn" data-a="send">Send ➤</button><button class="btn alt" data-a="mic">${U.listening?'🔴':'🎤'}</button></div><button class="btn sm alt" data-a="chatClear">🧹 Clear chat</button></div>`;
+async function sendChat(){
+  const t=clean(U.m.chatIn);if(!t)return;U.m.chatIn='';S.chat.push({r:'u',t});S.chat=S.chat.slice(-60);save();
+  await run('Mentor is thinking…',async()=>{
+    const hist=S.chat.slice(-12).map(m=>({role:m.r==='u'?'user':'model',text:m.t}));while(hist.length&&hist[0].role!=='user')hist.shift();
+    const reply=await at('',{contents:hist,temp:0.6,search:!!S.set.research,sys:'You are chatting as the mentor. Answer in under 170 words: first the simple explanation with an analogy, then the real SAP detail (tcode/app/config), then how to say it in an executive interview. End with one question that checks understanding or one next step.'});
+    S.chat.push({r:'m',t:reply,src:LASTSRC.slice(0,4)});S.chat=S.chat.slice(-60);save();
+  });
+}
+
+/* ============ LIBRARY + SETTINGS ============ */
+const KNAME={pack:['🔎','Research packs','openPack'],sop:['📋','SOPs','openSop'],course:['🎓','Courses','openCourse'],interview:['🎙️','Interviews','openInterview']};
+views.library=()=>`<div class="card"><h2>📚 My library</h2><p class="mut">Everything you built is saved in this browser and opens instantly, with no new AI call.</p>${Object.entries(KNAME).map(([k,[e,n,act]])=>`<h3>${e} ${n} (${libOf(k).length})</h3>${libOf(k).map(x=>`<div class="row" style="border-bottom:1px solid var(--line)"><button class="lib ready" style="text-align:left" data-a="${act}" data-id="${x.id}">${esc(x.title)}</button><span class="mut" style="flex:0 0 auto">${esc(x.created)}</span><button class="btn sm bad" data-a="del" data-id="${x.id}">🗑️</button></div>`).join('')||'<p class="mut">Nothing yet.</p>'}`).join('')}</div>
+  <div class="card"><h2>💾 Backup (move to phone or another laptop)</h2><button class="btn" data-a="backup">⬇️ Download backup</button><label>Restore from a backup file</label><input type="file" accept=".json,application/json" id="restore"></div>`;
+views.settings=()=>{
+  const u=S.usage.day===dkey()?S.usage:{calls:0,tokens:0,bg:0},v=enVoices(),vo=[['','Automatic']].concat(v.map(x=>[x.name,x.name+' ('+x.lang+')']));
+  return `${!hasKey()?'<div class="card"><h2>👋 One step to start</h2><p>Paste your Gemini key below and press Save key. Then open Research and type any topic.</p></div>':''}
+  <div class="card"><h2>🔑 Gemini key</h2><p class="mut">Saved only in this browser, sent only to Google. Get one at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>.</p><input type="password" data-m="keyIn" value="${M('keyIn')}" placeholder="${hasKey()?'●●●● key saved (paste to replace)':'Paste key'}" autocomplete="off"><button class="btn" data-a="saveKey">💾 Save key</button><button class="btn alt" data-a="testKey">🧪 Test</button><button class="btn alt" data-a="delKey">Remove</button></div>
+  <div class="card"><h2>🎯 About me (shapes every answer)</h2><label>Target role</label><input data-m="sRole" value="${esc(U.m.sRole??S.set.role)}"><label>Where I am now</label>${sel('sStage',[['prep','Preparing for interviews'],['role','I am in the role now (help me do the job)']],S.set.stage)}<label>My background (optional)</label><input data-m="sBack" value="${esc(U.m.sBack??S.set.background)}" placeholder="e.g. 15 years in supply chain operations, new to SAP config"><label>Focus area</label><input data-m="sFocus" value="${esc(U.m.sFocus??S.set.focus)}">
+  <h3>🔊 Voices</h3><label>Interviewer / narrator voice</label>${sel('sVA',vo,S.set.voiceA)}<label>Candidate voice</label>${sel('sVB',vo,S.set.voiceB)}<button class="btn sm alt" data-a="voiceTest">▶ Test both voices</button>
+  <h3>⚙️ AI</h3><label>Research mode (live Google Search)</label>${sel('sRes',[['1','On — latest information'],['0','Off — faster, uses less quota']],S.set.research?'1':'0')}
+  <label>Background builder (prepares course lessons and unfinished research while this page is open)</label>${sel('sBg',[['1','On'],['0','Off']],S.set.bg?'1':'0')}
+  <div class="row"><div><label>Max background calls per day</label><input type="number" min="0" data-m="sBgMax" value="${esc(U.m.sBgMax??S.set.bgMax)}"></div><div><label>Daily AI call limit (0 = no limit)</label><input type="number" min="0" data-m="sLimit" value="${esc(U.m.sLimit??S.set.limit)}"></div></div>
+  <label>Main model</label><input data-m="sModel" value="${esc(U.m.sModel??S.set.model)}"><label>Fast model</label><input data-m="sFast" value="${esc(U.m.sFast??S.set.fast)}"><div class="mut">Check names at <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener noreferrer">ai.google.dev/gemini-api/docs/models</a></div>
+  <button class="btn" data-a="saveSet">💾 Save settings</button></div>
+  <div class="card"><h2>📊 Usage today</h2><p>${u.calls} AI calls (${u.bg||0} in background) · ${u.tokens} tokens · ${S.lib.length} saved items</p></div>`;
+};
+
+/* ============ background builder ============ */
+const BG={busy:false,now:'',last:'',note:''};
+const BG_MS=window.__fcBgMs||60000;
+async function builderTick(){
+  if(BG.busy||!S.set.bg||!hasKey()||U.load)return;
+  const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0,bg:0};
+  if((S.usage.bg||0)>=Number(S.set.bgMax)){BG.note='daily background budget used';return}
+  let job=null;
+  for(const c of libOf('course')){const i=c.data.lessons.findIndex(l=>!l.body&&(l.tries||0)<3);if(i>=0){job={label:`${c.title} — lesson ${i+1}`,fn:()=>buildLesson(c,i),fail:()=>{c.data.lessons[i].tries=(c.data.lessons[i].tries||0)+1}};break}}
+  if(!job)for(const p of libOf('pack')){const part=PARTS.find(x=>!p.data[x]);if(part&&(p.tries||0)<3){job={label:`${p.title} — research`,fn:async()=>{p.data[part]=await aj(packPrompt(part,p.title,p.sub),{search:!!S.set.research});p.built=dkey()},fail:()=>{p.tries=(p.tries||0)+1}};break}}
+  if(!job&&S.set.research){const old=libOf('pack').find(p=>p.built&&(Date.now()-new Date(p.built+'T12:00:00').getTime())>30*864e5&&PARTS.every(x=>p.data[x]));
+    if(old)job={label:`${old.title} — monthly refresh for the latest information`,fn:async()=>{for(const part of PARTS){const keep=part==='v'&&old.data.v;const d=await aj(packPrompt(part,old.title,old.sub),{search:true,nocache:true});old.data[part]=d;S.usage.bg=(S.usage.bg||0)+1}old.built=dkey();old.refreshed=dkey()},fail:()=>{old.built=dkey()}}}
+  if(!job){BG.note='';return}
+  BG.busy=true;BG.now=job.label;BG.note='';softRender();
+  try{await job.fn();BG.last=job.label}catch(e){job.fail();BG.note=errMsg(e)}
+  S.usage.bg=(S.usage.bg||0)+1;BG.busy=false;BG.now='';save();softRender();
+}
+function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(['research','course','library','settings'].includes(U.tab))render()}
+function bgLine(){
+  if(!hasKey())return '<div class="bgl">🤖 Waiting for a Gemini key (Settings).</div>';
+  if(!S.set.bg)return '<div class="bgl">🤖 Background builder is off (Settings).</div>';
+  const q=libOf('course').reduce((n,c)=>n+c.data.lessons.filter(l=>!l.body).length,0)+libOf('pack').filter(p=>PARTS.some(x=>!p.data[x])).length;
+  return `<div class="bgl">🤖 <b>Background builder — On</b> (while this page is open, one item a minute) · ${BG.now?'building: <b>'+esc(BG.now)+'</b>':'idle'} · ${q} queued · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${BG.last?' · last built: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''}</div>`;
+}
+
+/* ============ render + events ============ */
+const TABS=[['research','🔎','Research','Topic, industry or company → everything'],['sop','📋','SOP Builder','Step by step, errors and fixes'],['course','🎓','Course','Learn a topic from zero, with audio'],['interview','🎙️','Mock Interview','Two voices, then your turn'],['mentor','🧑‍🏫','Mentor','Ask anything, explained simply'],['library','📚','Library','Everything you built, backup'],['settings','⚙️','Settings','Key, role, voices, models']];
+function render(){
+  for(const k in SPK)delete SPK[k];
+  const y=window.scrollY;
+  $('#app').innerHTML=`<header><h1>🎯 SAP Coach</h1><span>${S.lib.length} items saved · ${esc(S.set.role)}</span></header>
+  <nav>${TABS.map(([k,e,l,d])=>`<button class="${U.tab===k?'on':''}" data-a="tab" data-t="${k}"><b>${e} ${l}</b><span>${d}</span></button>`).join('')}</nav>
+  <main>${U.load?`<div class="load">⏳ ${esc(U.load)}</div>`:''}${views[U.tab]()}</main>`;
+  const r=$('#restore');if(r)r.onchange=restoreFile;
+  const c=$('#chat');if(c)c.scrollTop=c.scrollHeight;
+  window.scrollTo(0,y);
+}
+function go(t){U.tab=t;render();window.scrollTo(0,0)}
+const openIt=k=>d=>{U.open[k]=d.id;if(k==='course')U.lesson=null;if(k==='interview')U.iv=null;go(k==='pack'?'research':k)};
+const A={
+  tab:d=>go(d.t),
+  pack:()=>doPack(U.m.pQ,U.m.pKind||'topic'),packTag:d=>{U.m.pQ=d.t;doPack(d.t,'topic')},openPack:openIt('pack'),
+  packFresh:()=>{const it=getOpen('pack');if(it&&confirm('Research this again for the latest information?'))doPack(it.title,it.sub,true)},
+  packResume:()=>{const it=getOpen('pack');if(it)run('Researching…',()=>buildPack(it))},
+  packListen:()=>{const it=getOpen('pack');if(it)play(packSpeech(it),it.title)},
+  toSop:d=>{U.m.sQ=d.t;doSop(d.t)},toCourse:d=>{U.m.cQ=d.t;doCourse(d.t)},toInterview:d=>{U.m.iQ=d.t;U.open.interview=null;go('interview')},
+  sop:()=>doSop(U.m.sQ),openSop:openIt('sop'),
+  course:()=>doCourse(U.m.cQ),openCourse:openIt('course'),
+  lesson:async d=>{const it=getOpen('course'),i=+d.i;if(!it)return;if(!it.data.lessons[i].body)await run(`Preparing lesson ${i+1}…`,()=>buildLesson(it,i));if(it.data.lessons[i].body){U.lesson=i;render();const e=$('#lessonTop');if(e)e.scrollIntoView()}},
+  lessonDone:()=>{const it=getOpen('course'),l=it.data.lessons[U.lesson];l.done=!l.done;save();render()},
+  vidPlay:(d,el)=>{const b=el.closest('.vid');el.outerHTML=`<iframe style="flex:1 1 100%;width:100%;aspect-ratio:16/9;border:0;border-radius:10px" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(d.id)}?rel=0" allow="accelerometer;encrypted-media;picture-in-picture" allowfullscreen></iframe>`},
+  vidSum:d=>vidSum(+d.i),
+  quiz:d=>{U.quiz[d.k]=+d.i;render()},
+  interview:doInterview,openInterview:openIt('interview'),
+  ivStart:()=>{const it=getOpen('interview');if(it)ivStart(it)},ivCheck:ivCheck,
+  ivMic:()=>listen(t=>{U.m.ivAns=(U.m.ivAns?U.m.ivAns+' ':'')+t;render()}),
+  ivNext:()=>{const V=U.iv;V.i++;V.fb=null;U.m.ivAns='';render();play([{text:V.qs[V.i],role:'a'}],'Interviewer')},
+  ivEnd:()=>{const V=U.iv;const n=V.score.length;toast(n?`Done. Average score ${(V.score.reduce((a,b)=>a+b,0)/n).toFixed(1)}/10`:'Done');U.iv=null;render()},
+  send:sendChat,mic:()=>listen(t=>{U.m.chatIn=(U.m.chatIn?U.m.chatIn+' ':'')+t;render()}),
+  chatClear:()=>{if(confirm('Clear the chat?')){S.chat=[];save();render()}},
+  say:d=>{const s=SPK[d.id];if(s)play(s.items||[{text:s.text}],s.title)},
+  plToggle:()=>{if(PL.on){PL.on=false;PL.cur=null;speechSynthesis.cancel();bar()}else{PL.on=true;if(PL.i>=PL.q.length)PL.i=0;speakNext()}},
+  plBack:()=>{PL.i=Math.max(0,PL.i-2);PL.cur=null;speechSynthesis.cancel();if(PL.on)speakNext();else bar()},
+  plFwd:()=>{PL.i=Math.min(PL.q.length-1,PL.i+1);PL.cur=null;speechSynthesis.cancel();if(PL.on)speakNext();else bar()},
+  plClose:()=>{plStop();PL.q=[];bar()},
+  del:d=>{if(!confirm('Delete this item?'))return;S.lib=S.lib.filter(x=>x.id!==d.id);save();render()},
+  saveKey:()=>{const k=(U.m.keyIn||'').trim();if(!k)return toast('Paste a key first',true);LS.setRaw('sc_key',k);U.m.keyIn='';toast('Key saved in this browser 🔑');render()},
+  delKey:()=>{LS.del('sc_key');toast('Key removed');render()},
+  testKey:()=>run('Testing…',async()=>{const t=await at('Reply with the single word OK.',{fast:true});toast('✅ Works: '+t.slice(0,30))}),
+  voiceTest:()=>{S.set.voiceA=U.m.sVA??S.set.voiceA;S.set.voiceB=U.m.sVB??S.set.voiceB;play([{text:'Hello, I am your interviewer. Tell me about your SAP experience.',role:'a'},{text:'Thank you. I have led order to cash programs on S four HANA.',role:'b'}],'Voice test')},
+  saveSet:()=>{const s=S.set,m=U.m;s.role=(m.sRole??s.role).trim()||DEF.role;s.background=clean(m.sBack??s.background);s.focus=(m.sFocus??s.focus).trim();s.stage=m.sStage??s.stage;s.voiceA=m.sVA??s.voiceA;s.voiceB=m.sVB??s.voiceB;
+    if(m.sRes!=null)s.research=m.sRes==='1';if(m.sBg!=null)s.bg=m.sBg==='1';s.bgMax=Math.max(0,parseInt(m.sBgMax??s.bgMax)||0);s.limit=Math.max(0,parseInt(m.sLimit??s.limit)||0);
+    s.model=(m.sModel??s.model).trim()||DEF.model;s.fast=(m.sFast??s.fast).trim()||DEF.fast;save();toast('Settings saved ✅');render()},
+  backup:()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'SAPCoach',v:1,date:new Date().toISOString(),state:Object.assign({},S,{cache:{}})})],{type:'application/json'}));a.download='SAPCoach-backup-'+dkey()+'.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded 💾 (the key is not included)')}
+};
+function restoreFile(e){
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.app!=='SAPCoach'||!d.state)throw 0;if(!confirm('Replace everything in this browser with the backup?'))return;S=normState(d.state);save();toast('Restored ✅');render()}catch(x){toast('That is not an SAP Coach backup file',true)}};
+  r.readAsText(f);
+}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const f=A[el.dataset.a];if(f){const r=f(el.dataset,el);if(r&&r.catch)r.catch(x=>toast(errMsg(x),true))}});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.m;if(k)U.m[k]=e.target.value});
+document.addEventListener('change',e=>{const d=e.target.dataset||{};if(d.m)U.m[d.m]=e.target.value;if('rate' in d){S.set.rate=Number(e.target.value);save();if(PL.on){PL.cur=null;speechSynthesis.cancel();speakNext()}}});
+document.addEventListener('keydown',e=>{const k=e.target.dataset&&e.target.dataset.en;if(k&&e.key==='Enter'){e.preventDefault();U.m[e.target.dataset.m]=e.target.value;const f=A[k];if(f)f({},e.target)}});
+try{speechSynthesis.onvoiceschanged=()=>{if(U.tab==='settings')softRender()}}catch(e){}
+window.SC={get S(){return S},U,PL,A};
+if(!hasKey())U.tab='settings';
+render();bar();
+setInterval(builderTick,BG_MS);setTimeout(builderTick,Math.min(BG_MS,5000));
+</script>
+</body>
+</html>

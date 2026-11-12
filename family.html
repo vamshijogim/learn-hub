@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family Coach</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#1d2433;--mut:#5d6b82;--pri:#4f46e5;--pri2:#e0e7ff;--ok:#16a34a;--okbg:#dcfce7;--bad:#dc2626;--badbg:#fee2e2;--line:#d9e0ec;--warn:#fef3c7}
+@media (prefers-color-scheme:dark){:root{--bg:#10141d;--card:#1a2030;--ink:#eef1f8;--mut:#9aa7bf;--pri:#818cf8;--pri2:#2a3050;--ok:#4ade80;--okbg:#14301f;--bad:#f87171;--badbg:#3a1a1a;--line:#2c3550;--warn:#3a321a}}
+*{box-sizing:border-box}
+body{margin:0;font:18px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--pri);color:#fff;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+header h1{font-size:20px;margin:0 10px 0 0}
+.chip{border:2px solid transparent;background:rgba(255,255,255,.18);color:#fff;border-radius:99px;padding:6px 14px;font-size:17px;cursor:pointer}
+.chip.on{background:#fff;color:var(--pri);font-weight:700}
+.stats{margin-left:auto;font-weight:700;white-space:nowrap}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 16px;max-width:900px;margin:0 auto}
+nav button{border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:13px;padding:10px 12px;border-radius:14px;cursor:pointer;text-align:left;line-height:1.3}
+nav button span{color:var(--mut);display:block}
+nav button b{display:block;font-size:17px}
+nav button.on{background:var(--pri2);border-color:var(--pri)}
+.lib{display:inline-block;border:2px solid var(--line);border-radius:10px;padding:4px 10px;margin:3px;font-size:15px;background:var(--card);color:var(--ink);cursor:pointer}.lib.ready{border-color:var(--ok);background:var(--okbg)}.lib.failed{border-color:var(--bad)}
+.bgl{font-size:14px;color:var(--mut);background:var(--okbg);border-radius:10px;padding:8px 12px;margin:10px 0}
+main{max-width:900px;margin:0 auto;padding:14px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0}
+h2{font-size:24px;margin:6px 0}h3{font-size:19px;margin:8px 0 4px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--pri);color:#fff;border:0;border-radius:14px;padding:12px 20px;font-size:18px;font-weight:600;cursor:pointer;margin:4px 4px 4px 0}
+.btn.big{padding:16px 26px;font-size:21px}
+.btn.alt{background:var(--pri2);color:var(--pri)}
+.btn.bad{background:var(--bad)}
+.btn.sm{padding:6px 12px;font-size:15px;border-radius:10px}
+.btn:disabled{opacity:.5}
+input,select,textarea{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:4px 0}
+textarea{min-height:110px}
+label{font-size:15px;color:var(--mut);display:block;margin-top:6px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1 1 140px}.row>.btn{flex:0 0 auto}
+.mut{color:var(--mut);font-size:15px}
+.tag{display:inline-block;background:var(--pri2);color:var(--pri);border-radius:99px;padding:3px 12px;margin:3px 4px 3px 0;font-size:15px;cursor:pointer;border:0}
+.load{background:var(--warn);padding:12px;border-radius:12px;font-weight:600;margin:10px 0}
+.step{display:flex;gap:12px;align-items:center;padding:12px;border:2px solid var(--line);border-radius:14px;margin:8px 0}
+.step.done{opacity:.55;text-decoration:line-through}
+.step .em{font-size:32px}.step .t{flex:1}
+.cards{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+.cards .c{flex:0 0 78%;max-width:340px;scroll-snap-align:center;background:var(--pri2);border-radius:18px;padding:16px;min-height:150px}
+.cards .c .e{font-size:38px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 16px;margin:8px 0;font-size:18px;color:var(--ink);cursor:pointer}
+.opt.sel{border-color:var(--pri);background:var(--pri2)}.opt.ok{border-color:var(--ok);background:var(--okbg)}.opt.no{border-color:var(--bad);background:var(--badbg)}
+.fb{padding:10px 14px;border-radius:12px;margin:8px 0}.fb.ok{background:var(--okbg)}.fb.no{background:var(--badbg)}.fb.info{background:var(--warn)}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;padding:6px}
+.msg{padding:10px 14px;border-radius:16px;max-width:86%;white-space:pre-wrap}
+.msg.u{align-self:flex-end;background:var(--pri);color:#fff}.msg.m{align-self:flex-start;background:var(--pri2)}
+.vids{display:flex;gap:10px;flex-wrap:wrap}.vid{width:230px}.vid img{width:100%;border-radius:12px;cursor:pointer}
+.vid iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}
+.vidwide{width:100%}
+details{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0;background:var(--card)}
+summary{cursor:pointer;font-weight:700}
+.big-t{font-size:44px;text-align:center;font-variant-numeric:tabular-nums;margin:10px}
+.native{font-size:44px;line-height:1.2}
+canvas{background:var(--card);border:2px dashed var(--line);border-radius:14px;touch-action:none;max-width:100%}
+.stars{font-size:26px}
+table{width:100%;border-collapse:collapse;font-size:15px}td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 18px;border-radius:14px;z-index:99;max-width:90%;display:none}
+#toast.err{background:#b91c1c}
+a{color:var(--pri)}
+@media (max-width:620px){nav{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){body{font-size:17px}.stats{width:100%;margin:0}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<noscript>This app needs JavaScript.</noscript>
+<script>
+'use strict';
+/* ================= helpers ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const dkey=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addDays=(k,n)=>{const d=new Date(k+'T12:00:00');d.setDate(d.getDate()+n);return dkey(d)};
+const weekKey=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return dkey(d)};
+const arr=x=>Array.isArray(x)?x:[];
+const str=x=>x==null?'':String(x);
+const mem={};
+const LS={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return k in mem?JSON.parse(mem[k]):d}},
+  set(k,v){const s=JSON.stringify(v);try{localStorage.setItem(k,s);return true}catch(e){mem[k]=s;return false}},
+  raw(k){try{return localStorage.getItem(k)||''}catch(e){return mem['raw_'+k]||''}},
+  setRaw(k,v){try{localStorage.setItem(k,v)}catch(e){mem['raw_'+k]=v}},
+  del(k){try{localStorage.removeItem(k)}catch(e){delete mem['raw_'+k]}}
+};
+function toast(m,err){const t=$('#toast');t.textContent=m;t.className=err?'err':'';t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',err?6000:2600)}
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)+s.length.toString(36)};
+
+/* ================= state ================= */
+const DEF_SET={model:'gemini-3.8-flash',fast:'gemini-3.5-flash-lite',city:'',limit:200,hw:'hints',pin:'',research:true,bg:true,bgMax:40};
+let LASTSRC=[];
+let S=normState(LS.get('fc_state',null));
+function normState(s){s=s||{};s.profiles=arr(s.profiles).map(p=>newP(p));s.set=Object.assign({},DEF_SET,s.set||{});s.usage=s.usage||{day:'',calls:0,tokens:0};s.cache=s.cache||{};if(!s.active||!s.profiles.find(p=>p.id===s.active))s.active=s.profiles[0]?.id||null;return s}
+function newP(o){return Object.assign({id:uid(),emoji:'🙂',name:'',stage:'middle',grade:'',goal:'',strengths:'',struggles:'',xp:0,streak:0,last:'',topics:{},weak:[],cards:[],chat:[],plans:[],path:null,pathDraft:null,weekly:null,exams:[],lib:[],pathChecked:''},o||{})}
+function save(){if(!LS.set('fc_state',S)){S.cache={};LS.set('fc_state',S)}}
+const cur=()=>{const n=S.profiles.filter(p=>p.name);return n.find(p=>p.id===S.active)||n[0]||null};
+const hasKey=()=>!!LS.raw('fc_key');
+const STAGES={elementary:'elementary school (ages 6-10)',middle:'middle school (ages 11-13)',high:'high school (ages 14-18)',college:'college/university student',adult:'adult learner'};
+const STAGE_NAMES={elementary:'Elementary',middle:'Middle school',high:'High school',college:'College',adult:'Adult'};
+function depth(p){return {elementary:'very simple words, tiny steps, concrete everyday examples, no jargon',middle:'simple clear language, short sentences, friendly examples, grade-level vocabulary',high:'clear but rigorous, standard high-school terminology, real-world and test-style examples',college:'college-level depth: precise terminology, derivations/reasoning, nuance and sources of error',adult:'adult-friendly, practical, respectful of prior life experience'}[p.stage]||'clear and simple'}
+const level=p=>Math.floor(Math.sqrt((p.xp||0)/50))+1;
+
+/* ================= privacy + AI ================= */
+const SAFETY=`You are Family Coach, a warm, encouraging learning mentor. Rules: Content must be age-appropriate for the learner level given. Never ask for personal information (names, address, school, phone, photos, passwords). If the learner mentions feeling unsafe, hopeless, bullied, abused or being hurt, respond kindly, encourage them to talk to a trusted adult right now, and mention that in the US they can call or text 988 (Suicide & Crisis Lifeline), or call 911 in an emergency. Academic honesty: never write graded homework answers, take-home test answers, or application/college essays for the learner; teach, hint, ask guiding questions and give feedback instead. Be accurate and say when unsure. Keep language short and matched to the learner level.`;
+function scrub(t){
+  let s=str(t);const names=new Set();
+  S.profiles.forEach(p=>{const n=str(p.name).trim();if(n.length>1){names.add(n);n.split(/\s+/).forEach(w=>{if(w.length>1)names.add(w)})}});
+  [...names].sort((a,b)=>b.length-a.length).forEach(n=>{
+    s=s.replace(new RegExp('(^|[^\\p{L}\\p{N}])'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\p{L}\\p{N}])','giu'),'$1the learner');
+  });
+  return s.replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[email]').replace(/\+?\d[\d\s().-]{8,}\d/g,'[number]');
+}
+const clean=t=>scrub(t).trim();
+function ctx(p){return `Learner level: ${STAGES[p.stage]}; grade/year: ${p.grade||'n/a'}; goal: ${p.goal||'n/a'}; strengths: ${p.strengths||'n/a'}; struggles: ${p.struggles||'n/a'}; city/region: ${S.set.city||'unspecified'}; today: ${dkey()}. Depth guide: ${depth(p)}.`}
+const RETRY_MS=()=>window.__fcFast?5:900;
+function errMsg(e){
+  const m=String(e&&e.message||e);
+  if(m==='NOKEY')return '🔑 Paste your Gemini key in the Parent tab first.';
+  if(m==='LIMIT')return '⏸️ Daily AI limit reached. A parent can raise it in the Parent tab.';
+  if(/^HTTP 400/.test(m)&&/key/i.test(m))return '🔑 Google says the key is not valid. Check it in the Parent tab.';
+  if(/^HTTP (401|403)/.test(m))return '🔑 Key rejected or the Gemini API is not enabled for it. Check the Parent tab.';
+  if(/^HTTP 404/.test(m))return '🤖 Model name not found. Check the models in the Parent tab (see ai.google.dev/gemini-api/docs/models).';
+  if(/^HTTP 429/.test(m))return '🐢 Too many requests right now. Wait a minute and try again.';
+  if(m==='BADJSON')return '😕 The AI answer was garbled. Please try again.';
+  if(/Failed to fetch|NetworkError|TypeError/i.test(m))return '📡 Cannot reach Google. Check the internet connection.';
+  return '⚠️ '+m.slice(0,200);
+}
+async function callGemini(body,model,fb){
+  const key=LS.raw('fc_key');if(!key)throw new Error('NOKEY');
+  const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0};
+  if(Number(S.set.limit)>0&&S.usage.calls>=Number(S.set.limit))throw new Error('LIMIT');
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  let last;
+  for(let i=0;i<3;i++){
+    try{
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});
+      if(r.ok){
+        const j=await r.json();
+        S.usage.calls++;S.usage.tokens+=j.usageMetadata?.totalTokenCount||0;save();
+        LASTSRC=(j.candidates?.[0]?.groundingMetadata?.groundingChunks||[]).map(c=>c.web).filter(Boolean).slice(0,5);
+        const parts=j.candidates?.[0]?.content?.parts||[];
+        const text=parts.map(x=>x.text||'').join('').trim();
+        if(!text){const why=j.promptFeedback?.blockReason||j.candidates?.[0]?.finishReason||'empty';throw new Error('The AI gave no answer ('+why+'). Try rephrasing.')}
+        return text;
+      }
+      let msg='';try{msg=(await r.json()).error?.message||''}catch(e){}
+      last=new Error('HTTP '+r.status+' '+msg);
+      if(![429,500,502,503,504].includes(r.status))throw last;
+    }catch(e){
+      if(e===last&&!/^HTTP (429|5)/.test(e.message))throw e;
+      if(/^The AI gave no/.test(e.message))throw e;
+      last=e;
+    }
+    if(i<2)await new Promise(r=>setTimeout(r,RETRY_MS()*Math.pow(2,i)));
+  }
+  if(/^HTTP 429/.test(String(last&&last.message))&&model!==S.set.fast&&!fb){toast('Main model is busy, using the fast model…');return callGemini(body,S.set.fast,true)}
+  throw last;
+}
+function buildBody(prompt,o){
+  const p=o.p||cur();
+  const sys=scrub(SAFETY+' '+(p?ctx(p):'')+(o.sys?' '+o.sys:''));
+  const contents=o.contents?o.contents.map(c=>({role:c.role,parts:[{text:scrub(c.text)}]})):[{role:'user',parts:[{text:scrub(prompt)}]}];
+  const body={systemInstruction:{parts:[{text:sys}]},contents,generationConfig:{temperature:o.temp??0.6}};
+  if(o.search)body.tools=[{google_search:{}}];
+  else if(o.json)body.generationConfig.responseMimeType='application/json';
+  return body;
+}
+function parseJSON(t){
+  t=str(t).replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+  try{return JSON.parse(t)}catch(e){}
+  const a=t.search(/[\[{]/);if(a<0)throw new Error('BADJSON');
+  const open=t[a],close=open==='{'?'}':']';const b=t.lastIndexOf(close);
+  try{return JSON.parse(t.slice(a,b+1))}catch(e){throw new Error('BADJSON')}
+}
+async function aj(prompt,o={}){ /* JSON answer; saved answers reused */
+  const model=o.fast?S.set.fast:S.set.model;
+  const body=buildBody(prompt,Object.assign({json:true},o));
+  const ck=o.nocache?null:hash(model+JSON.stringify(body));
+  if(ck&&S.cache[ck]&&Date.now()-S.cache[ck].t<(o.search?2:30)*864e5){try{return parseJSON(S.cache[ck].v)}catch(e){}}
+  let text,obj;
+  for(let k=0;k<2;k++){text=await callGemini(body,model);try{obj=parseJSON(text);break}catch(e){if(k)throw e}}
+  if(ck){S.cache[ck]={t:Date.now(),v:text};const ks=Object.keys(S.cache);if(ks.length>150){ks.sort((a,b)=>S.cache[a].t-S.cache[b].t).slice(0,ks.length-120).forEach(k=>delete S.cache[k])}save()}
+  return obj;
+}
+async function at(prompt,o={}){return callGemini(buildBody(prompt,o),o.fast?S.set.fast:S.set.model)} /* plain text */
+
+/* ================= speech ================= */
+function speak(text,code){
+  try{
+    const ss=window.speechSynthesis;if(!ss){toast('Read-aloud is not supported in this browser',true);return}
+    ss.cancel();const u=new SpeechSynthesisUtterance(str(text));u.lang=code||'en-US';u.rate=0.9;
+    const v=ss.getVoices().find(v=>v.lang.toLowerCase().startsWith((code||'en').slice(0,2).toLowerCase()));
+    if(v)u.voice=v;else if(code&&!code.startsWith('en')&&ss.getVoices().length)toast('No voice installed for this language in your browser/computer',true);
+    ss.speak(u);
+  }catch(e){toast('Read-aloud failed',true)}
+}
+function listen(lang,cb){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Microphone input is not supported here. Use Edge or Chrome.',true);return false}
+  const r=new SR();r.lang=lang;r.interimResults=false;r.maxAlternatives=1;
+  r.onresult=e=>{cb(e.results[0][0].transcript)};
+  r.onerror=e=>{toast('Microphone: '+e.error,true)};
+  r.onend=()=>{U.listening=false;render()};
+  try{r.start();U.listening=true;render();return true}catch(e){toast('Could not start the microphone',true);return false}
+}
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++){m[i]=[i];}for(let j=0;j<=b.length;j++)m[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+const norm=s=>str(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\p{L}\p{N}]/gu,'');
+function sim(a,b){a=norm(a);b=norm(b);if(!a&&!b)return 100;return Math.round(100*(1-lev(a,b)/Math.max(a.length,b.length,1)))}
+
+/* ================= progress ================= */
+function addXP(n,p){p=p||cur();if(!p)return;p.xp+=n;const t=dkey();
+  if(p.last!==t){p.streak=(p.last===addDays(t,-1))?p.streak+1:1;p.last=t}
+  save();toast('+'+n+' XP ⭐')}
+function addWeak(p,topic,q){topic=clean(topic).slice(0,60);q=clean(q).slice(0,120);
+  let w=p.weak.find(x=>x.topic===topic&&x.q===q);if(w)w.miss++;else p.weak.unshift({id:uid(),topic,q,miss:1});p.weak=p.weak.slice(0,30);save()}
+function fixWeak(p,topic){const w=p.weak.find(x=>x.topic===topic);if(w){w.miss--;if(w.miss<=0)p.weak=p.weak.filter(x=>x!==w);save()}}
+const dueCards=(p,lang)=>p.cards.filter(c=>c.due<=dkey()&&(!lang||c.lang===lang));
+const BOX=[0,1,2,4,8,16,32];
+
+/* ================= language data ================= */
+const LANGS={
+ Spanish:{code:'es-ES',flag:'🇪🇸',letters:'A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z'.split(' '),starter:[['hola','hola','hello'],['gracias','gracias','thank you'],['por favor','por favor','please'],['adiós','adios','goodbye'],['sí','si','yes'],['no','no','no'],['agua','agua','water'],['buenos días','buenos dias','good morning']]},
+ Tamil:{code:'ta-IN',flag:'🇮🇳',letters:'அ ஆ இ ஈ உ ஊ எ ஏ ஐ ஒ ஓ ஔ க ச த ப ம'.split(' '),starter:[['வணக்கம்','vanakkam','hello'],['நன்றி','nandri','thank you'],['ஆம்','aam','yes'],['இல்லை','illai','no'],['தண்ணீர்','thanneer','water'],['அம்மா','amma','mother'],['அப்பா','appa','father'],['நல்லது','nalladhu','good']]},
+ Mandarin:{code:'zh-CN',flag:'🇨🇳',letters:'一 二 三 人 大 小 水 火 山 日 月 木'.split(' '),starter:[['你好','nǐ hǎo','hello'],['谢谢','xièxie','thank you'],['是','shì','yes'],['不','bù','no'],['水','shuǐ','water'],['妈妈','māma','mom'],['爸爸','bàba','dad'],['再见','zàijiàn','goodbye']]},
+ Hindi:{code:'hi-IN',flag:'🇮🇳',letters:'अ आ इ ई उ ऊ ए ऐ ओ औ क ख ग घ'.split(' '),starter:[['नमस्ते','namaste','hello'],['धन्यवाद','dhanyavaad','thank you'],['हाँ','haan','yes'],['नहीं','nahin','no'],['पानी','paani','water'],['माँ','maa','mother'],['पापा','paapa','father'],['अच्छा','achchha','good']]},
+ Telugu:{code:'te-IN',flag:'🇮🇳',letters:'అ ఆ ఇ ఈ ఉ ఊ ఎ ఏ ఐ ఒ ఓ ఔ క చ త ప మ'.split(' '),starter:[['నమస్కారం','namaskaram','hello'],['ధన్యవాదాలు','dhanyavaadaalu','thank you'],['అవును','avunu','yes'],['కాదు','kaadu','no'],['నీళ్ళు','neellu','water'],['అమ్మ','amma','mother'],['నాన్న','nanna','father'],['మంచిది','manchidi','good']]},
+ French:{code:'fr-FR',flag:'🇫🇷',letters:'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z É È Ç'.split(' '),starter:[['bonjour','bonjour','hello'],['merci','mehr-see','thank you'],["s'il vous plaît",'seel voo pleh','please'],['au revoir','oh ruh-vwahr','goodbye'],['oui','wee','yes'],['non','noh','no'],['eau','oh','water'],['bonne nuit','bun nwee','good night']]}
+};
+
+/* ================= UI state ================= */
+const U={tab:'today',m:{},load:null,unlocked:false,col:'course',lg:{lang:'Spanish',mode:'learn',card:null,flip:false,say:null,traceI:0},lesson:null,pr:null,listening:false,demo:null,editing:null};
+const T={left:1500,run:false,iv:null,end:0};
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(()=>{o.stop();a.close()},500)}catch(e){}}
+function tStart(){if(T.run)return;T.run=true;T.end=Date.now()+T.left*1000;T.iv=setInterval(tick,500)}
+function tPause(){T.run=false;clearInterval(T.iv)}
+function tick(){T.left=Math.max(0,Math.round((T.end-Date.now())/1000));const e=$('#tmr');if(e)e.textContent=fmt(T.left);
+  if(T.left<=0){tPause();T.left=1500;beep();addXP(15);toast('🎉 Focus session done! +15 XP');render()}}
+async function run(label,fn){if(U.load)return;U.load=label;render();try{await fn()}catch(e){toast(errMsg(e),true)}finally{U.load=null;render()}}
+const M=k=>esc(U.m[k]||'');
+const inp=(k,ph,en)=>`<input data-m="${k}" value="${M(k)}" placeholder="${esc(ph||'')}" ${en?`data-en="${en}"`:''}>`;
+const sel=(k,opts,dflt)=>`<select data-m="${k}">${opts.map(o=>{const v=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:o;return `<option value="${esc(v)}" ${(U.m[k]??dflt)===v?'selected':''}>${esc(l)}</option>`}).join('')}</select>`;
+const sp=(t,code)=>`<button class="btn sm alt" data-a="speak" data-s="${esc(t)}" data-c="${esc(code||'en-US')}" title="Read aloud">🔊</button>`;
+const link=(u,t)=>/^https?:\/\//i.test(str(u))?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t||u)}</a>`:esc(t||'');
+const li=a=>arr(a).length?`<ul>${arr(a).map(x=>`<li>${esc(typeof x==='object'?JSON.stringify(x):x)}</li>`).join('')}</ul>`:'';
+
+/* ================= views ================= */
+const TABS=[['today','🏠','Today','This week\'s steps and reviews'],['path','🧭','My Path','Any goal → careers and milestones'],['learn','💡','Learn','Lessons built for you, with videos'],['practice','✏️','Practice','One question at a time, adapts'],['college','🎓','College & Exams','Course plans, exam prep, essays'],['mentor','🧑‍🏫','Mentor','Ask anything, hints first'],['languages','🌍','Languages','Words, cards, speaking, tracing'],['parent','🔒','Parent','Key, family, settings, backup']].map(t=>(t[0]==='languages'?['lang',t[1],t[2],t[3]]:t));
+function header(p){
+  return `<header><h1>🌟 Family Coach</h1>${S.profiles.filter(q=>q.name).map(q=>`<button class="chip ${q.id===S.active?'on':''}" data-a="prof" data-id="${q.id}">${esc(q.emoji)} ${esc(q.name||'?')}</button>`).join('')}
+  ${p?`<div class="stats">⭐ ${p.xp} XP · Lv ${level(p)} · 🔥 ${p.streak}</div>`:''}</header>
+  <nav>${TABS.map(([k,e,l,d])=>`<button class="${U.tab===k?'on':''}" data-a="tab" data-t="${k}"><b>${e} ${l}</b><span>${d}</span></button>`).join('')}</nav>`;
+}
+const views={};
+
+/* ---- TODAY ---- */
+function fallbackSteps(p){
+  const t=Object.entries(p.topics).sort((a,b)=>b[1].t-a[1].t)[0]?.[0];
+  const topic=p.weak[0]?.topic||t||p.goal||'something new';
+  const st=[];
+  if(!p.pathChosen&&p.goal)st.push({emoji:'🧭',title:'Build my path for: '+p.goal,type:'explore',topic:p.goal,minutes:10});
+  st.push({emoji:'💡',title:'Learn: '+topic,type:'learn',topic,minutes:15});
+  st.push({emoji:'✏️',title:'Practice: '+topic,type:'practice',topic,minutes:15});
+  if(p.path?.milestones?.[0]?.skills?.[0])st.push({emoji:'🛠️',title:'Skill: '+p.path.milestones[0].skills[0],type:'learn',topic:p.path.milestones[0].skills[0],minutes:15});
+  if(p.cards.length)st.push({emoji:'🌍',title:'Review my language cards',type:'language',topic:'',minutes:10});
+  st.push({emoji:'💬',title:'Ask my Mentor one question',type:'mentor',topic:'',minutes:5});
+  return st.slice(0,5).map(s=>Object.assign({id:uid(),done:false},s));
+}
+async function upgradeWeekly(p){
+  if(!hasKey()||U.wkBusy||p.weekly?.ai)return;U.wkBusy=1;
+  try{
+    const ms=arr(p.path?.milestones).slice(0,2).map(m=>({when:m.when,courses:arr(m.courses).slice(0,4),skills:arr(m.skills).slice(0,4),checkpoint:m.checkpoint}));
+    const r=await aj(`Make this week's learning path: exactly 5 small steps (10-20 minutes each) for the learner. Week starting ${weekKey()}. Their chosen path (may be empty): ${JSON.stringify(ms)}. Weak spots: ${JSON.stringify(p.weak.slice(0,3).map(w=>w.topic))}. Return ONLY JSON: {"steps":[{"emoji":"","title":"short action","type":"learn|practice|explore|language|college|mentor","topic":"specific topic to study or empty","minutes":15}]}`,{fast:true,p});
+    const st=arr(r.steps).filter(s=>s&&s.title).slice(0,6).map(s=>({id:uid(),done:false,emoji:str(s.emoji)||'⭐',title:str(s.title),type:['learn','practice','explore','language','college','mentor'].includes(s.type)?s.type:'learn',topic:str(s.topic),minutes:Number(s.minutes)||15}));
+    if(st.length&&p.weekly&&!p.weekly.steps.some(x=>x.done)){p.weekly={week:weekKey(),steps:st,ai:true};save()}
+    else if(p.weekly)p.weekly.ai=true;
+  }catch(e){}finally{U.wkBusy=0;if(U.tab==='today')render()}
+}
+views.today=p=>{
+  if(!p.weekly||p.weekly.week!==weekKey()){p.weekly={week:weekKey(),steps:fallbackSteps(p),ai:false};save();setTimeout(()=>upgradeWeekly(p),0)}
+  const due=dueCards(p).length;const dn=p.weekly.steps.filter(s=>s.done).length;
+  return `<div class="card"><h2>👋 Hi ${esc(p.name)}!</h2><div class="mut">${esc(STAGE_NAMES[p.stage])}${p.grade?' · '+esc(p.grade):''}${p.goal?' · 🎯 '+esc(p.goal):''}</div>
+  <button class="btn big" data-a="keep">🚀 Keep going</button></div>
+  <div class="card"><h2>📅 This week <span class="mut">(${dn}/${p.weekly.steps.length} done)</span></h2>
+  ${p.weekly.steps.map((s,i)=>`<div class="step ${s.done?'done':''}"><div class="em">${esc(s.emoji)}</div><div class="t"><b>${esc(s.title)}</b><div class="mut">${s.minutes||15} min</div></div>
+  <button class="btn sm" data-a="stepGo" data-i="${i}">Go</button><button class="btn sm alt" data-a="stepDone" data-i="${i}">${s.done?'↩️':'✅'}</button></div>`).join('')}
+  <button class="btn alt sm" data-a="weeklyNew">🔄 New steps</button>${U.wkBusy?'<span class="mut"> ✨ AI is improving your steps…</span>':''}</div>
+  ${bgLine(p)}${arr(p.path?.news).length?`<div class="card"><h2>🆕 Latest for my path</h2>${li(p.path.news.slice(0,4))}</div>`:''}
+  <div class="card"><h2>🔁 Reviews due</h2>${due?`<p>${due} language card${due>1?'s':''} ready.</p><button class="btn" data-a="goTab" data-t="lang" data-mode="cards">Review now</button>`:'<p>Nothing due. 🎉</p>'}</div>
+  <div class="card"><h2>🎯 Weak spots</h2>${p.weak.length?p.weak.slice(0,4).map(w=>`<button class="tag" data-a="weakGo" data-t="${esc(w.topic)}">${esc(w.topic)} ✏️</button>`).join(''):'<p class="mut">None yet. Mistakes in Practice show up here.</p>'}</div>`;
+};
+
+/* ---- PATH ---- */
+views.path=p=>{
+  const d=p.pathDraft||p.path;const chosen=p.path&&p.pathDraft&&JSON.stringify(p.path)===JSON.stringify(p.pathDraft)||(!p.pathDraft&&p.path);
+  return `<div class="card"><h2>🧭 My Path</h2><p class="mut">Tell me any goal. I'll show careers, steps and where to learn.</p>
+  ${inp('pathGoal','My goal (e.g. become a doctor, learn coding)…','pathMake')||''}
+  <div class="mut">${p.stage==='college'?'Semester by semester':'Year by year'} · uses Google Search for current info${S.set.city?' · near '+esc(S.set.city):' · set your city in Parent for local options'}</div>
+  <button class="btn big" data-a="pathMake">✨ Make my path</button></div>
+  ${d?pathHtml(d)+`<div class="card">${chosen?'<b>✅ This is my path (it drives my weekly steps).</b>':`<button class="btn big" data-a="pathChoose">⭐ This is my path</button>`}</div>`:''}`;
+};
+function pathHtml(d){
+  return `<div class="card"><h3>💼 Careers</h3>${arr(d.careers).map(c=>`<p>${esc(c.emoji||'💼')} <b>${esc(c.title)}</b> — ${esc(c.why)}${c.pay?` <span class="mut">(${esc(c.pay)})</span>`:''}</p>`).join('')}</div>
+  <div class="card"><h3>🗺️ Milestones</h3>${arr(d.milestones).map((m,i)=>`<details ${i===0?'open':''}><summary>📍 ${esc(m.when)}</summary>
+   ${arr(m.courses).length?`<b>📚 Courses</b>${li(m.courses)}`:''}${arr(m.exams).length?`<b>📝 Exams</b>${li(m.exams)}`:''}${arr(m.skills).length?`<b>🛠️ Skills</b>${li(m.skills)}`:''}${arr(m.activities).length?`<b>🏅 Activities / internships</b>${li(m.activities)}`:''}${m.checkpoint?`<p>✅ <b>Checkpoint:</b> ${esc(m.checkpoint)}</p>`:''}</details>`).join('')}</div>
+  ${arr(d.local).length?`<div class="card"><h3>📍 Near me</h3>${li(d.local)}</div>`:''}
+  ${arr(d.online).length?`<div class="card"><h3>💻 Online courses</h3>${arr(d.online).map(o=>`<p>${o.url?link(o.url,o.name):esc(o.name)} <span class="mut">${esc(o.why||'')}</span></p>`).join('')}</div>`:''}
+  ${arr(d.news).length?`<div class="card"><h3>🆕 Latest news for this path</h3>${li(d.news)}</div>`:''}
+  ${d.notes?`<div class="card mut">${esc(d.notes)}</div>`:''}`;
+}
+
+function pathPrompt(p,goal){
+      const college=p.stage==='college',horizon={elementary:'the end of middle school',middle:'the end of high school',high:'college admission and the first college year',college:'graduation and the first job',adult:'the next 12 months'}[p.stage];
+  return `Create a learning path for the goal: "${goal}". Use Google Search so careers, courses, exams and college requirements are current. Organize milestones ${college?'semester by semester (e.g. "Year 1 – Fall")':'year by year (e.g. "Grade 9")'} starting from the learner's current grade/year until ${horizon}. Return ONLY JSON: {"careers":[{"emoji":"","title":"","why":"","pay":"typical US pay range"}],"milestones":[{"when":"","courses":[""],"exams":[""],"skills":[""],"activities":["clubs, internships, projects"],"checkpoint":"how to know I am on track"}],"local":["real option types near ${S.set.city||'the learner area'} such as community college programs, libraries, camps, clubs"],"online":[{"name":"","url":"https://...","why":""}],"news":["recent changes, deadlines or new requirements worth knowing (with dates), found by search"],"notes":""}. Keep items short and age-appropriate.`;
+}
+/* ---- LEARN ---- */
+views.learn=p=>{
+  const L=U.lesson;
+  const rec=Object.entries(p.topics).sort((a,b)=>b[1].t-a[1].t).slice(0,8);
+  return `<div class="card"><h2>💡 What do you want to learn?</h2>${inp('learnTopic','e.g. fractions, photosynthesis, derivatives…','learn')}
+  <button class="btn big" data-a="learn">🎓 Teach me</button>
+  ${rec.length?`<div class="mut">Recent:</div>${rec.map(([t])=>`<button class="tag" data-a="learnTag" data-t="${esc(t)}">${esc(t)}</button>`).join('')}`:''}</div>
+  ${bgLine(p)}${L?lessonHtml(L,p):''}${libHtml(p)}`;
+};
+function ytId(u){const m=str(u).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:/^[\w-]{11}$/.test(str(u))?u:null}
+function lessonHtml(L,p){
+  const demos=arr(L.demos).slice(0,3);
+  return `<div class="card"><h2>${esc(L.topic)}</h2>${L.idea?`<p style="font-size:22px">💬 ${esc(L.idea)} ${sp(L.idea)}</p>`:''}${arr(L.src).length?`<div class="mut">🔎 Researched just now: ${arr(L.src).map(x=>link(x.uri,x.title||x.uri)).join(' · ')}</div>`:''}</div>
+  ${L.wiki?`<div class="card"><h3>📖 Wikipedia (live, free)</h3><p>${esc(L.wiki.text)}</p>${link(L.wiki.url,'Read more ↗')}</div>`:''}
+  ${arr(L.cards).length?`<div class="card"><h3>🃏 Swipe the cards →</h3><div class="cards">${arr(L.cards).map(c=>`<div class="c"><div class="e">${esc(c.emoji||'✨')}</div><b>${esc(c.title)}</b><p>${esc(c.text)}</p>${sp(c.title+'. '+c.text)}</div>`).join('')}</div></div>`:''}
+  ${L.example?`<div class="card"><h3>🧩 Worked example</h3><p><b>${esc(L.example.problem)}</b></p><ol>${arr(L.example.steps).map(s=>`<li>${esc(s)}</li>`).join('')}</ol>${L.example.answer?`<p>✅ ${esc(L.example.answer)}</p>`:''}</div>`:''}
+  ${arr(L.mistakes).length?`<div class="card"><h3>⚠️ Common mistakes</h3>${li(L.mistakes)}</div>`:''}
+  ${L.check?.q?`<div class="card"><h3>🎯 Quick check</h3><p>${esc(L.check.q)}</p>${arr(L.check.options).map((o,i)=>`<button class="opt ${L.sel==null?'':(i===Number(L.check.answer)?'ok':(i===L.sel?'no':''))}" data-a="lessonSel" data-i="${i}" ${L.sel!=null?'disabled':''}>${esc(o)}</button>`).join('')}
+   ${L.sel!=null?`<div class="fb ${L.sel===Number(L.check.answer)?'ok':'no'}">${L.sel===Number(L.check.answer)?'🎉 Yes!':'Not quite.'} ${esc(L.check.why||'')}</div>`:''}</div>`:''}
+  ${L.cards.length?`<div class="card"><h3>🎬 Videos</h3>${L.videos==null?'<p class="mut">🔎 Looking for free videos…</p>':`<div class="vids">${L.videos.map(v=>`<div class="vid" hidden><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="" data-a="vid" data-id="${v.id}" onload="this.closest('.vid').hidden=false"><div class="mut">${esc(v.title)}</div><a class="mut" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener noreferrer">Open on YouTube</a></div>`).join('')}</div>${L.videos.length?'':''}<p class="mut">${link('https://www.youtube.com/results?search_query='+encodeURIComponent(L.topic+' explained'),'🔍 Search YouTube for more')}</p>`}</div>`:''}
+  ${demos.length?`<div class="card"><h3>🧪 Try it</h3>${demos.map(d=>demoHtml(d)).join('')}${U.demo?`<iframe class="vidwide" style="height:420px;border:0;border-radius:12px" src="${U.demo==='desmos'?'https://www.desmos.com/calculator':'https://www.geogebra.org/graphing'}"></iframe>`:''}</div>`:''}
+  ${arr(L.harder).length?`<div class="card"><h3>🪜 Next harder topics</h3>${arr(L.harder).map(h=>`<button class="tag" data-a="learnTag" data-t="${esc(h)}">${esc(h)} →</button>`).join('')}</div>`:''}
+  <div class="card">${L.cards.length?'':'<p class="mut">Add a Gemini key (Parent tab) for full AI lessons. The free Wikipedia summary above works without one.</p>'}<button class="btn big" data-a="lessonDone">✅ I got it! (+10 XP)</button><button class="btn alt" data-a="goPractice" data-t="${esc(L.topic)}">✏️ Practice this</button></div>`;
+}
+function demoHtml(d){
+  const q=encodeURIComponent(d.query||'');
+  const url=d.site==='phet'?`https://phet.colorado.edu/en/search?q=${q}`:d.site==='geogebra'?`https://www.geogebra.org/search/${q}`:'https://www.desmos.com/calculator';
+  const nm={phet:'PhET simulations',desmos:'Desmos graphing',geogebra:'GeoGebra'}[d.site]||'Demo';
+  return `<p><b>${nm}</b> — ${esc(d.why||d.query||'')}<br>${link(url,'Open '+nm+' ↗')} ${d.site==='desmos'||d.site==='geogebra'?`<button class="btn sm alt" data-a="demo" data-s="${d.site}">Open here</button>`:''}</p>`;
+}
+async function buildLesson(topic,p){
+    const small=p.stage==='elementary'?'12':'25';
+    const r=await aj(`Teach the topic "${topic}". Return ONLY JSON: {"idea":"the whole idea in ONE short sentence","cards":[{"emoji":"","title":"","text":""}],"example":{"problem":"","steps":["",""],"answer":""},"mistakes":["",""],"check":{"q":"","options":["","","",""],"answer":0,"why":""},"harder":["topic","topic","topic"],"demos":[{"site":"phet|desmos|geogebra","query":"search words","why":"what to try"}]}. Rules: 4-6 cards, each text at most ${small} words. Plain text only, no LaTeX or markdown. "answer" is the 0-based index of the correct option. Include demos only if a PhET/Desmos/GeoGebra demo truly fits (else empty array). Depth must match the learner level.${S.set.research?' Use Google Search so facts, numbers, exam rules and recent developments are the latest available.':''}`,{p,search:!!S.set.research});
+    return {topic,idea:str(r.idea),cards:arr(r.cards),example:r.example,mistakes:arr(r.mistakes),check:r.check,harder:arr(r.harder),demos:arr(r.demos).filter(d=>['phet','desmos','geogebra'].includes(d.site)),videos:null,sel:null,src:LASTSRC.slice()};
+}
+const libFind=(p,t)=>p.lib.find(x=>norm(x.topic)===norm(t));
+const libStrip=L=>({topic:L.topic,idea:L.idea,cards:L.cards,example:L.example,mistakes:L.mistakes,check:L.check,harder:L.harder,demos:L.demos,src:L.src});
+function libPut(p,topic,group,L){let it=libFind(p,topic);if(!it){it={id:uid(),topic,group,tries:0};p.lib.push(it)}it.lesson=libStrip(L);it.status='ready';it.built=dkey();save()}
+function syncLib(p){
+  const add=(t,g)=>{t=clean(t).slice(0,80);if(!t||libFind(p,t)||p.lib.length>=80)return;p.lib.push({id:uid(),topic:t,group:g,status:'queued',tries:0})};
+  arr(p.path?.milestones).slice(0,2).forEach(m=>arr(m.courses).concat(arr(m.skills)).slice(0,8).forEach(t=>add(str(t),str(m.when)||'My path')));
+  arr(p.weekly?.steps).forEach(s=>{if(s.topic&&['learn','practice'].includes(s.type))add(s.topic,'This week')});
+  p.weak.slice(0,5).forEach(w=>add(w.topic,'Weak spots'));
+  if(S.set.research)p.lib.forEach(x=>{if(x.status==='ready'&&x.built&&x.built<addDays(dkey(),-30)){x.status='queued';x.tries=0}});
+}
+const BG={busy:false,now:'',last:'',note:''};
+const BG_MS=window.__fcBgMs||60000;
+async function builderTick(){
+  if(BG.busy||!S.set.bg||!hasKey()||U.load)return;
+  const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0};
+  if((S.usage.bg||0)>=Number(S.set.bgMax)){BG.note='daily background budget used';return}
+  const me=cur();const ps=[me,...S.profiles.filter(q=>q.name&&q!==me)].filter(Boolean);
+  for(const p of ps){
+    syncLib(p);
+    if(p.pathChosen&&!p.pathChecked)p.pathChecked=weekKey();
+    const weekly=p.pathChosen&&p.pathGoal&&p.pathChecked!==weekKey();
+    const it=p.lib.find(x=>x.status==='queued');
+    if(!weekly&&!it)continue;
+    BG.busy=true;BG.now=weekly?'weekly check of the path':it.topic;BG.note='';softRender();
+    try{
+      if(weekly){const r=await aj(pathPrompt(p,p.pathGoal),{p,search:true,nocache:true});p.pathChecked=weekKey();if(arr(r.milestones).length){p.path=r;p.pathDraft=r;p.pathNewsAt=dkey();syncLib(p)}}
+      else{it.lesson=libStrip(await buildLesson(it.topic,p));it.status='ready';it.built=dkey()}
+      BG.last=BG.now;
+    }catch(e){
+      if(it&&!weekly){it.tries=(it.tries||0)+1;if(it.tries>=3)it.status='failed'}
+      BG.note=errMsg(e);
+    }
+    S.usage.bg=(S.usage.bg||0)+1;BG.busy=false;BG.now='';save();softRender();return;
+  }
+  BG.note='';
+}
+function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(['today','learn','path','parent'].includes(U.tab))render()}
+function bgLine(p){
+  if(!hasKey())return '<div class="bgl">🤖 Background builder is waiting for a Gemini key (Parent tab).</div>';
+  if(!S.set.bg)return '<div class="bgl">🤖 Background builder is off (Parent → Settings).</div>';
+  const q=p.lib.filter(x=>x.status==='queued').length,r=p.lib.filter(x=>x.status==='ready').length;
+  return `<div class="bgl">🤖 <b>Background builder — On</b> (works while this page is open, checks once a minute) · ${BG.now?'building: <b>'+esc(BG.now)+'</b>':'idle'} · ${r} ready, ${q} queued · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${BG.last?' · last built: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''}${p.pathChecked?' · path last checked week of '+esc(p.pathChecked):''}</div>`;
+}
+function libHtml(p){
+  if(!p.lib.length)return '';
+  const g={};p.lib.forEach(x=>(g[x.group||'My topics']=g[x.group||'My topics']||[]).push(x));
+  return `<div class="card"><h3>📚 My library <span class="mut">— lessons built for you automatically</span></h3>${Object.entries(g).map(([k,v])=>`<div class="mut" style="margin-top:6px">${esc(k)}</div>${v.map(x=>`<button class="lib ${x.status}" data-a="learnTag" data-t="${esc(x.topic)}">${x.status==='ready'?'✅':x.status==='failed'?'⚠️':'⏳'} ${esc(x.topic)}</button>`).join('')}`).join('')}<div class="mut">✅ opens instantly · ⏳ waiting to be built · ⚠️ tap to try again</div></div>`;
+}
+async function doLearn(topic){
+  const p=cur();topic=clean(topic);if(!topic)return toast('Type a topic first',true);
+  U.m.learnTopic=topic;
+  const mark=()=>{p.topics[topic]=Object.assign({t:Date.now(),n:0,ok:0,tot:0},p.topics[topic],{t:Date.now()});p.topics[topic].n++;addXP(5)};
+  const it=libFind(p,topic);
+  if(it&&it.lesson&&it.status!=='failed'){U.lesson=Object.assign({},it.lesson,{videos:null,sel:null});mark();render();window.scrollTo(0,0)}
+  else await run('Making your lesson…',async()=>{
+    U.lesson=await buildLesson(topic,p);libPut(p,topic,it?it.group:'My topics',U.lesson);mark();
+  });
+  if(!U.lesson||U.lesson.topic!==topic)U.lesson={topic,idea:'',cards:[],harder:[],demos:[],videos:[],src:[]};
+  loadWiki(topic);
+  if(U.lesson.cards.length)loadVideos(topic,p);
+}
+async function loadWiki(topic){
+  const L=U.lesson;
+  try{
+    const r=await fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&prop=extracts&exintro=1&explaintext=1&exsentences=4&gsrsearch='+encodeURIComponent(topic));
+    const j=await r.json();const pg=Object.values(j.query?.pages||{})[0];
+    if(pg&&pg.extract)L.wiki={title:pg.title,text:pg.extract,url:'https://en.wikipedia.org/wiki/'+encodeURIComponent(pg.title.replace(/ /g,'_'))};
+  }catch(e){}
+  if(U.lesson===L&&U.tab==='learn')render();
+}
+async function loadVideos(topic,p){
+  const L=U.lesson;
+  try{
+    const r=await aj(`Use Google Search to find 3 free, real YouTube videos that teach "${topic}" clearly for this learner level (reputable educational channels such as Khan Academy, CrashCourse, 3Blue1Brown, TED-Ed, Organic Chemistry Tutor, etc.). Return ONLY JSON: {"videos":[{"title":"","url":"https://www.youtube.com/watch?v=..."}]}`,{fast:true,search:true,p});
+    L.videos=arr(r.videos).map(v=>({title:str(v.title),id:ytId(v.url||v.id)})).filter(v=>v.id).slice(0,4);
+  }catch(e){L.videos=[]}
+  if(U.lesson===L&&U.tab==='learn')render();
+}
+
+/* ---- PRACTICE ---- */
+views.practice=p=>{
+  const P=U.pr;
+  if(!P){
+    return `<div class="card"><h2>✏️ Practice</h2>${inp('prTopic','What do you want to practice?','prStart')}
+    <div class="mut">Difficulty adapts to you. Mistakes become weak spots.</div>
+    ${p.weak.slice(0,5).map(w=>`<button class="tag" data-a="weakGo" data-t="${esc(w.topic)}">${esc(w.topic)}</button>`).join('')}
+    <br><button class="btn big" data-a="prStart">▶️ Start</button></div>`;
+  }
+  const q=P.q[P.i];
+  if(!q)return `<div class="card"><p>Getting your next question…</p><button class="btn" data-a="prNext">Next</button></div>`;
+  const stars='⭐'.repeat(P.d)+'☆'.repeat(5-P.d);
+  return `<div class="card"><div class="row"><b>${esc(P.topic)}</b><span class="stars">${stars}</span><span>✅ ${P.ok}/${P.tot}</span></div>
+  <h2>${esc(q.q)}</h2>
+  ${q.type==='mcq'?q.options.map((o,i)=>`<button class="opt ${P.checked?(i===q.answer?'ok':(i===P.sel?'no':'')):(i===P.sel?'sel':'')}" data-a="prSel" data-i="${i}" ${P.checked?'disabled':''}>${esc(o)}</button>`).join(''):`<input data-m="prNum" value="${M('prNum')}" placeholder="Type your number" data-en="prCheck" inputmode="decimal" ${P.checked?'disabled':''}>`}
+  ${P.hint&&!P.checked?`<div class="fb info">💡 ${esc(q.hint||'Think about the first step.')}</div>`:''}
+  ${P.fb?`<div class="fb ${P.fb.ok?'ok':'no'}">${P.fb.ok?'🎉 Correct!':'❌ Not quite.'} ${esc(q.explain||'')}${P.fb.ok?'':`<br><b>Answer:</b> ${esc(q.type==='mcq'?q.options[q.answer]:q.answer)}`}</div>`:''}
+  ${!P.checked?`<button class="btn big" data-a="prCheck">Check ✔️</button><button class="btn alt" data-a="prHint">💡 Hint</button>`:`<button class="btn big" data-a="prNext">Next ➡️</button>`}
+  <button class="btn alt" data-a="prStop">🏁 Finish</button></div>`;
+};
+function normQs(r){
+  return arr(r.questions).map(q=>{
+    const o=arr(q.options).map(str);let type=(o.length>=2&&q.type!=='num')?'mcq':'num';
+    if(type==='mcq'){let a=Number(q.answer);if(!Number.isInteger(a)){a=o.findIndex(x=>norm(x)===norm(q.answer))}if(a<0||a>=o.length)return null;return {q:str(q.q),type,options:o,answer:a,hint:str(q.hint),explain:str(q.explain)}}
+    const a=parseNum(str(q.answer));if(a==null)return null;return {q:str(q.q),type:'num',answer:a,hint:str(q.hint),explain:str(q.explain)};
+  }).filter(q=>q&&q.q);
+}
+function parseNum(s){s=str(s).replace(/,/g,'').replace(/\s+/g,'').replace(/%$/,'');let m=s.match(/^(-?\d*\.?\d+)\/(-?\d*\.?\d+)$/);if(m&&Number(m[2]))return Number(m[1])/Number(m[2]);if(/^-?(\d+\.?\d*|\.\d+)(e-?\d+)?$/i.test(s))return Number(s);return null}
+async function fetchQs(P,p){
+  const r=await aj(`Write 3 practice questions about "${P.topic}" at difficulty ${P.d} out of 5 for this learner (variation ${Math.random().toString(36).slice(2,6)}). Mix multiple-choice and numeric-answer questions. Return ONLY JSON: {"questions":[{"q":"","type":"mcq or num","options":["","","",""],"answer":"for mcq the 0-based index of the right option; for num the number only","hint":"a hint that does not give the answer","explain":"short explanation"}]}. Plain text only; numeric answers must be a single number (decimal or fraction).`,{p,nocache:true});
+  const qs=normQs(r);if(!qs.length)throw new Error('BADJSON');P.q.push(...qs);
+}
+async function prStart(topic){
+  const p=cur();topic=clean(topic);if(!topic)return toast('Type a topic first',true);
+  U.pr={topic,d:p.stage==='elementary'?1:2,q:[],i:0,ok:0,tot:0,run:0,sel:null,checked:false,hint:false,fb:null};
+  p.topics[topic]=Object.assign({t:Date.now(),n:0,ok:0,tot:0},p.topics[topic]);
+  await run('Writing your questions…',async()=>{try{await fetchQs(U.pr,p)}catch(e){U.pr=null;throw e}});
+}
+function prCheck(){
+  const p=cur(),P=U.pr,q=P?.q[P.i];if(!q||P.checked)return;
+  let ok;
+  if(q.type==='mcq'){if(P.sel==null)return toast('Pick an answer',true);ok=P.sel===q.answer}
+  else{const v=parseNum(U.m.prNum);if(v==null)return toast('Type a number',true);ok=Math.abs(v-q.answer)<=Math.max(0.01,Math.abs(q.answer)*1e-6)}
+  P.checked=true;P.fb={ok};P.tot++;const t=p.topics[P.topic];if(t)t.tot++;
+  if(ok){P.ok++;P.run++;if(t)t.ok++;addXP(P.hint?5:10);fixWeak(p,P.topic);if(P.run>=2&&P.d<5){P.d++;P.run=0}}
+  else{P.run=0;if(P.d>1)P.d--;addWeak(p,P.topic,q.q);save()}
+  save();render();
+}
+async function prNext(){
+  const P=U.pr,p=cur();P.i++;P.sel=null;P.checked=false;P.hint=false;P.fb=null;U.m.prNum='';
+  if(P.i>=P.q.length){await run('Next question…',async()=>{try{await fetchQs(P,p)}catch(e){P.i--;P.checked=true;P.fb={ok:false};throw e}})}
+  else render();
+}
+
+/* ---- COLLEGE ---- */
+const EXAMS=['SAT','ACT','PSAT','AP (type the subject)','MCAT','GRE','GMAT','LSAT','Midterm / final exam','Other'];
+views.college=p=>{
+  const tabs=[['course','📚 Course plan'],['exam','📝 Exam prep'],['essay','✍️ Essay coach'],['timer','⏱️ Focus timer']];
+  return `<div class="card"><div>${tabs.map(([k,l])=>`<button class="btn ${U.col===k?'':'alt'}" data-a="colTab" data-k="${k}">${l}</button>`).join('')}</div></div>`+colBody(p);
+};
+function colBody(p){
+  if(U.col==='course')return `<div class="card"><h2>📚 Plan a course week by week</h2><label>Course name</label>${inp('cName','e.g. Calculus 1')}
+   <label>Paste the syllabus (names/emails removed automatically)</label><textarea data-m="cSyl" placeholder="Paste syllabus text…">${M('cSyl')}</textarea>
+   <label>Number of weeks</label><input data-m="cWeeks" type="number" min="1" max="40" value="${esc(U.m.cWeeks||15)}">
+   <button class="btn big" data-a="planMake">🗓️ Make my plan</button></div>
+   ${p.plans.map((pl,pi)=>`<div class="card"><h3>${esc(pl.name)} <button class="btn sm bad" data-a="planDel" data-i="${pi}">🗑️</button></h3>${arr(pl.weeks).map((w,wi)=>`<details><summary>${pl.done?.[wi]?'✅':'⬜'} Week ${esc(w.week)}: ${esc(w.focus)}</summary>${li(w.tasks)}${w.study?`<p class="mut">${esc(w.study)}</p>`:''}<button class="btn sm alt" data-a="planWeek" data-i="${pi}" data-w="${wi}">${pl.done?.[wi]?'Undo':'Mark done (+10 XP)'}</button></details>`).join('')}${pl.tips?`<p class="mut">${esc(pl.tips)}</p>`:''}</div>`).join('')}`;
+  if(U.col==='exam'){const E=p.exams[0];
+    return `<div class="card"><h2>📝 Exam prep</h2><label>Exam</label>${sel('eName',EXAMS,'SAT')}<label>Subject / details (for AP or class exams)</label>${inp('eSub','e.g. AP Biology, or Chemistry midterm: chapters 1-6')}
+    <div class="row"><div><label>Test date</label><input type="date" data-m="eDate" value="${M('eDate')}"></div><div><label>Weeks to study</label><input type="number" data-m="eWeeks" min="1" max="40" value="${esc(U.m.eWeeks||8)}"></div></div>
+    <button class="btn big" data-a="examMake">🔎 Get format + study plan</button><div class="mut">Looks up the current official format with Google Search.</div></div>
+    ${E?`<div class="card"><h3>${esc(E.name)} <span class="mut">(looked up ${esc(E.date)})</span></h3>${arr(E.sections).map(s=>`<p>📌 <b>${esc(s.name)}</b> — ${esc(s.questions||'')} ${esc(s.time||'')} ${esc(s.notes||'')}</p>`).join('')}${E.total?`<p>⏱️ ${esc(E.total)}</p>`:''}${E.scoring?`<p>🏆 ${esc(E.scoring)}</p>`:''}<h3>🗓️ Study plan</h3>${arr(E.weeks).map(w=>`<details><summary>Week ${esc(w.week)}: ${esc(w.focus)}</summary>${li(w.tasks)}</details>`).join('')}${arr(E.tips).length?`<h3>💡 Tips</h3>${li(E.tips)}`:''}${arr(E.topics).length?`<h3>✏️ Practice topics</h3>${arr(E.topics).map(t=>`<button class="tag" data-a="goPractice" data-t="${esc(t)}">${esc(t)}</button>`).join('')}`:''}<p class="mut">Always double-check dates and fees on the official website.</p></div>`:''}`}
+  if(U.col==='essay'){const F=U.essay;
+    return `<div class="card"><h2>✍️ Essay coach</h2><p class="mut">I give feedback and questions. I never write or rewrite your essay — it must be your own words.</p>
+    <label>Type</label>${sel('esType',['School essay','College application essay','Scholarship essay','Other writing'],'School essay')}<label>The prompt / assignment</label>${inp('esPrompt','What is the essay about?')}
+    <label>Your draft</label><textarea data-m="esText" style="min-height:220px" placeholder="Paste your own draft…">${M('esText')}</textarea><button class="btn big" data-a="essayGo">🔍 Give me feedback</button></div>
+    ${F?`<div class="card"><h3>📋 Feedback</h3><p>${esc(F.summary)}</p>${arr(F.strengths).length?`<b>💪 Strengths</b>${li(F.strengths)}`:''}${arr(F.improve).length?`<b>🎯 To improve</b><ul>${arr(F.improve).map(x=>`<li><b>${esc(x.area)}</b>: ${esc(x.why)}<br><i>🤔 ${esc(x.question)}</i></li>`).join('')}</ul>`:''}${arr(F.grammar).length?`<b>🔤 Language notes</b>${li(F.grammar.map(g=>typeof g==='string'?g:(g.issue+' — '+g.tip)))}`:''}${F.next?`<p>➡️ <b>Next step:</b> ${esc(F.next)}</p>`:''}</div>`:''}`}
+  return `<div class="card" style="text-align:center"><h2>⏱️ 25-minute focus</h2><div class="big-t" id="tmr">${fmt(T.left)}</div>
+   ${T.run?'<button class="btn big" data-a="tmrPause">⏸️ Pause</button>':'<button class="btn big" data-a="tmrStart">▶️ Start</button>'}<button class="btn alt big" data-a="tmrReset">↺ Reset</button><p class="mut">Finish a session to earn 15 XP. Put your phone away!</p></div>`;
+}
+async function planMake(){
+  const p=cur();const syl=clean(U.m.cSyl);if(syl.length<20)return toast('Paste more of the syllabus first',true);
+  const wk=Math.min(40,Math.max(1,parseInt(U.m.cWeeks)||15));const name=clean(U.m.cName)||'My course';
+  await run('Planning your course…',async()=>{
+    const r=await aj(`Make a week-by-week study plan for the course "${name}" with ${wk} weeks, based on this syllabus text:\n"""${syl.slice(0,9000)}"""\nReturn ONLY JSON: {"weeks":[{"week":1,"focus":"","tasks":["",""],"study":"how to study this week"}],"tips":"short advice"}. Exactly ${wk} weeks. Include exam/assignment weeks that the syllabus mentions.`,{p});
+    const weeks=arr(r.weeks);if(!weeks.length)throw new Error('BADJSON');
+    p.plans.unshift({id:uid(),name,weeks,tips:str(r.tips),done:{},created:dkey()});save();toast('Plan saved ✅');
+  });
+}
+async function examMake(){
+  const p=cur();const name=U.m.eName||'SAT';const sub=clean(U.m.eSub);const wk=Math.min(40,Math.max(1,parseInt(U.m.eWeeks)||8));
+  await run('Looking up the exam format…',async()=>{
+    const r=await aj(`Use Google Search to find the CURRENT official format of the ${name}${sub?' ('+sub+')':''} exam as of ${dkey()}. Then make a ${wk}-week study plan${U.m.eDate?' for a test on '+U.m.eDate:''} for this learner. Return ONLY JSON: {"sections":[{"name":"","questions":"","time":"","notes":""}],"total":"total time","scoring":"scoring in one sentence","weeks":[{"week":1,"focus":"","tasks":[""]}],"tips":[""],"topics":["short topics to practice"]}`,{p,search:true});
+    p.exams.unshift(Object.assign({name:name+(sub?' – '+sub:''),date:dkey()},{sections:r.sections,total:r.total,scoring:r.scoring,weeks:r.weeks,tips:r.tips,topics:r.topics}));p.exams=p.exams.slice(0,5);save();
+  });
+}
+async function essayGo(){
+  const p=cur();const text=clean(U.m.esText);if(text.length<40)return toast('Paste your own draft first (at least a few sentences)',true);
+  await run('Reading your draft…',async()=>{
+    U.essay=await aj(`Give feedback on the learner's own ${U.m.esType||'essay'} draft. Prompt: "${clean(U.m.esPrompt)}". Draft:\n"""${text.slice(0,9000)}"""\nSTRICT RULES: do NOT rewrite, rephrase or write any sentence for the learner; do not give replacement wording; quote at most 6 words from the draft. Give feedback and guiding questions only. Return ONLY JSON: {"summary":"2 sentences","strengths":[""],"improve":[{"area":"","why":"","question":"a guiding question for the learner"}],"grammar":[{"issue":"","tip":""}],"next":"one next step"}`,{p,nocache:true,temp:0.4});
+    addXP(10,p);
+  });
+}
+
+/* ---- MENTOR ---- */
+const CRISIS=/\b(kill myself|suicid|want to die|hurt myself|self[- ]harm|being abused|abuse me|hit me|hurting me|don'?t want to live)\b/i;
+views.mentor=p=>`<div class="card"><h2>🧑‍🏫 Mentor</h2><div class="chat" id="chat">${p.chat.length?p.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}${m.r==='m'?' '+sp(m.t):''}${arr(m.src).length?`<div class="mut">🔎 ${arr(m.src).map(x=>link(x.uri,x.title||'source')).join(' · ')}</div>`:''}</div>`).join(''):'<p class="mut">Ask me anything about school, a goal, or how to study. I give hints first for homework. 💛</p>'}${U.load?'<div class="msg m">…</div>':''}</div>
+  <div class="row"><textarea data-m="chatIn" style="min-height:64px" placeholder="Type your message…">${M('chatIn')}</textarea><button class="btn big" data-a="send">Send ➤</button><button class="btn alt big" data-a="mic">${U.listening?'🔴':'🎤'}</button></div>
+  <button class="btn sm alt" data-a="chatClear">🧹 Clear chat</button></div>`;
+async function sendChat(){
+  const p=cur();const t=clean(U.m.chatIn);if(!t)return;U.m.chatIn='';
+  p.chat.push({r:'u',t});
+  if(CRISIS.test(t))p.chat.push({r:'m',t:'💛 I am really glad you told me. Please talk to a trusted adult right now (a parent, teacher or counselor). In the US you can call or text 988 any time, and call 911 if you are in danger.'});
+  p.chat=p.chat.slice(-60);save();
+  await run('Mentor is thinking…',async()=>{
+    const hw=S.set.hw==='hints'?'For homework, assignments or test questions, give hints and guiding questions first and NEVER the final answer; ask the learner to try the next step and show their work.':'For homework, explain the method with a similar example, then let the learner do their own problem.';
+    const hist=p.chat.slice(-12).filter(m=>!(m.t.startsWith('💛 I am really glad'))).map(m=>({role:m.r==='u'?'user':'model',text:m.t}));
+    while(hist.length&&hist[0].role!=='user')hist.shift();
+    const reply=await at('',{contents:hist,p,temp:0.7,search:!!S.set.research,sys:`Act like a caring parent-teacher-advisor chatting with the learner. ${hw} Reply in under 90 words, plain text, one concrete next step per reply,${S.set.research?' use Google Search when facts could have changed (rules, dates, prices, news, exams, admissions),':''} finishing with one short question or action.`});
+    p.chat.push({r:'m',t:reply,src:S.set.research?LASTSRC.slice():[]});p.chat=p.chat.slice(-60);addXP(2,p);
+  });
+  setTimeout(()=>{const c=$('#chat');if(c)c.scrollTop=c.scrollHeight},0);
+}
+
+/* ---- LANGUAGES ---- */
+function lgCards(p,lang){return p.cards.filter(c=>c.lang===lang)}
+views.lang=p=>{
+  const g=U.lg,L=LANGS[g.lang],modes=[['learn','📖 Words'],['cards','🃏 Cards'],['say','🎤 Say it'],['trace','✍️ Trace'],['dialog','💬 Dialogue']];
+  return `<div class="card"><h2>🌍 Languages</h2>${Object.entries(LANGS).map(([k,v])=>`<button class="chip ${g.lang===k?'on':''}" style="${g.lang===k?'':'background:var(--pri2);color:var(--pri)'}" data-a="lgLang" data-l="${k}">${v.flag} ${k}</button>`).join('')}
+  <div style="margin-top:8px">${modes.map(([k,l])=>`<button class="btn ${g.mode===k?'':'alt'} sm" data-a="lgMode" data-k="${k}">${l}</button>`).join('')}</div></div>`+lgBody(p,g,L);
+};
+function lgBody(p,g,L){
+  const code=L.code;
+  if(g.mode==='learn'){
+    const w=g.words||[];
+    return `<div class="card"><h3>New words</h3>${inp('lgTopic','Topic (e.g. food, family, at school)','lgLearn')}<button class="btn" data-a="lgLearn">✨ Get words</button><button class="btn alt" data-a="lgStarter">➕ Add starter words</button></div>
+    ${w.length?`<div class="card">${w.map(x=>wordRow(x,code)).join('')}<button class="btn" data-a="lgAddAll">➕ Add all to my cards</button></div>`:''}`;
+  }
+  if(g.mode==='cards'){
+    const due=dueCards(p,g.lang),c=due.find(x=>x.id===g.card)||due[0];
+    if(!lgCards(p,g.lang).length)return `<div class="card"><p>No ${g.lang} cards yet.</p><button class="btn" data-a="lgStarter">➕ Add starter words</button></div>`;
+    if(!c)return `<div class="card"><h2>🎉 All done for today!</h2><p class="mut">${lgCards(p,g.lang).length} cards saved. Next review is scheduled automatically.</p></div>`;
+    return `<div class="card" style="text-align:center"><div class="mut">${due.length} due</div><div class="native">${esc(c.n)}</div>${sp(c.n,code)}
+    ${g.flip?`<p style="font-size:22px">${esc(c.r)}</p><p style="font-size:26px"><b>${esc(c.m)}</b></p><button class="btn bad" data-a="cardRate" data-r="0" data-id="${c.id}">😕 Again</button><button class="btn" data-a="cardRate" data-r="1" data-id="${c.id}">🙂 Good</button><button class="btn alt" data-a="cardRate" data-r="2" data-id="${c.id}">😎 Easy</button>`:`<button class="btn big" data-a="cardFlip">👀 Show answer</button>`}</div>`;
+  }
+  if(g.mode==='say'){
+    const pool=lgCards(p,g.lang);const s=g.say||(pool.length?pool[0]:{n:L.starter[0][0],r:L.starter[0][1],m:L.starter[0][2]});
+    return `<div class="card" style="text-align:center"><div class="native">${esc(s.n)}</div><div>${esc(s.r)} — ${esc(s.m)}</div>${sp(s.n,code)}<br>
+    <button class="btn big" data-a="sayStart">${U.listening?'🔴 Listening…':'🎤 Say it'}</button><button class="btn alt" data-a="sayNext">⏭️ Another word</button>
+    <label>No microphone? Type what you said</label><div class="row"><input data-m="sayType" value="${M('sayType')}" data-en="sayTyped"><button class="btn alt sm" data-a="sayTyped">Score</button></div>
+    ${g.res?`<div class="fb ${g.res.score>=70?'ok':'info'}"><div class="stars">${'⭐'.repeat(Math.round(g.res.score/20))}</div>I heard: <b>${esc(g.res.heard)}</b> · ${g.res.score}/100<br>${esc(g.res.feedback||'')}</div>`:''}</div>`;
+  }
+  if(g.mode==='trace'){
+    const l=L.letters[g.traceI%L.letters.length];
+    return `<div class="card" style="text-align:center"><h3>Trace the letter</h3><div class="native">${esc(l)}</div><canvas id="cv" width="320" height="320" data-l="${esc(l)}"></canvas><br>
+    <button class="btn alt" data-a="traceNav" data-d="-1">⬅️</button><button class="btn alt" data-a="traceClr">🧽 Clear</button>${sp(l,code)}<button class="btn" data-a="traceNav" data-d="1">➡️</button></div>`;
+  }
+  const D=g.dlg;
+  return `<div class="card"><h3>Mini dialogue</h3>${inp('lgDlg','Situation (e.g. at a café, meeting a friend)','dlgMake')}<button class="btn" data-a="dlgMake">💬 Make dialogue</button></div>
+  ${D?`<div class="card">${D.map((x,i)=>`<p><b>${esc(x.who)}:</b> <span style="font-size:24px">${esc(x.n)}</span> ${sp(x.n,code)}<br><span class="mut">${esc(x.r)} — ${esc(x.m)}</span></p>`).join('')}<button class="btn alt" data-a="dlgPlay">▶️ Play all</button></div>`:''}`;
+}
+const wordRow=(x,code)=>`<div class="row" style="border-bottom:1px solid var(--line);padding:6px 0"><div><span style="font-size:28px">${esc(x.n)}</span> ${sp(x.n,code)}<br><span class="mut">${esc(x.r)} — ${esc(x.m)}</span>${x.ex?`<br><i class="mut">${esc(x.ex)}</i>`:''}</div></div>`;
+function addCards(p,lang,words){let n=0;words.forEach(w=>{if(!w.n||p.cards.some(c=>c.lang===lang&&c.n===w.n))return;p.cards.push({id:uid(),lang,n:str(w.n),r:str(w.r),m:str(w.m),box:0,due:dkey()});n++});save();return n}
+function initTrace(){
+  const cv=$('#cv');if(!cv)return;const c=cv.getContext('2d');
+  c.fillStyle='rgba(120,120,160,.25)';c.font='230px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(cv.dataset.l,160,170);
+  c.strokeStyle=getComputedStyle(document.body).color;c.lineWidth=10;c.lineCap='round';c.lineJoin='round';
+  let d=false;const pos=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]};
+  cv.onpointerdown=e=>{d=true;const [x,y]=pos(e);c.beginPath();c.moveTo(x,y);c.lineTo(x+.1,y+.1);c.stroke();cv.setPointerCapture(e.pointerId)};
+  cv.onpointermove=e=>{if(!d)return;const [x,y]=pos(e);c.lineTo(x,y);c.stroke()};
+  cv.onpointerup=cv.onpointercancel=()=>{d=false};
+}
+async function scoreSpeech(heard){
+  const p=cur(),g=U.lg,L=LANGS[g.lang];const pool=lgCards(p,g.lang);const s=g.say||(pool[0]||{n:L.starter[0][0],r:L.starter[0][1],m:L.starter[0][2]});
+  let score=Math.max(sim(heard,s.n),sim(heard,s.r)),fb='';
+  try{
+    const r=await aj(`A learner of ${g.lang} tried to say "${s.n}" (${s.r}, meaning "${s.m}"). Speech recognition heard: "${clean(heard)}". Score pronunciation/recognition match 0-100 and give one encouraging tip. Return ONLY JSON: {"score":0,"feedback":""}`,{fast:true,p,nocache:true,temp:0.2});
+    if(Number.isFinite(Number(r.score)))score=Math.max(0,Math.min(100,Math.round(Number(r.score))));fb=str(r.feedback);
+  }catch(e){fb='(Scored offline by letter match. '+errMsg(e).replace(/^[^\s]+\s/,'')+')'}
+  g.res={heard:clean(heard),score,feedback:fb};if(score>=70)addXP(5,p);render();
+}
+
+/* ---- PARENT ---- */
+const EMOJIS=['🙂','😎','🦄','🚀','🦊','🐼','🌟','🎨','⚽','📚','🧑‍🎓','👩','👨','🧠'];
+const pinHash=x=>hash('fc|'+x);
+views.parent=p=>{
+  if(S.set.pin&&!U.unlocked)return `<div class="card"><h2>🔒 Parent area</h2><label>Enter PIN</label><input type="password" inputmode="numeric" data-m="pinIn" value="${M('pinIn')}" data-en="unlock"><button class="btn big" data-a="unlock">Unlock</button><p class="mut">This is the parent PIN that was typed in Settings on this browser (not the Gemini key).</p><button class="btn sm alt" data-a="forgotPin">Forgot PIN?</button></div>`;
+  const u=S.usage.day===dkey()?S.usage:{calls:0,tokens:0};
+  return `${!cur()||!hasKey()?`<div class="card"><h2>👋 Quick setup</h2><p style="font-size:20px">${hasKey()?'✅':'⬜'} 1. Paste your Gemini key and press <b>Save key</b><br>${cur()?'✅':'⬜'} 2. In <b>Family</b> below, type a learner name and press <b>Save</b></p><p class="mut">The other tabs open once a learner is saved.</p></div>`:''}
+  <div class="card"><h2>🔑 Gemini key</h2><p class="mut">Saved only in this browser. Sent only to Google in a header. Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>.</p>
+  <input type="password" data-m="keyIn" value="${M('keyIn')}" placeholder="${hasKey()?'●●●● key saved (paste to replace)':'Paste key'}" autocomplete="off"><button class="btn" data-a="saveKey">💾 Save key</button><button class="btn alt" data-a="testKey">🧪 Test</button><button class="btn alt" data-a="delKey">Remove key</button></div>
+  <div class="card"><h2>👨‍👩‍👧 Family</h2>${S.profiles.map(q=>profForm(q)).join('')}<button class="btn" data-a="addProf">➕ Add learner</button>
+  <p class="mut">🔐 Learner names stay in this browser. Only level, grade/year, goal, strengths and struggles go to the AI, and names are removed from anything typed.</p></div>
+  <div class="card"><h2>⚙️ Settings</h2>
+  <label>Parent PIN (leave empty for none)</label><input type="password" inputmode="numeric" data-m="pinNew" value="${M('pinNew')}" placeholder="${S.set.pin?'●●●● set (type new to change)':'e.g. 1234'}">
+  <label>City / region (sent to the AI for local options)</label><input data-m="setCity" value="${esc(U.m.setCity??S.set.city)}">
+  <label>Daily AI call limit (0 = no limit in this app; Google's own quota still applies)</label><input type="number" data-m="setLimit" min="0" value="${esc(U.m.setLimit??S.set.limit)}">
+  <label>Homework mode</label>${sel('setHw',[['hints','Hints first (recommended)'],['method','Explain method + similar example']],S.set.hw)}
+  <label>Research mode (live Google Search in lessons and Mentor — uses more of your free Gemini quota)</label>${sel('setRes',[['1','On — latest information (recommended)'],['0','Off — faster, fewer calls']],S.set.research?'1':'0')}<label>Background builder (prepares lessons for each learner's path and re-checks the path every week, while the page is open)</label>${sel('setBg',[['1','On (recommended)'],['0','Off']],S.set.bg?'1':'0')}<label>Max background AI calls per day</label><input type="number" data-m="setBgMax" min="0" value="${esc(U.m.setBgMax??S.set.bgMax)}"><label>Main model</label><input data-m="setModel" value="${esc(U.m.setModel??S.set.model)}"><label>Fast model</label><input data-m="setFast" value="${esc(U.m.setFast??S.set.fast)}">
+  <div class="mut">Check names at <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener noreferrer">ai.google.dev/gemini-api/docs/models</a></div><button class="btn big" data-a="saveSet">💾 Save settings</button></div>
+  <div class="card"><h2>📊 Usage today</h2><p>${u.calls} / ${S.set.limit} AI calls · ${u.tokens} tokens · ${Object.keys(S.cache).length} saved answers</p><button class="btn alt sm" data-a="clearCache">Clear saved answers</button></div>
+  <div class="card"><h2>📈 Progress</h2>${S.profiles.map(q=>`<h3>${esc(q.emoji)} ${esc(q.name)}</h3><table><tr><td>XP / level</td><td>${q.xp} · Lv ${level(q)}</td></tr><tr><td>Streak</td><td>${q.streak} days</td></tr><tr><td>Topics</td><td>${Object.entries(q.topics).map(([t,v])=>esc(t)+(v.tot?` (${v.ok}/${v.tot})`:'')).join(', ')||'—'}</td></tr><tr><td>Weak spots</td><td>${q.weak.map(w=>esc(w.topic)).filter((x,i,a)=>a.indexOf(x)===i).join(', ')||'—'}</td></tr><tr><td>Flashcards</td><td>${q.cards.length} (${dueCards(q).length} due)</td></tr><tr><td>Plans / chat</td><td>${q.plans.length} course plans · ${q.chat.length} messages ${q.path?'· path chosen':''}</td></tr></table>`).join('')||'<p class="mut">No learners yet.</p>'}</div>
+  <div class="card"><h2>💾 Backup</h2><button class="btn" data-a="backup">⬇️ Download backup</button><label style="display:inline-block"><input type="checkbox" id="bkKey"> include key</label>
+  <label>Restore from backup file</label><input type="file" accept=".json,application/json" id="restore"></div>`;
+};
+function profForm(q){
+  const open=U.editing===q.id||!q.name;
+  return `<details ${open?'open':''}><summary>${esc(q.emoji)} ${esc(q.name||'(new learner)')} · ${esc(STAGE_NAMES[q.stage])}</summary><div data-pf="${q.id}">
+  <label>Emoji</label><div>${EMOJIS.map(e=>`<button class="tag" data-a="pickEmoji" data-e="${e}" data-id="${q.id}" style="${q.emoji===e?'outline:3px solid var(--pri)':''}">${e}</button>`).join('')}</div>
+  <label>Name (never sent to the AI)</label><input data-f="name" value="${esc(q.name)}"><label>Stage</label><select data-f="stage">${Object.entries(STAGE_NAMES).map(([k,v])=>`<option value="${k}" ${q.stage===k?'selected':''}>${v}</option>`).join('')}</select>
+  <label>Grade / year</label><input data-f="grade" value="${esc(q.grade)}" placeholder="e.g. 7th grade, sophomore"><label>Goal</label><input data-f="goal" value="${esc(q.goal)}" placeholder="e.g. become an engineer">
+  <label>Strengths</label><input data-f="strengths" value="${esc(q.strengths)}"><label>Struggles</label><input data-f="struggles" value="${esc(q.struggles)}">
+  <button class="btn" data-a="saveProf" data-id="${q.id}">💾 Save</button><button class="btn bad sm" data-a="delProf" data-id="${q.id}">🗑️ Delete</button></div></details>`;
+}
+
+/* ================= render + events ================= */
+const emojiDraft={};
+function render(){
+  const p=cur();if(!p&&U.tab!=='parent')U.tab='parent';
+  const body=views[U.tab](p);
+  const scroll=window.scrollY;
+  $('#app').innerHTML=header(p)+`<main>${U.load?`<div class="load">⏳ ${esc(U.load)}</div>`:''}${body}</main>`;
+  if(U.tab==='lang'&&U.lg.mode==='trace')initTrace();
+  const r=$('#restore');if(r)r.onchange=restoreFile;
+  const c=$('#chat');if(c)c.scrollTop=c.scrollHeight;
+  window.scrollTo(0,scroll);
+}
+function go(tab,extra){U.tab=tab;Object.assign(U,extra||{});render();window.scrollTo(0,0)}
+function stepGo(s){
+  const t=clean(s.topic);
+  if(s.type==='learn'){U.m.learnTopic=t;go('learn')}
+  else if(s.type==='practice'){U.m.prTopic=t;U.pr=null;go('practice')}
+  else if(s.type==='explore'){U.m.pathGoal=t;go('path')}
+  else if(s.type==='language')go('lang',{lg:Object.assign(U.lg,{mode:'cards'})});
+  else if(s.type==='college')go('college');
+  else go('mentor');
+}
+const A={
+  tab:d=>{if(!cur()&&d.t!=='parent'){if(!S.profiles.length)A.addProf();go('parent');toast('👇 First add a learner: type a name and press Save',true);const f=document.querySelector('[data-f="name"]');if(f){f.scrollIntoView({block:'center'});f.focus()}return}go(d.t)},prof:d=>{S.active=d.id;U.lesson=null;U.pr=null;U.essay=null;save();go(U.tab==='parent'?'parent':U.tab)},
+  goTab:d=>{if(d.mode)U.lg.mode=d.mode;go(d.t)},
+  stepGo:d=>stepGo(cur().weekly.steps[+d.i]),
+  stepDone:d=>{const s=cur().weekly.steps[+d.i];s.done=!s.done;if(s.done)addXP(5);save();render()},
+  weeklyNew:()=>{const p=cur();p.weekly=null;save();render()},
+  keep:()=>{const p=cur();if(dueCards(p).length)return go('lang',{lg:Object.assign(U.lg,{mode:'cards'})});
+    const st=p.weekly?.steps.find(s=>!s.done);if(st)return stepGo(st);if(p.weak[0]){U.m.prTopic=p.weak[0].topic;U.pr=null;return go('practice')}go('mentor')},
+  weakGo:d=>{U.m.prTopic=d.t;U.pr=null;go('practice')},
+  pathMake:async()=>{const p=cur();const goal=clean(U.m.pathGoal||p.goal);if(!goal)return toast('Type a goal first',true);
+    await run('Building your path… (searching the web)',async()=>{
+      const r=await aj(pathPrompt(p,goal),{p,search:true});
+      if(!arr(r.milestones).length)throw new Error('BADJSON');p.pathDraft=r;p.pathGoal=goal;save();});},
+  pathChoose:()=>{const p=cur();p.path=p.pathDraft;p.pathChosen=true;p.pathChecked=weekKey();if(p.pathGoal&&!p.goal)p.goal=p.pathGoal;p.weekly=null;save();syncLib(p);save();toast('Path saved! Lessons for it are now being built in the background ⭐');render()},
+  learn:()=>doLearn(U.m.learnTopic),learnTag:d=>{U.m.learnTopic=d.t;doLearn(d.t)},
+  lessonSel:d=>{U.lesson.sel=+d.i;render()},lessonDone:()=>{addXP(10);toast('Great job! 🎉');},
+  goPractice:d=>{U.m.prTopic=d.t;U.pr=null;go('practice')},
+  vid:(d,el)=>{const v=el.closest('.vid');v.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(d.id)}?rel=0" allow="accelerometer;encrypted-media;picture-in-picture" allowfullscreen></iframe>`;v.style.width='100%';v.style.maxWidth='560px'},
+  demo:d=>{U.demo=U.demo===d.s?null:d.s;render()},
+  prStart:()=>prStart(U.m.prTopic),prSel:d=>{U.pr.sel=+d.i;render()},prCheck:prCheck,prHint:()=>{U.pr.hint=true;render()},prNext:prNext,
+  prStop:()=>{const P=U.pr;if(P&&P.tot)toast(`Finished: ${P.ok}/${P.tot} correct 🎉`);U.pr=null;render()},
+  colTab:d=>{U.col=d.k;render()},planMake:planMake,planDel:d=>{if(confirm('Delete this plan?')){cur().plans.splice(+d.i,1);save();render()}},
+  planWeek:d=>{const pl=cur().plans[+d.i];pl.done=pl.done||{};pl.done[d.w]=!pl.done[d.w];if(pl.done[d.w])addXP(10);save();render()},
+  examMake:examMake,essayGo:essayGo,tmrStart:()=>{tStart();render()},tmrPause:()=>{tPause();render()},tmrReset:()=>{tPause();T.left=1500;render()},
+  send:sendChat,mic:()=>listen('en-US',t=>{U.m.chatIn=(U.m.chatIn?U.m.chatIn+' ':'')+t;render()}),
+  chatClear:()=>{if(confirm('Clear this chat?')){cur().chat=[];save();render()}},
+  speak:d=>speak(d.s,d.c),
+  lgLang:d=>{U.lg.lang=d.l;U.lg.words=null;U.lg.dlg=null;U.lg.card=null;U.lg.flip=false;U.lg.say=null;U.lg.res=null;render()},
+  lgMode:d=>{U.lg.mode=d.k;U.lg.flip=false;U.lg.res=null;render()},
+  lgLearn:async()=>{const p=cur(),g=U.lg,topic=clean(U.m.lgTopic)||'everyday words';
+    await run('Finding words…',async()=>{const r=await aj(`Give 8 useful ${g.lang} words or short phrases about "${topic}" for this learner level. Return ONLY JSON: {"words":[{"n":"in native script","r":"romanization / pronunciation in Latin letters (same as n if already Latin)","m":"English meaning","ex":"short example sentence in ${g.lang} with its English meaning"}]}`,{p});
+      g.words=arr(r.words).filter(w=>w&&w.n);if(!g.words.length)throw new Error('BADJSON')})},
+  lgAddAll:()=>{const n=addCards(cur(),U.lg.lang,U.lg.words||[]);toast(n+' cards added 🃏');render()},
+  lgStarter:()=>{const L=LANGS[U.lg.lang];const n=addCards(cur(),U.lg.lang,L.starter.map(([n,r,m])=>({n,r,m})));toast(n+' starter cards added 🃏');render()},
+  cardFlip:()=>{U.lg.flip=true;render()},
+  cardRate:d=>{const c=cur().cards.find(x=>x.id===d.id);const r=+d.r;c.box=r===0?0:Math.min(6,c.box+r);c.due=addDays(dkey(),r===0?0:BOX[c.box]);if(r)addXP(2);save();U.lg.flip=false;U.lg.card=null;
+    if(r===0){/* keep it in rotation but show others first */const due=dueCards(cur(),U.lg.lang).filter(x=>x.id!==c.id);if(due.length)U.lg.card=due[0].id}render()},
+  sayStart:()=>{listen(LANGS[U.lg.lang].code,h=>scoreSpeech(h))},
+  sayTyped:()=>{const t=clean(U.m.sayType);if(t){U.m.sayType='';run('Scoring…',()=>scoreSpeech(t))}},
+  sayNext:()=>{const p=cur(),pool=lgCards(p,U.lg.lang),L=LANGS[U.lg.lang];const list=pool.length?pool:L.starter.map(([n,r,m])=>({n,r,m}));U.lg.say=list[Math.floor(Math.random()*list.length)];U.lg.res=null;render()},
+  traceNav:d=>{const L=LANGS[U.lg.lang].letters;U.lg.traceI=(U.lg.traceI+ +d.d+L.length)%L.length;render()},traceClr:()=>render(),
+  dlgMake:async()=>{const p=cur(),g=U.lg,s=clean(U.m.lgDlg)||'greeting a new friend';
+    await run('Writing a dialogue…',async()=>{const r=await aj(`Write a short 6-line dialogue in ${g.lang} between A and B: ${s}. Beginner level. Return ONLY JSON: {"lines":[{"who":"A","n":"native script","r":"romanization","m":"English"}]}`,{p});
+      g.dlg=arr(r.lines).filter(x=>x&&x.n);if(!g.dlg.length)throw new Error('BADJSON');addXP(5,p)})},
+  dlgPlay:()=>{const code=LANGS[U.lg.lang].code;try{speechSynthesis.cancel();U.lg.dlg.forEach(x=>{const u=new SpeechSynthesisUtterance(x.n);u.lang=code;speechSynthesis.speak(u)})}catch(e){toast('Read-aloud not supported',true)}},
+  unlock:()=>{if(pinHash(U.m.pinIn||'')===S.set.pin){U.unlocked=true;U.m.pinIn='';render()}else toast('Wrong PIN',true)},
+  forgotPin:()=>{if(!confirm('Reset the PIN? For safety this also removes the saved Gemini key, so you will paste the key again. Learners and progress are kept.'))return;S.set.pin='';LS.del('fc_key');U.unlocked=true;U.m.pinIn='';save();toast('PIN removed. Paste your Gemini key again.');render()},
+  saveKey:()=>{const k=(U.m.keyIn||'').trim();if(!k)return toast('Paste a key first',true);LS.setRaw('fc_key',k);U.m.keyIn='';toast('Key saved in this browser 🔑');render()},
+  delKey:()=>{LS.del('fc_key');toast('Key removed');render()},
+  testKey:()=>run('Testing…',async()=>{const t=await at('Reply with the single word OK.',{fast:true,nocache:true,p:null});toast('✅ Works: '+t.slice(0,30))}),
+  saveSet:()=>{const s=S.set;s.city=(U.m.setCity??s.city).trim();s.limit=Math.max(0,parseInt(U.m.setLimit??s.limit)||0);s.hw=U.m.setHw||s.hw;if(U.m.setRes!=null)s.research=U.m.setRes==='1';if(U.m.setBg!=null)s.bg=U.m.setBg==='1';s.bgMax=Math.max(0,parseInt(U.m.setBgMax??s.bgMax)||0);s.model=(U.m.setModel??s.model).trim()||DEF_SET.model;s.fast=(U.m.setFast??s.fast).trim()||DEF_SET.fast;
+    if(U.m.pinNew!=null&&U.m.pinNew!==''){s.pin=pinHash(U.m.pinNew);U.m.pinNew='';toast('Settings + PIN saved')}else toast('Settings saved ✅');save();render()},
+  clearCache:()=>{S.cache={};save();render()},
+  addProf:()=>{const q=newP({name:''});S.profiles.push(q);S.active=S.active||q.id;U.editing=q.id;save();render()},
+  pickEmoji:(d)=>{const q=S.profiles.find(x=>x.id===d.id);q.emoji=d.e;save();U.editing=d.id;render()},
+  saveProf:d=>{const q=S.profiles.find(x=>x.id===d.id),box=document.querySelector(`[data-pf="${d.id}"]`);box.querySelectorAll('[data-f]').forEach(i=>{q[i.dataset.f]=i.value.trim()});
+    if(!q.name)return toast('Please add a name',true);const first=S.profiles.filter(x=>x.name).length===1;if(!S.active||first)S.active=q.id;U.editing=null;save();if(first){toast('Saved ✅ Welcome, '+q.name+'!');go('today')}else{toast('Saved ✅');render()}},
+  delProf:d=>{if(!confirm('Delete this learner and all their progress?'))return;S.profiles=S.profiles.filter(x=>x.id!==d.id);if(S.active===d.id)S.active=S.profiles[0]?.id||null;save();render()},
+  backup:()=>{const inc=$('#bkKey')?.checked;const data={app:'FamilyCoach',v:1,date:new Date().toISOString(),state:Object.assign({},S,{cache:{}}),key:inc?LS.raw('fc_key'):undefined};
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));a.download='FamilyCoach-backup-'+dkey()+'.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded 💾')}
+};
+function restoreFile(e){
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.app!=='FamilyCoach'||!d.state)throw 0;if(!confirm('Replace everything in this browser with the backup?'))return;S=normState(d.state);if(d.key)LS.setRaw('fc_key',d.key);save();toast('Restored ✅');render()}catch(x){toast('That is not a Family Coach backup file',true)}};
+  r.readAsText(f);
+}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const f=A[el.dataset.a];if(f){const r=f(el.dataset,el);if(r&&r.catch)r.catch(x=>toast(errMsg(x),true))}});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.m;if(k)U.m[k]=e.target.value});
+document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.m;if(k)U.m[k]=e.target.value});
+document.addEventListener('keydown',e=>{const k=e.target.dataset&&e.target.dataset.en;if(k&&e.key==='Enter'){e.preventDefault();U.m[e.target.dataset.m]=e.target.value;const f=A[k];if(f)f({},e.target)}});
+window.FC={get S(){return S},U,A,render};
+setInterval(builderTick,BG_MS);setTimeout(builderTick,Math.min(BG_MS,5000));
+if(!cur())U.tab='parent';
+if(!S.profiles.length){const q=newP({name:''});S.profiles.push(q);U.editing=q.id}
+render();
+</script>
+</body>
+</html>
