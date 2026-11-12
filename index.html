@@ -301,8 +301,8 @@ function sopLibHtml(){
   const all=SOPT(),built=all.filter(x=>findLib('sop',x.t)).length,gs=new Map();
   all.forEach(x=>{if(!gs.has(x.g))gs.set(x.g,[]);gs.get(x.g).push(x.t)});
   return `<div class="card"><h2>📚 End-to-end sales SOP library</h2><p class="mut">It builds itself. ${SH.n?`${SH.n} SOPs come ready-made from the GitHub library (built on a schedule, even when nobody has the app open). `:''}Anything missing is built by this page in the background while it is open. You never need to click anything.</p>
-  <div><b>${built} of ${all.length}</b> SOPs ready</div><div style="background:var(--line);border-radius:99px;height:10px;margin:6px 0"><div style="width:${Math.round(100*built/all.length)}%;height:10px;border-radius:99px;background:var(--ok)"></div></div>
-  ${[...gs].map(([g,ts])=>{const b=ts.filter(t=>findLib('sop',t)).length,open=U.sopStg[g];return `<button class="opt ${open?'ok':''}" data-a="sopStg" data-g="${esc(g)}">${esc(g)} <span class="mut">${b}/${ts.length}</span></button>`+(open?`<div style="margin:4px 0 8px">${ts.map(t=>{const it=findLib('sop',t);return `<button class="lib ${it?'ready':''}" data-a="sopChip" data-t="${esc(t)}">${it?'✅':'⏳'} ${esc(t)}</button>`}).join('')}</div>`:'')}).join('')}</div>`;
+  <div><b>${built} of ${all.length}</b> SOPs ready</div><button class="btn sm" data-a="libPdf">⬇️ Whole library (PDF)</button><button class="btn sm alt" data-a="libWord">⬇️ Whole library (Word)</button><div style="background:var(--line);border-radius:99px;height:10px;margin:6px 0"><div style="width:${Math.round(100*built/all.length)}%;height:10px;border-radius:99px;background:var(--ok)"></div></div>
+  ${[...gs].map(([g,ts])=>{const b=ts.filter(t=>findLib('sop',t)).length,open=U.sopStg[g];return `<button class="opt ${open?'ok':''}" data-a="sopStg" data-g="${esc(g)}">${esc(g)} <span class="mut">${b}/${ts.length}</span></button>`+(open?`<div style="margin:4px 0 8px"><button class="btn sm alt" data-a="grpPdf" data-g="${esc(g)}">⬇️ This section (PDF)</button><br>${ts.map(t=>{const it=findLib('sop',t);return `<button class="lib ${it?'ready':''}" data-a="sopChip" data-t="${esc(t)}">${it?'✅':'⏳'} ${esc(t)}</button>`}).join('')}</div>`:'')}).join('')}</div>`;
 }
 
 /* ============ RESEARCH PACK ============ */
@@ -427,12 +427,58 @@ function sopHtml(it){
   const d=it.data;
   const sp=[{text:it.title+'. '+str(d.story)}].concat(arr(d.steps).map((s,i)=>({text:`Step ${i+1}. ${str(s.step)}. Done by ${str(s.who)} in ${str(s.where)}. If something is missing: ${str(s.if_missing)}. Fix: ${str(s.fix)}.`})));
   const id='s'+(++spkN);SPK[id]={items:sp,title:'SOP: '+it.title};
-  return `<div class="card"><h2>📋 ${esc(it.title)}</h2><button class="btn" data-a="say" data-id="${id}">🎧 Listen to the SOP</button><button class="btn alt" data-a="toInterview" data-t="${esc(it.title)}">🎙️ Mock interview</button><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>${srcHtml(it.src)}<p style="font-size:18px">${esc(str(d.story))}</p></div>
+  return `<div class="card"><h2>📋 ${esc(it.title)}</h2><button class="btn" data-a="say" data-id="${id}">🎧 Listen to the SOP</button><button class="btn alt" data-a="sopPdf" data-id="${it.id}">⬇️ Download PDF</button><button class="btn alt" data-a="sopWord" data-id="${it.id}">⬇️ Word</button><button class="btn alt" data-a="toInterview" data-t="${esc(it.title)}">🎙️ Mock interview</button><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>${srcHtml(it.src)}<p style="font-size:18px">${esc(str(d.story))}</p></div>
   ${sec('👥 Who does what',arr(d.roles).length?`<table>${arr(d.roles).map(r=>`<tr><td><b>${esc(str(r.who))}</b></td><td>${esc(str(r.does))}</td></tr>`).join('')}</table>`:'')}
   <div class="card"><h3>🪜 Steps</h3>${arr(d.steps).map((s,i)=>`<details ${i===0?'open':''}><summary>${i+1}. ${esc(str(s.step))}</summary><p>👤 <b>${esc(str(s.who))}</b> · 📍 ${esc(str(s.where))}</p><p>⚙️ <b>Config needed:</b> ${esc(str(s.config_needed))}</p><p>🚨 <b>If missing:</b> ${esc(str(s.if_missing))}</p><p>🔧 <b>Fix:</b> ${esc(str(s.fix))}</p><p>✅ <b>Check:</b> ${esc(str(s.check))}</p></details>`).join('')}</div>
   ${sec('🔌 Integrations',arr(d.integrations).length?`<table>${arr(d.integrations).map(x=>`<tr><td><b>${esc(str(x.system))}</b></td><td>${esc(str(x.how))}</td></tr>`).join('')}</table>`:'')}${sec('🏭 Industry variations',li(d.industry_variations))}${sec('🤝 Handoffs',li(d.handoffs))}${sec('📆 Day-to-day running',li(d.daily_ops))}${sec('🛡️ Controls',li(d.controls))}${sec('🎤 Interview angles',li(d.interview_angles))}`;
 }
 views.sop=()=>{const it=getOpen('sop');return `<div class="card"><h2>📋 SOP Builder</h2><p class="mut">Type any SAP scenario. You get the story, each step, the config behind it, the error you see if it is missing, and the fix.</p><div class="row">${inp('sQ','e.g. STO, consignment, credit block on sales order, returns','sop')}<button class="btn" data-a="sop">Build the SOP</button></div>${recent('sop','openSop')}</div>${bgLine()}${it?sopHtml(it):''}${sopLibHtml()}`};
+
+
+/* ============ SOP DOCUMENT (PDF / Word) ============ */
+const DOC_CSS=`@page{size:A4 landscape;margin:14mm 12mm 16mm;@bottom-center{content:"Page " counter(page);font-size:9pt;color:#666}}
+*{box-sizing:border-box}body{font:10.5pt/1.45 "Segoe UI",Arial,sans-serif;color:#1d2433;margin:0}
+h1{font-size:22pt;margin:0 0 4pt;color:#2b2f8f}h2{font-size:13pt;margin:16pt 0 5pt;padding-bottom:2pt;border-bottom:2px solid #4f46e5;color:#2b2f8f;page-break-after:avoid}
+.sub{color:#555;margin:0 0 10pt}table{width:100%;border-collapse:collapse;margin:4pt 0 8pt}th{background:#e8eaff;text-align:left}th,td{border:1px solid #b9c0d8;padding:4pt 6pt;vertical-align:top;font-size:9.5pt}
+thead{display:table-header-group}tr{page-break-inside:avoid}ul,ol{margin:3pt 0 6pt;padding-left:18pt}li{margin:2pt 0}
+.ctl td:first-child{width:22%;background:#f3f4fb;font-weight:600}.note{font-size:8.5pt;color:#666;margin-top:14pt;border-top:1px solid #ccc;padding-top:6pt}
+.pb{page-break-before:always}.cover{padding-top:50mm;text-align:center}.cover h1{font-size:30pt}.toc li{margin:3pt 0}.g{font-weight:700;margin-top:8pt;list-style:none;margin-left:-14pt}
+.err{color:#9b1c1c}.fix{color:#14532d}`;
+const wrapDoc=(title,body)=>`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>${DOC_CSS}</style></head><body>${body}</body></html>`;
+const dtab=(head,rows)=>rows.length?`<table><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'';
+const dul=(a,ord)=>arr(a).length?`<${ord?'ol':'ul'}>${arr(a).map(x=>`<li>${esc(str(x))}</li>`).join('')}</${ord?'ol':'ul'}>`:'';
+function sopBody(it,group){
+  const d=it.data,n=[0],h=t=>`<h2>${++n[0]}. ${t}</h2>`,docId='SOP-'+norm(it.title).slice(0,14).toUpperCase();
+  let o=`<h1>${esc(it.title)}</h1><p class="sub">Standard Operating Procedure · SAP S/4HANA Order-to-Cash</p>
+  <table class="ctl"><tr><td>Document ID</td><td>${esc(docId)}</td><td>Version</td><td>1.0 (draft)</td></tr><tr><td>Process area</td><td>${esc(group||'Order-to-Cash')}</td><td>Date</td><td>${esc(it.sharedBuilt||it.created||dkey())}</td></tr><tr><td>Prepared by</td><td>SAP Coach (AI-assisted research)</td><td>Reviewed by / Approved by</td><td>&nbsp;</td></tr></table>`;
+  o+=h('Purpose and scenario')+`<p>${esc(str(d.story))}</p>`;
+  if(arr(d.roles).length)o+=h('Roles and responsibilities')+dtab(['Role','Responsibility'],arr(d.roles).map(r=>[`<b>${esc(str(r.who))}</b>`,esc(str(r.does))]));
+  o+=h('Process overview')+dul(arr(d.steps).map(s=>str(s.step)),true);
+  o+=h('Detailed procedure')+dtab(['#','Activity','Role','Where (T-code / Fiori app)','Configuration prerequisite','If missing (what you see)','Resolution','How to verify'],arr(d.steps).map((s,i)=>[i+1,`<b>${esc(str(s.step))}</b>`,esc(str(s.who)),esc(str(s.where)),esc(str(s.config_needed)),`<span class="err">${esc(str(s.if_missing))}</span>`,`<span class="fix">${esc(str(s.fix))}</span>`,esc(str(s.check))]));
+  if(arr(d.integrations).length)o+=h('Integrations')+dtab(['System / module','How it connects'],arr(d.integrations).map(x=>[`<b>${esc(str(x.system))}</b>`,esc(str(x.how))]));
+  if(arr(d.handoffs).length)o+=h('Hand-offs')+dul(d.handoffs);
+  if(arr(d.daily_ops).length)o+=h('Day-to-day operation and monitoring')+dul(d.daily_ops);
+  if(arr(d.controls).length)o+=h('Controls and audit points')+dul(d.controls);
+  if(arr(d.industry_variations).length)o+=h('Industry variations')+dul(d.industry_variations);
+  if(arr(d.interview_angles).length)o+=h('Interview talking points')+dul(d.interview_angles);
+  if(arr(it.src).length)o+=h('Sources consulted')+`<ul>${arr(it.src).map(x=>`<li>${esc(str(x.title||x.uri))} <span style="color:#666">${esc(str(x.uri))}</span></li>`).join('')}</ul>`;
+  return o+`<p class="note">Generated with AI assistance from public sources. Transaction codes, configuration paths, message numbers and SAP Notes must be verified on help.sap.com and in your own system before this procedure is used operationally.</p>`;
+}
+const sopDoc=it=>wrapDoc(it.title+' - SOP',sopBody(it,it.group));
+function libDoc(titles,docTitle){
+  const items=titles.map(t=>({t,it:findLib('sop',t)})).filter(x=>x.it),gmap=new Map(SOPT().map(x=>[norm(x.t),x.g]));
+  let toc='',last='';items.forEach(x=>{const g=gmap.get(norm(x.t))||'Other';if(g!==last){toc+=`<li class="g">${esc(g)}</li>`;last=g}toc+=`<li>${esc(x.t)}</li>`});
+  return wrapDoc(docTitle,`<div class="cover"><h1>${esc(docTitle)}</h1><p class="sub">${items.length} procedures · SAP S/4HANA Order-to-Cash · ${dkey()}</p></div><div class="pb"><h2>Contents</h2><ul class="toc">${toc}</ul></div>`+items.map(x=>`<div class="pb">${sopBody(x.it,gmap.get(norm(x.t)))}</div>`).join(''));
+}
+function printHtml(html,title){
+  if(window.__printHook)return window.__printHook(html,title);
+  const f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);
+  const d=f.contentWindow.document;d.open();d.write(html);d.close();
+  setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){toast('Printing is blocked here. Use the Word download instead.',true)}setTimeout(()=>f.remove(),90000)},400);
+  toast('In the print window, choose "Save as PDF" as the destination');
+}
+function dlDoc(html,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+html],{type:'application/msword'}));a.download=name.replace(/[^\w.-]+/g,'_')+'.doc';document.body.appendChild(a);a.click();a.remove()}
+const groupTitles=g=>SOPT().filter(x=>x.g===g).map(x=>x.t);
 
 /* ============ COURSE ============ */
 async function doCourse(q){
@@ -629,6 +675,11 @@ function go(t){U.tab=t;render();window.scrollTo(0,0)}
 const openIt=k=>d=>{U.open[k]=d.id;if(k==='course')U.lesson=null;if(k==='interview')U.iv=null;go(k==='pack'?'research':k)};
 const A={
   tab:d=>go(d.t),
+  sopPdf:d=>{const it=S.lib.find(x=>x.id===d.id);if(it)printHtml(sopDoc(it),it.title+' - SOP')},
+  sopWord:d=>{const it=S.lib.find(x=>x.id===d.id);if(it)dlDoc(sopDoc(it),'SOP - '+it.title)},
+  libPdf:()=>{const t=SOPT().map(x=>x.t);if(!t.some(x=>findLib('sop',x)))return toast('No SOPs built yet',true);printHtml(libDoc(t,'OTC SOP Library'),'OTC SOP Library')},
+  libWord:()=>dlDoc(libDoc(SOPT().map(x=>x.t),'OTC SOP Library'),'OTC SOP Library'),
+  grpPdf:d=>printHtml(libDoc(groupTitles(d.g),d.g+' - SOPs'),d.g+' - SOPs'),
   sopStg:d=>{U.sopStg[d.g]=!U.sopStg[d.g];render()},
   sopChip:d=>{const it=findLib('sop',d.t);if(it){U.open.sop=it.id;render();window.scrollTo(0,0)}else doSop(d.t)},
   stg:d=>{U.stg[d.id]=!U.stg[d.id];render()},
@@ -681,7 +732,7 @@ document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset
 document.addEventListener('change',e=>{const d=e.target.dataset||{};if(d.m)U.m[d.m]=e.target.value;if('rate' in d){S.set.rate=Number(e.target.value);save();if(PL.on){PL.cur=null;speechSynthesis.cancel();speakNext()}}});
 document.addEventListener('keydown',e=>{const k=e.target.dataset&&e.target.dataset.en;if(k&&e.key==='Enter'){e.preventDefault();U.m[e.target.dataset.m]=e.target.value;const f=A[k];if(f)f({},e.target)}});
 try{speechSynthesis.onvoiceschanged=()=>{if(U.tab==='settings')softRender()}}catch(e){}
-window.SC={get S(){return S},U,PL,A};
+window.SC={get S(){return S},U,PL,A,sopDoc,libDoc,render};
 if(!hasKey())U.tab='settings';
 render();bar();
 pullShared();setInterval(pullShared,10*60*1000);
