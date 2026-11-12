@@ -1,0 +1,41 @@
+name: build-library
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'library/topics.json'
+      - 'tools/build_library.mjs'
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: build-library
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build missing or stale SOPs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node tools/build_library.mjs
+      - name: Commit changes
+        run: |
+          git config user.name "library-bot"
+          git config user.email "library-bot@users.noreply.github.com"
+          git add library
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Update SOP library"
+          git pull --rebase origin main
+          git push origin main
+      - name: Ask Pages to rebuild
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
