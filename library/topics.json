@@ -1,0 +1,590 @@
+[
+ {
+  "title": "What is an ERP and why companies use SAP",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Order-to-Cash in one picture (the whole story)",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Enterprise structure: company code, sales organization, distribution channel, division",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Business Partner and customer master data",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Material master (sales views)",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Condition records and the master data needed before the first order",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Fiori launchpad and navigating S/4HANA",
+  "group": "Foundations: what SAP and OTC are"
+ },
+ {
+  "title": "Customer inquiry (pre-sales document)",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Sales quotation",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Quotation validity and conversion to a sales order",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Quantity contract",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Value contract",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Scheduling agreement",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Lead and opportunity hand-off from CRM or Sales Cloud to quotation",
+  "group": "Pre-sales"
+ },
+ {
+  "title": "Standard sales order end to end",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Sales document types, item categories and schedule line categories",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Partner determination",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Text, output and incompletion procedures",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Copy control",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Cash sale and rush order",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Free-of-charge delivery and sample orders",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Consignment process",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Third-party (drop-ship) order",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Make-to-order and variant configuration",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Sales order change, rejection and backorder processing",
+  "group": "Sales order processing"
+ },
+ {
+  "title": "Pricing procedure basics",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Condition types, access sequences and condition records",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Taxes in sales pricing",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Rebates and settlement management",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Free goods and bonus buy",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Customer-specific price agreements",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Intercompany pricing",
+  "group": "Pricing and conditions"
+ },
+ {
+  "title": "Availability check and ATP",
+  "group": "Availability and credit"
+ },
+ {
+  "title": "Advanced ATP (aATP) and product allocation",
+  "group": "Availability and credit"
+ },
+ {
+  "title": "Credit management and credit block release",
+  "group": "Availability and credit"
+ },
+ {
+  "title": "Delivery and billing blocks: reasons and release",
+  "group": "Availability and credit"
+ },
+ {
+  "title": "Outbound delivery creation",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Shipping point, route and storage location determination",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Picking, packing and goods issue (PGI)",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Batch and serial number handling in delivery",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Warehouse integration: WM and EWM",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Transportation management and shipments",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Proof of delivery",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Export, foreign trade and customs",
+  "group": "Logistics and delivery"
+ },
+ {
+  "title": "Billing document types and invoice creation",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Billing plans: milestone and periodic billing",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Collective billing and invoice lists",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Credit memo, debit memo and invoice cancellation",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Intercompany billing",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Account determination: revenue posting to FI",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Revenue recognition (RAR and BRIM)",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Invoice output, e-invoicing and compliance",
+  "group": "Billing and invoicing"
+ },
+ {
+  "title": "Accounts receivable and incoming payments",
+  "group": "Receivables and cash"
+ },
+ {
+  "title": "Automatic cash application",
+  "group": "Receivables and cash"
+ },
+ {
+  "title": "Dunning and collections",
+  "group": "Receivables and cash"
+ },
+ {
+  "title": "Dispute management",
+  "group": "Receivables and cash"
+ },
+ {
+  "title": "Payment terms, DSO and cash forecasting",
+  "group": "Receivables and cash"
+ },
+ {
+  "title": "Returns process and returns delivery",
+  "group": "Returns and after-sales"
+ },
+ {
+  "title": "Complaints, claims and credit memo requests",
+  "group": "Returns and after-sales"
+ },
+ {
+  "title": "Warranty and service orders in S/4HANA",
+  "group": "Returns and after-sales"
+ },
+ {
+  "title": "Refund and replacement scenarios",
+  "group": "Returns and after-sales"
+ },
+ {
+  "title": "SD to FI/CO integration: what posts where",
+  "group": "Integrations"
+ },
+ {
+  "title": "SD to MM: stock transfer orders, third-party and intercompany",
+  "group": "Integrations"
+ },
+ {
+  "title": "SD to PP: make-to-order and production",
+  "group": "Integrations"
+ },
+ {
+  "title": "SD to EWM, WM and TM",
+  "group": "Integrations"
+ },
+ {
+  "title": "EDI and IDoc for sales orders (B2B)",
+  "group": "Integrations"
+ },
+ {
+  "title": "SAP Integration Suite (CPI) for order integration",
+  "group": "Integrations"
+ },
+ {
+  "title": "CRM, SAP Sales Cloud and Salesforce to S/4HANA",
+  "group": "Integrations"
+ },
+ {
+  "title": "E-commerce: SAP Commerce Cloud and web shops",
+  "group": "Integrations"
+ },
+ {
+  "title": "SAP Business Network and Ariba collaboration",
+  "group": "Integrations"
+ },
+ {
+  "title": "Tax engines (Vertex, Avalara) and e-invoicing",
+  "group": "Integrations"
+ },
+ {
+  "title": "OData APIs and events for order integration",
+  "group": "Integrations"
+ },
+ {
+  "title": "Data migration for OTC with the Migration Cockpit",
+  "group": "Integrations"
+ },
+ {
+  "title": "What changed from ECC SD to S/4HANA SD",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "Fiori apps for sales and billing",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "Output management (BRF+ and adaptation)",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "Cloud Public Edition vs Private Edition for OTC",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "Clean core and extensibility: key user and side-by-side",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "SAP Business Technology Platform for OTC extensions",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "Embedded analytics and order monitoring",
+  "group": "S/4HANA specifics and clean core"
+ },
+ {
+  "title": "What is SAP Joule (explained simply)",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "Joule for sales orders: status check and issue resolution",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "Joule for billing and receivables",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "Sales order completion and smart summarization",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "Joule agents and skills: what exists and what is roadmap",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "How to prompt Joule well: an OTC prompt library",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "Joule licensing and prerequisites: Base vs Premium",
+  "group": "Joule and Business AI"
+ },
+ {
+  "title": "Top 20 production issues in OTC and how to fix them",
+  "group": "Run and support"
+ },
+ {
+  "title": "Incident handling and root cause analysis",
+  "group": "Run and support"
+ },
+ {
+  "title": "Month-end and period-end for billing",
+  "group": "Run and support"
+ },
+ {
+  "title": "Testing OTC: unit, integration, UAT",
+  "group": "Run and support"
+ },
+ {
+  "title": "Cutover and hypercare for OTC",
+  "group": "Run and support"
+ },
+ {
+  "title": "Authorizations and segregation of duties in OTC",
+  "group": "Run and support"
+ },
+ {
+  "title": "OTC transformation strategy and business case",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "Global template and process ownership",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "KPIs: DSO, OTIF, order cycle time, perfect order",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "Governance, steering committee and risk",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "Managing system integrators and vendors",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "RISE with SAP and the move to S/4HANA",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "Org design: center of excellence and support model",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "Interview: how to talk about OTC as a leader",
+  "group": "Executive and VP"
+ },
+ {
+  "title": "Direct store delivery (DSD) in retail",
+  "group": "Industry: Retail and wholesale"
+ },
+ {
+  "title": "Drop-ship and cross-docking in wholesale",
+  "group": "Industry: Retail and wholesale"
+ },
+ {
+  "title": "Promotion pricing and markdowns in retail",
+  "group": "Industry: Retail and wholesale"
+ },
+ {
+  "title": "Store replenishment orders",
+  "group": "Industry: Retail and wholesale"
+ },
+ {
+  "title": "Dynamic and formula-based pricing in oil and gas (IS-Oil)",
+  "group": "Industry: Oil and gas"
+ },
+ {
+  "title": "Bulk shipments, tank trucks and delivery tickets",
+  "group": "Industry: Oil and gas"
+ },
+ {
+  "title": "Exchange agreements and netting in oil and gas",
+  "group": "Industry: Oil and gas"
+ },
+ {
+  "title": "Quantity conversion and density in oil products",
+  "group": "Industry: Oil and gas"
+ },
+ {
+  "title": "Excise duty and fuel taxes in sales",
+  "group": "Industry: Oil and gas"
+ },
+ {
+  "title": "Batch management and expiry in pharma sales",
+  "group": "Industry: Pharma and life sciences"
+ },
+ {
+  "title": "Serialization and track-and-trace",
+  "group": "Industry: Pharma and life sciences"
+ },
+ {
+  "title": "Chargebacks and government pricing",
+  "group": "Industry: Pharma and life sciences"
+ },
+ {
+  "title": "Cold-chain shipping",
+  "group": "Industry: Pharma and life sciences"
+ },
+ {
+  "title": "Scheduling agreements with JIT and JIS",
+  "group": "Industry: Automotive"
+ },
+ {
+  "title": "Vendor-managed inventory and consignment in automotive",
+  "group": "Industry: Automotive"
+ },
+ {
+  "title": "Returnable packaging and containers",
+  "group": "Industry: Automotive"
+ },
+ {
+  "title": "Volume rebates for OEM customers",
+  "group": "Industry: Automotive"
+ },
+ {
+  "title": "Product allocation for scarce supply",
+  "group": "Industry: High tech and electronics"
+ },
+ {
+  "title": "Configure-to-order in high tech",
+  "group": "Industry: High tech and electronics"
+ },
+ {
+  "title": "Subscription and usage billing",
+  "group": "Industry: High tech and electronics"
+ },
+ {
+  "title": "Returns, RMA and warranty in high tech",
+  "group": "Industry: High tech and electronics"
+ },
+ {
+  "title": "Trade promotion management and claims",
+  "group": "Industry: Consumer products"
+ },
+ {
+  "title": "Rebate agreements in consumer products",
+  "group": "Industry: Consumer products"
+ },
+ {
+  "title": "Customer hierarchies and key accounts",
+  "group": "Industry: Consumer products"
+ },
+ {
+  "title": "Direct vs indirect sales channels",
+  "group": "Industry: Consumer products"
+ },
+ {
+  "title": "Shelf life and batch selection in food",
+  "group": "Industry: Food and beverage"
+ },
+ {
+  "title": "Catch weight in food and meat",
+  "group": "Industry: Food and beverage"
+ },
+ {
+  "title": "Deposits and returnable packaging in beverage",
+  "group": "Industry: Food and beverage"
+ },
+ {
+  "title": "Route sales and van sales",
+  "group": "Industry: Food and beverage"
+ },
+ {
+  "title": "Dangerous goods in sales and delivery",
+  "group": "Industry: Chemicals"
+ },
+ {
+  "title": "Characteristic-based batch determination",
+  "group": "Industry: Chemicals"
+ },
+ {
+  "title": "Units of measure and quantity conversion in chemicals",
+  "group": "Industry: Chemicals"
+ },
+ {
+  "title": "Bulk and packaged goods logistics",
+  "group": "Industry: Chemicals"
+ },
+ {
+  "title": "Engineer-to-order and configure-to-order",
+  "group": "Industry: Industrial manufacturing"
+ },
+ {
+  "title": "Project-based billing: milestone and percentage of completion",
+  "group": "Industry: Industrial manufacturing"
+ },
+ {
+  "title": "Spare parts and aftermarket sales",
+  "group": "Industry: Industrial manufacturing"
+ },
+ {
+  "title": "Long-lead-time orders and change management",
+  "group": "Industry: Industrial manufacturing"
+ },
+ {
+  "title": "Seasonal ordering and size grids",
+  "group": "Industry: Fashion and apparel"
+ },
+ {
+  "title": "Allocation runs in fashion",
+  "group": "Industry: Fashion and apparel"
+ },
+ {
+  "title": "Wholesale vs retail channels in fashion",
+  "group": "Industry: Fashion and apparel"
+ },
+ {
+  "title": "Subscription billing with BRIM",
+  "group": "Industry: Telecom, media and subscription"
+ },
+ {
+  "title": "Usage-based and convergent charging integration",
+  "group": "Industry: Telecom, media and subscription"
+ },
+ {
+  "title": "Revenue recognition for bundles",
+  "group": "Industry: Telecom, media and subscription"
+ },
+ {
+  "title": "Government contracts and cost-plus billing",
+  "group": "Industry: Aerospace and defense"
+ },
+ {
+  "title": "Export controls and compliance",
+  "group": "Industry: Aerospace and defense"
+ },
+ {
+  "title": "Long-cycle project orders",
+  "group": "Industry: Aerospace and defense"
+ }
+]

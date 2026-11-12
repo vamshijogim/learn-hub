@@ -74,9 +74,9 @@ const scrub=t=>str(t).replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[email]').replace(/\+
 const clean=t=>scrub(t).trim();
 
 /* ============ state ============ */
-const DEF={model:'gemini-3.8-flash',fast:'gemini-3.5-flash-lite',limit:0,research:true,bg:true,bgMax:40,level:'scratch',role:'SAP Order-to-Cash (OTC) consultant',background:'',focus:'Order-to-Cash (SD) and its integrations',rate:1,voiceA:'',voiceB:'',stage:'prep'};
+const DEF={model:'gemini-3.8-flash',fast:'gemini-3.5-flash-lite',limit:0,research:true,bg:true,bgMax:200,level:'scratch',role:'SAP Order-to-Cash (OTC) consultant',background:'',focus:'Order-to-Cash (SD) and its integrations',rate:1,voiceA:'',voiceB:'',stage:'prep'};
 let S=normState(LS.get('sc_state',null));
-function normState(s){s=s||{};s.set=Object.assign({},DEF,s.set||{});s.usage=s.usage||{day:'',calls:0,tokens:0,bg:0};s.cache=s.cache||{};if(s.set.role==='Executive / VP-level SAP leader'&&!s.set.level)s.set.role=DEF.role;s.prog=s.prog||{};s.queue=Array.isArray(s.queue)?s.queue:[];s.lib=Array.isArray(s.lib)?s.lib:[];s.chat=Array.isArray(s.chat)?s.chat:[];return s}
+function normState(s){s=s||{};s.set=Object.assign({},DEF,s.set||{});s.usage=s.usage||{day:'',calls:0,tokens:0,bg:0};s.cache=s.cache||{};if(s.set.role==='Executive / VP-level SAP leader'&&!s.set.level)s.set.role=DEF.role;if(!s.set.bgV){s.set.bgV=1;if(Number(s.set.bgMax)<=40)s.set.bgMax=200}s.prog=s.prog||{};s.queue=Array.isArray(s.queue)?s.queue:[];s.lib=Array.isArray(s.lib)?s.lib:[];s.chat=Array.isArray(s.chat)?s.chat:[];return s}
 function save(){if(!LS.set('sc_state',S)){S.cache={};if(!LS.set('sc_state',S))toast('Browser storage is full. Delete old items in Library.',true)}}
 const hasKey=()=>!!LS.raw('sc_key');
 let LASTSRC=[];
@@ -192,7 +192,7 @@ function listen(cb){
 }
 
 /* ============ UI state + helpers ============ */
-const U={stg:{},tab:'roadmap',m:{},load:null,open:{},listening:false,iv:null,quiz:{}};
+const U={sopStg:{},stg:{},tab:'roadmap',m:{},load:null,open:{},listening:false,iv:null,quiz:{}};
 async function run(label,fn){if(U.load)return toast('Still working on the last request…');U.load=label;render();try{await fn()}catch(e){toast(errMsg(e),true)}finally{U.load=null;render()}}
 const M=k=>esc(U.m[k]||'');
 const inp=(k,ph,en)=>`<input data-m="${k}" value="${M(k)}" placeholder="${esc(ph||'')}" ${en?`data-en="${en}"`:''}>`;
@@ -269,6 +269,41 @@ views.roadmap=()=>{
   <div class="card"><h3>📦 Public GitHub material (links, not copies)</h3><p class="mut">Found by web search. Only the first is an official SAP sample; the rest are community projects with unchecked licences and accuracy. I link them instead of copying their code, because copying needs each licence checked, and these are mostly developer samples or personal study notes rather than teaching material.</p>${GH.map(g=>`<div>• ${link(g[1],g[0])} <span class="mut">${esc(g[2])}</span></div>`).join('')}</div>`;
 };
 function stageById(id){return id[0]==='c'?CORE[+id.slice(1)]:IND[+id.slice(1)]}
+
+
+/* ============ SOP LIBRARY: auto-seed + shared GitHub library ============ */
+const SOPT=()=>CORE.flatMap(s=>s[3].map(t=>({t,g:s[0]}))).concat(IND.flatMap(s=>s[3].map(t=>({t,g:'Industry: '+s[0]}))));
+const SH={idx:null,done:false,n:0};const T0=Date.now();
+function seedQueue(){
+  let n=0;S.queue=S.queue.filter(q=>!findLib('sop',q.title));const have=new Set(S.queue.map(q=>norm(q.title)));
+  SOPT().forEach(({t})=>{const k=norm(t);if(findLib('sop',t)||have.has(k)||(SH.idx&&SH.idx[k]))return;S.queue.push({kind:'sop',title:t,tries:0});have.add(k);n++});
+  S.queue.forEach(q=>{if((q.tries||0)>=3&&q.day!==dkey())q.tries=0});
+  if(n)save();
+}
+async function pullShared(){
+  try{
+    const r=await fetch('library/index.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;
+    const j=await r.json();SH.idx={};arr(j.items).forEach(x=>{if(x&&x.title&&x.file)SH.idx[norm(x.title)]=x});
+    let n=0;
+    for(const x of arr(j.items)){
+      if(!x||!x.title||!x.file||n>=200)continue;
+      const it=findLib('sop',x.title);
+      if(it&&(!it.sharedBuilt||it.sharedBuilt>=x.built))continue;
+      const f=await fetch('library/'+x.file+'?'+encodeURIComponent(x.built||''),{cache:'no-store'});if(!f.ok)continue;
+      const d=await f.json();if(!arr(d.data&&d.data.steps).length)continue;
+      if(it){it.data=d.data;it.src=arr(d.src);it.sharedBuilt=x.built}else S.lib.unshift({id:uid(),kind:'sop',title:x.title,created:x.built,data:d.data,src:arr(d.src),sharedBuilt:x.built});
+      n++;
+    }
+    SH.n=Object.keys(SH.idx).length;if(n){save();softRender()}
+  }catch(e){}finally{SH.done=true}
+}
+function sopLibHtml(){
+  const all=SOPT(),built=all.filter(x=>findLib('sop',x.t)).length,gs=new Map();
+  all.forEach(x=>{if(!gs.has(x.g))gs.set(x.g,[]);gs.get(x.g).push(x.t)});
+  return `<div class="card"><h2>📚 End-to-end sales SOP library</h2><p class="mut">It builds itself. ${SH.n?`${SH.n} SOPs come ready-made from the GitHub library (built on a schedule, even when nobody has the app open). `:''}Anything missing is built by this page in the background while it is open. You never need to click anything.</p>
+  <div><b>${built} of ${all.length}</b> SOPs ready</div><div style="background:var(--line);border-radius:99px;height:10px;margin:6px 0"><div style="width:${Math.round(100*built/all.length)}%;height:10px;border-radius:99px;background:var(--ok)"></div></div>
+  ${[...gs].map(([g,ts])=>{const b=ts.filter(t=>findLib('sop',t)).length,open=U.sopStg[g];return `<button class="opt ${open?'ok':''}" data-a="sopStg" data-g="${esc(g)}">${esc(g)} <span class="mut">${b}/${ts.length}</span></button>`+(open?`<div style="margin:4px 0 8px">${ts.map(t=>{const it=findLib('sop',t);return `<button class="lib ${it?'ready':''}" data-a="sopChip" data-t="${esc(t)}">${it?'✅':'⏳'} ${esc(t)}</button>`}).join('')}</div>`:'')}).join('')}</div>`;
+}
 
 /* ============ RESEARCH PACK ============ */
 const KINDS=[['topic','SAP topic / scenario'],['industry','Industry'],['company','Company']];
@@ -397,7 +432,7 @@ function sopHtml(it){
   <div class="card"><h3>🪜 Steps</h3>${arr(d.steps).map((s,i)=>`<details ${i===0?'open':''}><summary>${i+1}. ${esc(str(s.step))}</summary><p>👤 <b>${esc(str(s.who))}</b> · 📍 ${esc(str(s.where))}</p><p>⚙️ <b>Config needed:</b> ${esc(str(s.config_needed))}</p><p>🚨 <b>If missing:</b> ${esc(str(s.if_missing))}</p><p>🔧 <b>Fix:</b> ${esc(str(s.fix))}</p><p>✅ <b>Check:</b> ${esc(str(s.check))}</p></details>`).join('')}</div>
   ${sec('🔌 Integrations',arr(d.integrations).length?`<table>${arr(d.integrations).map(x=>`<tr><td><b>${esc(str(x.system))}</b></td><td>${esc(str(x.how))}</td></tr>`).join('')}</table>`:'')}${sec('🏭 Industry variations',li(d.industry_variations))}${sec('🤝 Handoffs',li(d.handoffs))}${sec('📆 Day-to-day running',li(d.daily_ops))}${sec('🛡️ Controls',li(d.controls))}${sec('🎤 Interview angles',li(d.interview_angles))}`;
 }
-views.sop=()=>{const it=getOpen('sop');return `<div class="card"><h2>📋 SOP Builder</h2><p class="mut">Type any SAP scenario. You get the story, each step, the config behind it, the error you see if it is missing, and the fix.</p><div class="row">${inp('sQ','e.g. STO, consignment, credit block on sales order, returns','sop')}<button class="btn" data-a="sop">Build the SOP</button></div>${recent('sop','openSop')}</div>${it?sopHtml(it):''}`};
+views.sop=()=>{const it=getOpen('sop');return `<div class="card"><h2>📋 SOP Builder</h2><p class="mut">Type any SAP scenario. You get the story, each step, the config behind it, the error you see if it is missing, and the fix.</p><div class="row">${inp('sQ','e.g. STO, consignment, credit block on sales order, returns','sop')}<button class="btn" data-a="sop">Build the SOP</button></div>${recent('sop','openSop')}</div>${bgLine()}${it?sopHtml(it):''}${sopLibHtml()}`};
 
 /* ============ COURSE ============ */
 async function doCourse(q){
@@ -552,15 +587,17 @@ views.settings=()=>{
 
 /* ============ background builder ============ */
 const BG={busy:false,now:'',last:'',note:''};
-const BG_MS=window.__fcBgMs||60000;
+const BG_MS=window.__fcBgMs||30000;
 async function builderTick(){
   if(BG.busy||!S.set.bg||!hasKey()||U.load)return;
   const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0,bg:0};
   if((S.usage.bg||0)>=Number(S.set.bgMax)){BG.note='daily background budget used';return}
+  if(!SH.done&&Date.now()-T0<20000)return;
+  seedQueue();
   let job=null;
   for(const c of libOf('course')){const i=c.data.lessons.findIndex(l=>!l.body&&(l.tries||0)<3);if(i>=0){job={label:`${c.title} — lesson ${i+1}`,fn:()=>buildLesson(c,i),fail:()=>{c.data.lessons[i].tries=(c.data.lessons[i].tries||0)+1}};break}}
   if(!job)for(const p of libOf('pack')){const part=PARTS.find(x=>!p.data[x]);if(part&&(p.tries||0)<3){job={label:`${p.title} — research`,fn:async()=>{p.data[part]=await aj(packPrompt(part,p.title,p.sub),{search:!!S.set.research});p.built=dkey()},fail:()=>{p.tries=(p.tries||0)+1}};break}}
-  if(!job){const q=S.queue.find(x=>(x.tries||0)<3);if(q)job={label:`${q.title} (SOP)`,fn:async()=>{await buildSop(q.title);S.queue=S.queue.filter(x=>x!==q)},fail:()=>{q.tries=(q.tries||0)+1}}}
+  if(!job){const q=S.queue.find(x=>(x.tries||0)<3);if(q)job={label:`${q.title} (SOP)`,fn:async()=>{await buildSop(q.title);S.queue=S.queue.filter(x=>x!==q)},fail:()=>{q.tries=(q.tries||0)+1;q.day=dkey()}}}
   if(!job&&S.set.research){const old=libOf('pack').find(p=>p.built&&(Date.now()-new Date(p.built+'T12:00:00').getTime())>30*864e5&&PARTS.every(x=>p.data[x]));
     if(old)job={label:`${old.title} — monthly refresh for the latest information`,fn:async()=>{for(const part of PARTS){const keep=part==='v'&&old.data.v;const d=await aj(packPrompt(part,old.title,old.sub),{search:true,nocache:true});old.data[part]=d;S.usage.bg=(S.usage.bg||0)+1}old.built=dkey();old.refreshed=dkey()},fail:()=>{old.built=dkey()}}}
   if(!job){BG.note='';return}
@@ -568,12 +605,12 @@ async function builderTick(){
   try{await job.fn();BG.last=job.label}catch(e){job.fail();BG.note=errMsg(e)}
   S.usage.bg=(S.usage.bg||0)+1;BG.busy=false;BG.now='';save();softRender();
 }
-function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(['roadmap','research','course','library','settings','joule'].includes(U.tab))render()}
+function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(['roadmap','research','course','library','settings','joule','sop'].includes(U.tab))render()}
 function bgLine(){
   if(!hasKey())return '<div class="bgl">🤖 Waiting for a Gemini key (Settings).</div>';
   if(!S.set.bg)return '<div class="bgl">🤖 Background builder is off (Settings).</div>';
   const q=S.queue.length+libOf('course').reduce((n,c)=>n+c.data.lessons.filter(l=>!l.body).length,0)+libOf('pack').filter(p=>PARTS.some(x=>!p.data[x])).length;
-  return `<div class="bgl">🤖 <b>Background builder — On</b> (while this page is open, one item a minute) · ${BG.now?'building: <b>'+esc(BG.now)+'</b>':'idle'} · ${q} queued · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${BG.last?' · last built: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''}</div>`;
+  return `<div class="bgl">🤖 <b>Background builder — On</b> (while this page is open, one item a minute) · ${BG.now?'building: <b>'+esc(BG.now)+'</b>':'idle'} · ${q} queued · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${' · SOP library '+SOPT().filter(x=>findLib('sop',x.t)).length+'/'+SOPT().length}${BG.last?' · last built: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''}</div>`;
 }
 
 /* ============ render + events ============ */
@@ -592,6 +629,8 @@ function go(t){U.tab=t;render();window.scrollTo(0,0)}
 const openIt=k=>d=>{U.open[k]=d.id;if(k==='course')U.lesson=null;if(k==='interview')U.iv=null;go(k==='pack'?'research':k)};
 const A={
   tab:d=>go(d.t),
+  sopStg:d=>{U.sopStg[d.g]=!U.sopStg[d.g];render()},
+  sopChip:d=>{const it=findLib('sop',d.t);if(it){U.open.sop=it.id;render();window.scrollTo(0,0)}else doSop(d.t)},
   stg:d=>{U.stg[d.id]=!U.stg[d.id];render()},
   rmDone:d=>{const k=norm(d.t);if(S.prog[k])delete S.prog[k];else{S.prog[k]=dkey();toast('Nice. Topic done ✅')}save();render()},
   rmQueue:d=>{const st=stageById(d.id);let n=0;st[3].forEach(t=>{if(!findLib('sop',t)&&!S.queue.some(q=>norm(q.title)===norm(t))){S.queue.push({kind:'sop',title:t,tries:0});n++}});save();toast(n?n+' SOPs queued. They build in the background while this page is open (one a minute).':'Everything here is already built or queued');render()},
@@ -645,6 +684,7 @@ try{speechSynthesis.onvoiceschanged=()=>{if(U.tab==='settings')softRender()}}cat
 window.SC={get S(){return S},U,PL,A};
 if(!hasKey())U.tab='settings';
 render();bar();
+pullShared();setInterval(pullShared,10*60*1000);
 setInterval(builderTick,BG_MS);setTimeout(builderTick,Math.min(BG_MS,5000));
 </script>
 </body>
