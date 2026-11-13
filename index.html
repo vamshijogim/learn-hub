@@ -12,11 +12,11 @@
 body{margin:0;font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:110px}
 header{background:var(--pri);color:#fff;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 header h1{font-size:20px;margin:0}header span{margin-left:auto;font-size:14px}
-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 16px;max-width:980px;margin:0 auto}
-nav button{border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:13px;padding:10px 12px;border-radius:14px;cursor:pointer;text-align:left;line-height:1.3}
-nav button b{display:block;font-size:16px}nav button span{color:var(--mut)}
+nav{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:10px 16px 4px;max-width:1100px;margin:0 auto}
+nav button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:12px;padding:7px 9px;border-radius:14px;cursor:pointer;text-align:left;line-height:1.3}
+nav button b{display:block;font-size:14px}nav button span{color:var(--mut)}
 nav button.on{background:var(--pri2);border-color:var(--pri)}
-main{max-width:980px;margin:0 auto;padding:4px 16px 30px}
+main{max-width:1100px;margin:0 auto;padding:4px 16px 30px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0}
 h2{font-size:22px;margin:4px 0 8px}h3{font-size:18px;margin:4px 0 6px}
 .btn{display:inline-flex;align-items:center;gap:6px;background:var(--pri);color:#fff;border:0;border-radius:12px;padding:10px 18px;font-size:16px;font-weight:600;cursor:pointer;margin:4px 4px 4px 0}
@@ -49,7 +49,14 @@ details.card>summary{font-weight:700}
 #bar .t{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 18px;border-radius:14px;z-index:99;max-width:90%;display:none}#toast.err{background:#b91c1c}
 a{color:var(--pri)}
+@media (max-width:900px){nav{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:640px){nav{grid-template-columns:repeat(2,1fr)}}
+.subnav{max-width:1100px;margin:0 auto;padding:0 16px;font-size:13px;color:var(--mut)}.subnav .tag.on{outline:2px solid var(--pri)}
+.strip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0;font-size:14px}.away{background:var(--warn);border-radius:10px;padding:6px 10px;margin-top:6px}
+.board p{margin:6px 0}.pill.okp{background:var(--okbg)}.lib.prog{border-color:#d9a400}
+.fcard{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;text-align:left;cursor:pointer;font-size:12.5px;line-height:1.35;display:flex;flex-direction:column;gap:3px;min-height:110px}
+.fcard b{font-size:13.5px}.fcard span{color:var(--mut)}.fcard .st{color:var(--ink);font-weight:600}.fcard .chg{color:#9a6700}.fcard.s2{border-color:var(--ok);background:var(--okbg)}.fcard.s1{border-color:#a78bfa;background:color-mix(in srgb,var(--pri2) 45%,var(--card))}.fcard.on{outline:3px solid var(--pri)}
+h3.stg{color:var(--pri);font-size:15px;margin:14px 0 4px}.weekly{background:color-mix(in srgb,var(--pri2) 35%,var(--card))}
 </style>
 </head>
 <body>
@@ -89,7 +96,7 @@ let LASTSRC=[];
 
 /* ============ Gemini ============ */
 const LEVELS={scratch:'LEVEL: complete beginner. Teach from zero in very small steps, one idea at a time, always starting with the business story before any SAP screen or configuration, and check understanding often.',consultant:'LEVEL: junior to mid OTC consultant. Go to hands-on depth: configuration paths, tcodes, Fiori apps, tables, issue analysis, and consultant-style interview questions.',lead:'LEVEL: senior/lead consultant. Focus on solution design, integration trade-offs, global template decisions, risk, and lead/architect interview questions.',vp:'LEVEL: executive. Focus on business value, transformation, governance, KPIs, vendor management, and VP-level interview questions; keep technical detail brief but accurate.'};
-const sysPrompt=()=>`${LEVELS[S.set.level||'scratch']} You are SAP Coach: a patient senior SAP mentor and executive interview coach. The learner knows NOTHING about SAP or configuration. Teach like they are five years old first: plain words, everyday analogies, define every term and acronym the first time. Then go deeper, down to real configuration detail. ${S.set.stage==='role'?`The learner NOW HOLDS the role of ${S.set.role}. Help them perform it: decisions to make, governance, steering committees, budgets, vendor and system-integrator management, risks, KPIs, and the questions to ask their teams and partners (with what a good answer sounds like). Where a format asks for interview questions, give the questions a leader in this role gets asked by the board, peers, auditors and teams, plus questions to ask their own team.`:`Prepare them for ${S.set.role} interviews: business outcomes, risk, controls, program delivery and stakeholder language, in addition to hands-on detail.`} Accuracy rules: use real transaction codes, Fiori app names/IDs, SPRO/IMG paths, tables and SAP Note numbers only when you are confident; otherwise say "verify on help.sap.com". Prefer SAP S/4HANA (latest releases; mention Cloud Public Edition vs Private Edition/on-premise differences) and say which release introduced a feature when known. Never invent facts about a company; say what is publicly known and mark guesses as assumptions. Plain text only, no markdown, no LaTeX. Learner profile: target role: ${S.set.role}; background: ${S.set.background||'not given'}; focus area: ${S.set.focus||'general SAP'}. Today is ${dkey()}.${S.set.research?' '+ORDER:''}`;
+const sysPrompt=()=>`${LEVELS[S.set.level||'scratch']} You are SAP Coach: a patient senior SAP mentor and executive interview coach. The learner knows NOTHING about SAP or configuration. Teach like they are five years old first: plain words, everyday analogies, define every term and acronym the first time. Then go deeper, down to real configuration detail. ${S.set.stage==='role'?`The learner NOW HOLDS the role of ${S.set.role}. Help them perform it: decisions to make, governance, steering committees, budgets, vendor and system-integrator management, risks, KPIs, and the questions to ask their teams and partners (with what a good answer sounds like). Where a format asks for interview questions, give the questions a leader in this role gets asked by the board, peers, auditors and teams, plus questions to ask their own team.`:`Prepare them for ${S.set.role} interviews: business outcomes, risk, controls, program delivery and stakeholder language, in addition to hands-on detail.`} Accuracy rules: use real transaction codes, Fiori app names/IDs, SPRO/IMG paths, tables and SAP Note numbers only when you are confident; otherwise say "verify on help.sap.com". Prefer SAP S/4HANA (latest releases; mention Cloud Public Edition vs Private Edition/on-premise differences) and say which release introduced a feature when known. Never invent facts about a company; say what is publicly known and mark guesses as assumptions. Plain text only, no markdown, no LaTeX. Learner profile: target role: ${S.set.role}; background: ${S.set.background||'not given'}; focus area: ${S.set.focus||'general SAP'}. Today is ${dkey()}.${S.client&&S.client.name?' CLIENT CONTEXT: the learner is preparing for work at '+S.client.name+'. '+(S.client.ctx||'')+' Where it fits, ground examples, scenarios and questions in this client\'s business.':''}${S.set.research?' '+ORDER:''}`;
 const ORDER='When you search, check sources in this order and prefer the earlier ones when they disagree: (1) official SAP documentation on help.sap.com, including product documentation, What\'s New / release notes and the Feature Scope Description; (2) the official SAP website: sap.com, SAP Architecture Center (architecture.learning.sap.com, the official SAP reference architectures), SAP Learning, SAP Roadmap Explorer, SAP Best Practices / Signavio Process Navigator, SAP Fiori Apps Reference Library; (3) SAP Notes and Knowledge Base Articles (me.sap.com, support.sap.com, userapps.support.sap.com) for standard, SAP-recommended workarounds; (4) SAP Community (community.sap.com) blogs and question threads for real-world discussions and workarounds; (5) SAP Joule: what the Joule copilot can do for this topic and in which products/releases; (6) training videos and courses: YouTube (SAP official channels first, then reputable trainers) and the public pages of Udemy courses (use their titles, descriptions and curriculum outlines; you cannot watch paid content); (7) public GitHub repositories (SAP-samples, SAP-docs, SAP-archive, and community study repos; treat community repos as unverified, and mention their licence when you cite code); (8) any other publicly available documentation (partner blogs, analyst and consulting articles). Say which kind of source a key fact comes from when it matters.';
 const RETRY_MS=()=>window.__fcFast?5:900;
 function errMsg(e){
@@ -115,7 +122,7 @@ async function callGemini(body,model,fb){
       const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});
       if(r.ok){
         const j=await r.json();
-        S.usage.calls++;S.usage.tokens+=j.usageMetadata?.totalTokenCount||0;save();
+        S.usage.calls++;S.usage.tokens+=j.usageMetadata?.totalTokenCount||0;S.usage.tin=(S.usage.tin||0)+(j.usageMetadata?.promptTokenCount||0);S.usage.tout=(S.usage.tout||0)+(j.usageMetadata?.candidatesTokenCount||0);if(body.tools)S.usage.srch=(S.usage.srch||0)+1;save();
         LASTSRC=(j.candidates?.[0]?.groundingMetadata?.groundingChunks||[]).map(c=>c.web).filter(Boolean).slice(0,6);
         const text=(j.candidates?.[0]?.content?.parts||[]).map(x=>x.text||'').join('').trim();
         if(!text)throw new Error('The AI gave no answer ('+(j.promptFeedback?.blockReason||j.candidates?.[0]?.finishReason||'empty')+'). Try again.');
@@ -479,12 +486,12 @@ function total(fam,get){
   const f=get(key('variants',fam));if(!f||f===true)return 0;
   const n=arr(f.variants).length;return 1+n*5+2+(n>1?3:0);
 }
-const order=extra=>arr(extra).concat(STAGES.flatMap(s=>s[2]));
+const order=(extra,added)=>{const seen=new Set(),out=[];arr(extra).concat(STAGES.flatMap(s=>s[2])).concat(arr(added)).forEach(f=>{const k=lc(f);if(f&&!seen.has(k)){seen.add(k);out.push(f)}});return out};
 const pkey=(fam,part,variant)=>lc(fam+'|'+part+'|'+(variant||''));
 /* The next part to write: first missing part of the first family in order; a resting (failed) part is skipped. */
-function next(get,skip,now,extra){
+function next(get,skip,now,extra,added){
   skip=skip||{};
-  for(const fam of order(extra)){
+  for(const fam of order(extra,added)){
     for(const m of missing(fam,get)){if(!(skip[pkey(fam,m.part,m.variant)]>now))return {fam,part:m.part,variant:m.variant}}
   }
   return null;
@@ -512,6 +519,8 @@ async function generate(part,fam,variant,io,opt){
   let src=[];
   const J=async(sys,input,o)=>{o=o||{};const r=await io.call((o.search?ORDER:'')+sys,input,o);if(o.search)src=src.concat(arr(r.src));return parse(r.text)};
   const lines=['Scenario the team asked for: '+fam,'Home domain (prefer examples from it where it fits): '+(opt.focus||'SAP OTC (Order-to-Cash)'),'System: SAP S/4HANA (Cloud Private Edition / on-premise).',P.OTC_LENS];
+  const UPD=['core','errors','practice'].includes(part)&&opt.update?String(opt.update).slice(0,2000):'';
+  if(UPD)lines.push('SAP UPDATES FOUND SINCE THIS SOP WAS LAST WRITTEN (checked on SAP sources -- work each one into the right steps / errors, naming the release or SAP Note; keep everything else that is still correct): '+UPD);
   const family=(await io.get(key('variants',fam)))||{};
   const names=arr(family.variants).map(v=>v.name).filter(Boolean);
   if(part!=='variants'&&!names.length)throw wait('Find the variants first.');
@@ -614,7 +623,7 @@ async function generate(part,fam,variant,io,opt){
     payload={checks:arr(raw.checks).filter(c=>c&&typeof c==='object'&&flat(c.code)).map(c=>{const st=lc(flat(c.status));return {code:flat(c.code).slice(0,80),kind:flat(c.kind).slice(0,30),status:['verified','corrected','unverified'].includes(st)?st:'unverified',correct:flat(c.correct).slice(0,80),note:flat(c.note).slice(0,200),source_url:/^https?:\/\//i.test(flat(c.source_url))?flat(c.source_url):''}}).slice(0,34),step_tcodes:objs(raw.step_tcodes,['step','tcode','source_url'],18,'tcode')};
     if(!payload.checks.length)throw new Error('The fact-check came back empty.');
   }else throw new Error('Unknown SOP part: '+part);
-  payload.generated=today();
+  payload.generated=today();if(UPD)payload.sap_update=UPD;
   const seen=new Set();payload.src=src.filter(x=>x&&x.uri&&!seen.has(x.uri)&&seen.add(x.uri)).slice(0,8);
   await io.put(key(part,fam,variant),payload);
   return payload;
@@ -637,14 +646,16 @@ const DB={db:null,mem:new Map(),keys:new Set(),ready:null,
 };
 const SHX={idx:null,merged:{}};
 async function loadShared(){try{const r=await fetch('library/sop2/index.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const j=await r.json();SHX.idx=j.families||{};softRender()}catch(e){}}
-const sharedHas=k=>{const f=SHX.idx&&SHX.idx[SOPE.famOfKey(k)];return !!(f&&Array.isArray(f.keys)&&f.keys.includes(k))};
+const REDO=/^[^|]+\|(core|errors|practice|prereq|uat|verify|stepmap)\|/;
+const staleShared=k=>{const c=(S.libChanged||{})[SOPE.famOfKey(k)];return !!(c&&!c.redone&&REDO.test(k))};
+const sharedHas=k=>{const f=SHX.idx&&SHX.idx[SOPE.famOfKey(k)];return !!(f&&Array.isArray(f.keys)&&f.keys.includes(k))&&!staleShared(k)};
 const sget=k=>DB.mem.has(k)?DB.mem.get(k):(DB.keys.has(k)||sharedHas(k)?true:undefined);
 async function ensureFamily(fam){
   await DB.open();
   const fl=SOPE.lc(fam),sh=SHX.idx&&SHX.idx[fl];
   if(sh&&SHX.merged[fl]!==sh.updated){
     try{const r=await fetch('library/sop2/'+sh.file+'?'+encodeURIComponent(sh.updated||''),{cache:'no-store'});
-      if(r.ok){const j=await r.json();for(const k of Object.keys(j)){if(!DB.keys.has(k))await DB.put(k,j[k])}}}catch(e){}
+      if(r.ok){const j=await r.json();for(const k of Object.keys(j)){if(!DB.keys.has(k)&&!staleShared(k))await DB.put(k,j[k])}}}catch(e){}
     SHX.merged[fl]=sh.updated;
   }
   for(const k of [...DB.keys]){if(SOPE.famOfKey(k)===fl&&!DB.mem.has(k))await DB.get(k)}
@@ -657,7 +668,7 @@ async function sopCall(system,input,o){
   catch(e){const m=String(e&&e.message||e);if(/^HTTP 429/.test(m)||m==='LIMIT')e.rate=true;if(m==='NOKEY'||/^HTTP (400|401|403|404)/.test(m))e.fatal=true;throw e}
 }
 const IO={get:k=>DB.get(k),put:(k,v)=>DB.put(k,v),call:sopCall};
-const sopOrder=()=>SOPE.order(S.customFams);
+const sopOrder=()=>SOPE.order(S.customFams,arr(S.libAdded).map(x=>x.scenario));
 const sopKnown=f=>sopOrder().some(x=>SOPE.lc(x)===SOPE.lc(f));
 const cap=s=>String(s).charAt(0).toUpperCase()+String(s).slice(1);
 function famState(f){
@@ -671,11 +682,11 @@ async function sopTickJob(){
   await DB.open();
   const un=sopOrder().find(f=>sget(SOPE.key('variants',f))===true);
   if(un)return {label:'loading '+un+' from the shared library',free:true,fn:()=>ensureFamily(un),fail:()=>{}};
-  const j=SOPE.next(sget,S.sopSkip,Date.now(),S.customFams);
+  const j=SOPE.next(sget,S.sopSkip,Date.now(),S.customFams,arr(S.libAdded).map(x=>x.scenario));
   if(!j)return null;
   const k=SOPE.pkey(j.fam,j.part,j.variant);
-  return {fam:j.fam,label:j.fam+(j.variant?' › '+j.variant:'')+' — '+SOPE.LABEL[j.part],
-    fn:async()=>{await ensureFamily(j.fam);if(DB.keys.has(SOPE.key(j.part,j.fam,j.variant)))return;await SOPE.generate(j.part,j.fam,j.variant,IO,{focus:S.set.focus});delete S.sopFail[k];delete S.sopSkip[k]},
+  return {tab:'sop',fam:j.fam,label:j.fam+(j.variant?' › '+j.variant:'')+' — '+SOPE.LABEL[j.part],
+    fn:async()=>{await ensureFamily(j.fam);if(DB.keys.has(SOPE.key(j.part,j.fam,j.variant)))return;await SOPE.generate(j.part,j.fam,j.variant,IO,{focus:S.set.focus,update:sopUpdateFor(j.fam)});delete S.sopFail[k];delete S.sopSkip[k];const c=(S.libChanged||{})[SOPE.lc(j.fam)];if(c&&!c.redone&&!SOPE.missing(j.fam,sget).some(m=>['core','errors','practice'].includes(m.part)))c.redone=dkey()},
     fail:e=>{if(e.rate||e.fatal)return;S.sopFail[k]=(S.sopFail[k]||0)+1;S.sopSkip[k]=Date.now()+(e.wait?600e3:S.sopFail[k]>=2?3*864e5:1800e3)}};
 }
 
@@ -743,7 +754,7 @@ function boardHtml(){
   ${stages.map(([name,fams])=>`<h3>${esc(name)} <span class="mut">${fams.filter(f=>famState(f).s===2).length}/${fams.length}</span></h3><div class="grid4">${fams.map(f=>{const st=famState(f),now=BG.now&&BG.now.indexOf(f+' ')===0;return `<button class="fam s${st.s} ${U.sop.fam===f?'on':''}" data-a="sopOpen" data-f="${esc(f)}"><b>${st.s===2?'✅':st.s===1?'🔨':'⬜'} ${esc(f)}</b><span>${esc(st.t)}${st.n?' · '+st.n+' variant'+(st.n>1?'s':''):''}${now?' · writing now':''}</span></button>`}).join('')}</div>`).join('')}</div>`;
 }
 views.sop=()=>`<div class="card"><h2>📋 SOP Builder</h2><p class="mut">Type any SAP scenario (e.g. STO, intercompany billing, credit block, consignment, third-party order). You get every variant of it, each with a configuration guide a new joiner can follow blindly, the exact error messages, production issues, a test script and a fact-check.</p>
-  <div class="row">${inp('sQ','e.g. STO, intercompany billing, consignment, returns','sopNew')}<button class="btn" data-a="sopNew">Build the SOP</button></div></div>${bgLine()}${U.sop.fam?famHtml(U.sop.fam):''}${boardHtml()}`;
+  <div class="row">${inp('sQ','e.g. STO, intercompany billing, consignment, returns','sopNew')}<button class="btn" data-a="sopNew">Build the SOP</button></div></div>${bgLine()}${statusBoard()}${U.sop.fam?famHtml(U.sop.fam):''}${libraryHtml()}`;
 async function sopOpen(fam){U.sop={fam,vi:0,sec:{}};U.tab='sop';render();window.scrollTo(0,0);await ensureFamily(fam);if(U.sop.fam===fam)render()}
 function sopSpeech(){
   const F=sg('variants');if(!F)return [];const v=arr(F.variants)[U.sop.vi||0],c=v&&sg('core',v.name);if(!c)return [];
@@ -840,7 +851,7 @@ function qbValid(q){
 }
 async function qbGen(cat,diff,count){
   const have=QB.list.filter(q=>q.cat===cat).slice(-12).map(q=>'- '+q.q.slice(0,110)).join('\n');
-  const prompt=QGP.replace(/\{count\}/g,count).replace(/\{category_label\}/g,QCATS[cat]).replace(/\{diff_label\}/g,diff+' — '+QDIFF[diff])+
+  const prompt=(S.client&&S.client.name?'CLIENT CONTEXT: the candidate is interviewing at '+S.client.name+'. '+(S.client.ctx||'')+' Set at least half of the questions in this client\'s business.\n':'')+QGP.replace(/\{count\}/g,count).replace(/\{category_label\}/g,QCATS[cat]).replace(/\{diff_label\}/g,diff+' — '+QDIFF[diff])+
   `- Vary which position holds the correct option; the three wrong options must be plausible mistakes a mid-level consultant would make.\n${have?'- Do NOT repeat or rephrase these questions already in the bank:\n'+have+'\n':''}
 Return ONLY a valid JSON array. No markdown. Format:
 [{"cat":"${cat}","diff":"${diff}","q":"Full question as a hiring manager would ask it","kp":["5 specific key points with transaction codes or config objects"],"answer_summary":"The concise architect answer.","interview_answer":"Natural first-person 45-90 second spoken answer.","options":["A","B","C","D"],"correct_index":0,"explanation":{"process":"","why":"","version":"","config":"","implementation":"","mandatory":"","ams":"","issues":"","workaround":"","resolution":"","best_practices":"","interview":"A realistic follow-up question and how to answer it","screen_reference":"Official SAP Help or SAP Learning URL for the relevant screen or process, or empty"}}]
@@ -873,7 +884,7 @@ views.qbank=()=>{
   ${done?`${q.interview_answer?`<h3>🎤 How to say it in the interview ${say(q.interview_answer,'Model answer')}</h3><p>${esc(q.interview_answer)}</p>`:''}
    <h3>Key points</h3><ul>${arr(q.kp).map(k=>`<li>${esc(k)}</li>`).join('')}</ul><p><b>In short:</b> ${esc(q.answer_summary)}</p>
    ${QLBL.filter(([k])=>ex[k]).map(([k,l])=>`<details><summary>${l}</summary><p>${k==='screen_reference'&&/^https?:\/\//.test(ex[k])?link(ex[k],ex[k]):esc(ex[k])}</p></details>`).join('')}${srcHtml(q.src)}
-   <button class="btn" data-a="qbNext">Next question ➡️</button><button class="btn alt" data-a="qbFlag">${q.flag?'★ Marked to revisit':'☆ Revisit this later'}</button><button class="btn alt" data-a="toInterview" data-t="${esc(q.q.slice(0,90))}">🎙️ Mock interview on this</button>`:''}</div>`;
+   <button class="btn" data-a="qbNext">Next question ➡️</button><button class="btn alt" data-a="noteSave" data-k="qb">📌 Save</button><button class="btn alt" data-a="qbFlag">${q.flag?'★ Marked to revisit':'☆ Revisit this later'}</button><button class="btn alt" data-a="toInterview" data-t="${esc(q.q.slice(0,90))}">🎙️ Mock interview on this</button>`:''}</div>`;
   return h;
 };
 function qbCsv(){
@@ -882,6 +893,253 @@ function qbCsv(){
   QB.list.forEach((q,i)=>rows.push([i+1,q.date||'',q.cat+' — '+(QCATS[q.cat]||''),QDIFF[q.diff]||q.diff,q.q,arr(q.kp).map(k=>'• '+k).join('\n'),q.answer_summary||'',q.interview_answer||'',q.status||'',q.flag?'Revisit':'',JSON.stringify(q.options||[]),q.correct_index==null?'':q.correct_index,JSON.stringify(q.explanation||{})]));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+rows.map(r=>r.map(cell).join(',')).join('\r\n')],{type:'text/csv'}));a.download='SAP Interview Questions Bank.csv';document.body.appendChild(a);a.click();a.remove();
 }
+
+
+/* ============ V3: your layout (tab set, status strip, SOP status board, stage cards, weekly check) ============ */
+const P3={"weekly": "You run the WEEKLY CHECK of an SAP Order-to-Cash (OTC) SOP library. Today's date is in the input. Use Google Search -- SAP Help Portal and release notes / What's New for the latest SAP S/4HANA Cloud (public and private) and on-premise releases and feature packs, SAP Community blogs, SAP News, SAP Learning, and reputable industry sources -- to find (a) NEW or newly important configurable OTC scenarios and variants, (b) new or changed integrations of OTC with any SAP or non-SAP area, (c) industry solutions / industries whose OTC processes the library lacks, and (d) EXISTING families in the library whose process, configuration or Fiori apps CHANGED in a recent release. GUARDRAIL: only configurable SAP scenarios that are part of OTC or integrate with it; no strategy themes or plain news. Compare with the EXISTING list in the input. Return ONLY a JSON object {\"new_families\": array of 0-10 {scenario: short name as a consultant types it (2-6 words), area: exactly one of @@AREAS@@ -- or 'OTC integration: <area or system>', otc_link: one sentence, why_now: one sentence (what is new), source_url: the page that shows it}, \"changed_families\": array of 0-10 {scenario: the EXACT name from the existing list, what_changed: one sentence (release + change), source_url}}. Every url must come from Google Search.", "company": "You are a principal SAP consultant preparing a colleague to interview at, or start delivery work for, a specific company. Research that company with the Google Search tool and produce a briefing that makes the candidate sound like they already understand how this business runs. ACCURACY RULE (critical -- the candidate may repeat this in a live interview, so a confident wrong claim is worse than an honest gap): a company's internal SAP landscape is usually NOT public. For every entry in sap_landscape you MUST set 'confidence' to exactly one of 'Publicly reported' (you found a real, citable source -- a press release, SAP customer story, case study, job posting, conference talk, annual report) or 'Likely - not confirmed' (a reasonable inference from their industry, size, or peers). Put the actual basis in 'evidence' -- name the source or state plainly what the inference rests on. Never present an inference as fact. If you genuinely cannot find anything about their systems, return a short sap_landscape with honest 'Likely - not confirmed' entries rather than inventing detail. For SAP product facts use these official sources: help.sap.com, learning.sap.com, community.sap.com, support.sap.com, me.sap.com, roadmaps.sap.com, sap.com. For company facts use the company's own site, annual reports and reputable business press. SCOPE (critical -- do NOT write a corporate profile): the reader is an experienced SAP consultant, not an investor. Do not spend words on brand history, revenue, share price, marketing or general company facts. What they need is (a) how this business physically operates day to day and (b) how those operations are run in SAP. Every sentence should earn its place against that test. operating_model: 3-5 sentences on how the business actually runs at operational level -- how goods or services reach the customer, what the channels are (direct store delivery, wholesale, plant to distribution centre to store, franchise, make-to-order, service contracts), where the volume and complexity sit, and which operational constraints bite (route density, shelf life, promotions, seasonality, regulatory). No marketing language. sap_process_map (THE CORE OF THIS BRIEFING -- make this the richest part): array of 6-12 objects mapping each real-world process to how it is run in SAP, with keys: 'business_process' (what physically happens, e.g. 'Driver delivers to a convenience store and settles cash and returns at end of route'), 'sap_process' (the SAP process/flow name that implements it, e.g. 'DSD route settlement and driver reconciliation'), 'sap_components' (the modules/products involved, short comma-separated, e.g. 'SAP DSD, SD, FI-CA, EWM'), 'key_objects' (the concrete documents, transactions, IDoc/message types or tables that carry it, e.g. 'Visit list, shipment, ORDERS05, INVOIC02, VL01N'), 'pain_points' (one plain sentence on what typically goes wrong here and what it costs the business), and 'confidence' (exactly one of the two strings defined above). Order these by how central they are to this company's operation. Only mark 'Publicly reported' where you found a genuine source describing that company's SAP usage; otherwise 'Likely - not confirmed', where the mapping is the standard SAP implementation for a business that operates this way -- that is still highly useful, just label it honestly. sap_landscape: array of 4-8 objects with keys 'system' (the SAP or adjacent product, e.g. 'SAP S/4HANA', 'SAP EWM', 'SAP TM', 'Ariba', 'BW/4HANA'), 'evidence' (the specific basis), 'confidence' (exactly one of the two strings above). recommended_topics: array of 8-12 objects with 'topic' (a specific, studiable subject phrased so it can be dropped straight into a study tool -- e.g. 'DSD route settlement and driver reconciliation in SAP', not a vague area like 'logistics'), 'why_for_this_company' (one sentence tying it to a specific row of the sap_process_map above), and 'priority' (exactly one of 'Core', 'Important', 'Good to have'). Order them Core first. Every topic must trace back to a process in the map -- do not emit a generic SAP syllabus. interview_angles: array of 4-6 short strings -- the things an interviewer at this company would actually probe, given their operations and known challenges. watch_outs: array of 3-5 short strings -- specific things the candidate should NOT claim or assume about this company, including anything commonly misreported about them. Output requirements: return ONLY a single strictly valid JSON object, no markdown fences, no commentary. Do not use literal line breaks inside string values. Keys exactly: company_name, operating_model, sap_process_map, sap_landscape, recommended_topics, interview_angles, watch_outs, sources (array of objects with title, url, date, source_type where source_type is 'official', 'consulting' or 'industry'). Every source must be a real URL found via Google Search.", "industry": "You brief a senior SAP consultant who must be productive for a client in the industry given -- assume they know NOTHING about this industry. Use Google Search on SAP Help, SAP's industry pages, SAP Community and reputable industry sources. Return ONLY a JSON object: {\"industry\": the industry's proper name, \"business_model\": 3-4 plain sentences on how companies in it make money, sell and deliver, \"otc_differences\": array of 4-8 short strings -- what is DIFFERENT in their order-to-cash vs. a standard one, \"scenarios\": array of 8-12 {name: an SAP business scenario they run (usable as an SOP topic), why: why panels in this industry ask about it, priority: 'Must know' or 'Good to know'}, \"sap_solutions\": array of 3-8 {name: SAP industry solutions / capabilities used (only real ones), what: one line}, \"regulations\": array of 0-8 {name, impact: what it means for SAP design}, \"kpis\": array of 4-8 {kpi, why}, \"pain_points\": array of 4-8 short strings -- typical problems clients want solved, \"bridge\": array of 0-6 {from: a pattern from the learner's background (only if a background is given), to: the equivalent in this industry, say_it: one sentence they can say in the panel}, \"questions\": array of 20 {q: a question this industry's panel (CIO / SME / CFO) would ask a senior SAP architect -- one or two spoken sentences, at most 40 words, specific to the industry, who: 'CIO', 'SME' or 'CFO', type: 'Design', 'Live case', 'Deep dive', 'Leadership', 'Value' or 'Curveball'}}, \"sources\": array of {title, url}}.", "prep": "You design part of a COMPLETE preparation plan for someone preparing for a senior SAP panel. ASSUME THEY KNOW NOTHING: start from the foundations and build up to the level given. Write ONLY these phases, in this order: 'Foundations' (SAP S/4HANA basics, enterprise structure, master data, document flow); 'Core order-to-cash' (sales documents, pricing, availability / ATP, credit, delivery, billing, returns, intercompany, output, revenue); 'Integration & data' (EDI / IDoc, APIs, Integration Suite, MM / FI / CO integration, data migration); 'S/4HANA & architecture' (deployment options, RISE / GROW, clean core, BTP extensions, Fiori, analytics, SAP Business AI / Joule); 'Industry overlay' (the target industry's own processes and SAP solutions -- or cross-industry patterns if no industry is given); 'Leadership' (for Director / VP: business case, estimation, governance, risk, stakeholders, SAP Activate, AMS and stabilisation); 'Rehearsal' (panel practice, story bank, mock sessions). Fit the TOTAL minutes to the time available (weeks x hours per day), most important first. Each item is ONE activity of 20-60 minutes, one of these types: 'watch' (a free explainer video -- put one BEFORE each new concept area so the learner listens first, then reads; topic is what to search, 2-6 words), 'learn' (a taught lesson -- topic is a SHORT lesson topic of 2-8 words, e.g. 'Available-to-promise (ATP)'; put the detail to cover in 'focus'), 'sop' (a full SOP for a STANDARD SAP PROCESS SCENARIO -- topic is ONLY its short scenario name of 2-6 words, e.g. 'Sales scheduling agreement with JIT', 'Credit management', 'Third-party order'; NEVER a case study, roadmap, story bank, go-live or transformation; plain words only, NO codes in the name (write 'Sales scheduling agreement', not 'Scheduling agreement LZ/LZN'); ONE 'sop' per process family -- an SOP already covers every variant of that process, so never two 'sop' items for the same process; in the core and industry phases include 2-4 'sop' items for the most important standard scenarios of these phases, never more than 8 in the whole plan because each is a large build), 'practice' (a hard graded question -- topic is the SHORT area, 2-8 words; any case-study detail goes in 'focus'), 'panel' (rehearse a panel answer -- topic is the exact question a panel would ask, one or two spoken sentences), 'mock' (a full timed panel session -- 1-2 of these, in Rehearsal). Mix the types so every area is watched, learned, applied, then rehearsed. Return ONLY a JSON object: {\"title\": short plan name, \"summary\": 2 sentences, \"phases\": array of {name, goal: one sentence, items: array of {type, title: what to do in at most 10 words, topic, focus: optional detail to cover (at most 40 words), why: one short sentence, minutes: 15-60}}}.", "certProfile": "You research one SAP certification exam for a senior SAP consultant who wants to pass it first time. Verify with Google Search using official SAP sources first (learning.sap.com certification and learning journey pages, the SAP Learning help center, SAP Community posts by SAP Learning). Never invent a pass score, duration, format, topic weighting or learning-journey unit -- write 'Not published' when you cannot find it. SAP moved certifications to practical formats from November 2025 (system-based tasks in a live system, or scenario-based role-play with an AI avatar), open-book; report the CURRENT format for this exam. Return ONLY a JSON object: {\"code\": the exam code, \"title\": official title, \"format\": 'System-based assessment', 'Scenario-based assessment' or 'Multiple choice', \"how_it_works\": 2-3 sentences on what the candidate actually does in this exam, \"duration\": e.g. '3 hours', \"pass_score\": e.g. '82%', \"tasks_or_questions\": e.g. '5-6 practical task groups' or 'Not published', \"open_book\": true/false, \"languages\": ..., \"learning_journey_title\": ..., \"learning_journey_url\": real URL, \"practice_system\": one sentence on the official practice system if any, \"areas\": array of 6-10 objects {area: topic area as SAP groups it, weight: e.g. '11-20%' or 'Not published', skills: array of 2-4 short concrete skills tested}, \"learning_path\": array of 8-12 objects in learning order {unit: unit or lesson title -- prefer the official learning-journey unit titles, area: which area it belongs to, goal: one sentence 'After this you can...', est_hours: number}, \"exam_tips\": array of 4-6 concrete tips for THIS format (e.g. time-boxing, verifying system output before moving on, using SAP Help efficiently in an open-book exam), \"sources\": array of {title, url, date}}.", "certMcq": "You write knowledge-check questions for an SAP certification. They warm the learner up for the practical exam, so test applied understanding, not trivia: short scenarios, configuration decisions, 'what happens if'. Mix formats: single answer with 4 options, and 'There are 2 correct answers to this question.' with 5 options (put that sentence at the end of the question). Wrong options must be real, common misunderstandings. Only state facts you are sure of for current SAP S/4HANA. Return ONLY a JSON object: {\"questions\": [ {\"question\": ..., \"options\": [...], \"correct\": array of correct option indexes (0-based), \"why\": 2-3 sentences on why the right answer is right, \"why_not\": one short string per option index (why each wrong option is wrong; empty string for correct ones), \"tip\": one sentence on how to approach this type of question} ] }.", "radar": "You are an SAP industry analyst briefing a senior SAP Solution Architect / Director whose home domain is Order-to-Cash (OTC). Find the 10 most important SAP developments of roughly the last 6 months that they must be able to discuss with executives: Joule and SAP Business AI agents, SAP S/4HANA and SAP Cloud ERP releases and feature packs, SAP Business Data Cloud, SAP BTP / SAP Build / ABAP Cloud / Clean Core, RISE / GROW / licensing and AI units, maintenance timelines, and OTC-specific innovations (order management, pricing, billing, credit, disputes, DSD). Verify every fact with Google Search before stating it. Prioritise official SAP sources: news.sap.com, sap.com (including the SAP Road Map Explorer), help.sap.com release notes and What's New documents, SAP Community blogs by SAP, and SAP Sapphire / SAP TechEd announcements; use reputable analysts or partners only for context. Give dates and exact release names (e.g. 'SAP S/4HANA 2025', 'SAP Cloud ERP 2602') only when you found them. Say clearly whether something is generally available, in beta / early adopter, on the roadmap, or only announced -- and as of when. Never invent a release number, app name, price, date or licence term; write 'Not confirmed' instead. Use current SAP naming (SAP Cloud ERP, SAP Cloud ERP Private, SAP Business Data Cloud, Joule). Be crisp: state an item's status once, clearly -- do not repeat the same disclaimer in every sentence.  TITLES must name the product, release or feature so it can be quoted in a meeting, e.g. 'SAP Cloud ERP 2608: mass change of sales orders' or 'Joule Studio: custom agent builder generally available' -- never a vague phrase like 'order changes become easier'. OTC RELEVANCE must discriminate: 'High' only when it directly changes order management, pricing, billing, credit, collections or DSD (at most 4 items 'High'); otherwise 'Medium' or 'Low'. Write 'what' and 'why_it_matters' in plain, short sentences without analogies.  Return ONLY a JSON object: {\"items\": [ {\"title\": the named title, \"date\": the date found (YYYY-MM or YYYY-MM-DD), \"category\": exactly one of 'AI & Joule', 'S/4HANA & Cloud ERP releases', 'Data & analytics', 'Platform & Clean Core', 'Licensing & programmes', 'Roadmap & maintenance', 'OTC innovations', \"status\": 'Generally available', 'Beta / early adopter', 'Roadmap' or 'Announced', \"what\": one plain sentence, \"why_it_matters\": one sentence for an architect or executive, \"otc_relevance\": 'High', 'Medium' or 'Low', \"source_title\": ..., \"source_url\": a real URL you found} ] } with the newest and most important first."};
+const kfmt=n=>{n=Number(n)||0;return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'k':String(n)};
+const TABNAME={prep:'Prep Plan',qbank:'Practice',interview:'Panel Session',mentor:'Mentor',sop:'SOP Builder',cert:'Certification',whatsnew:"What's New in SAP",company:'Company Prep',notes:'My Notes',roadmap:'Learning path',research:'Research',course:'Course',joule:'Joule',library:'Library',settings:'Settings'};
+function logBuilt(label,tab){S.bglog=arr(S.bglog);S.bglog.unshift({t:Date.now(),label,tab:tab||'sop'});S.bglog=S.bglog.slice(0,200)}
+function topStrip(){
+  const u=S.usage.day===dkey()?S.usage:{calls:0,tin:0,tout:0,srch:0};
+  const away=arr(S.bglog).filter(x=>x.t>(U.prev||0)),here=away.filter(x=>x.tab===U.tab);
+  return `<div class="strip"><div>🔑 ${hasKey()?'Gemini key saved in this browser':'<b>No Gemini key yet</b>'} <button class="btn sm alt" data-a="tab" data-t="settings">${hasKey()?'Change key':'Add key'}</button>
+  ${S.client&&S.client.name?` <span class="pill">Client: ${esc(S.client.name)}</span> <span class="mut">Questions and lessons are being grounded in the client's business.</span> <button class="btn sm alt" data-a="clientClear">Clear</button>`:''}</div>
+  <div class="mut">Today: ${u.calls||0} AI calls · ${kfmt(u.tin)} tokens in / ${kfmt(u.tout)} out · ${u.srch||0} web searches</div>
+  ${away.length?`<div class="away">✨ <b>Built for you while you were away</b> (${here.length} for this tab, ${away.length} in all) <button class="btn sm alt" data-a="awayToggle">${U.awayOpen?'Hide':'Show all'}</button>${U.awayOpen?`<ul>${away.slice(0,40).map(x=>`<li><span class="pill">${esc(TABNAME[x.tab]||x.tab)}</span>${esc(x.label)} <span class="mut">${new Date(x.t).toLocaleString()}</span></li>`).join('')}</ul>`:''}</div>`:''}</div>`;
+}
+
+/* ---- SOP library catalogue: stages + families the weekly check added ---- */
+const famArea=f=>{const st=SOPE.STAGES.find(s=>s[2].some(x=>SOPE.lc(x)===SOPE.lc(f)));if(st)return st[1];const a=arr(S.libAdded).find(x=>SOPE.lc(x.scenario)===SOPE.lc(f));return a?a.area:'Scenarios you asked for'};
+function partsLeft(f){
+  const v=sget(SOPE.key('variants',f));if(!v)return [];if(v===true)return [];
+  const m=SOPE.missing(f,sget),seen=new Set();return m.map(x=>SOPE.LABEL[x.part]).filter(x=>!seen.has(x)&&seen.add(x));
+}
+function famState2(f){
+  const st=famState(f);if(st.s!==1||st.t.includes('shared'))return st;
+  const left=SOPE.missing(f,sget);
+  if(left.length&&left.every(x=>['prereq','uat','verify','stepmap'].includes(x.part)))return Object.assign({},st,{s:1.5,t:'Ready (checks pending) · '+st.t});
+  return st;
+}
+function chip(f,extra){const st=famState2(f);return `<button class="lib ${st.s===2?'ready':st.s>=1?'prog':''}" data-a="sopOpen" data-f="${esc(f)}">${st.s===2?'✓':st.s>=1?'●':'○'} ${esc(f)}${extra?` <span class="mut">${esc(extra)}</span>`:''}</button>`}
+function statusBoard(){
+  const all=sopOrder(),states=all.map(f=>[f,famState2(f)]);
+  const done=states.filter(x=>x[1].s===2),ready=states.filter(x=>x[1].s===1.5),prog=states.filter(x=>x[1].s===1),todo=states.filter(x=>x[1].s===0);
+  const nx=SOPE.next(sget,S.sopSkip,Date.now(),S.customFams,arr(S.libAdded).map(x=>x.scenario));
+  const failed=Object.keys(S.sopSkip||{}).filter(k=>S.sopSkip[k]>Date.now()&&S.sopFail[k]).map(k=>k.split('|'));
+  const stageOf=f=>{const i=SOPE.STAGES.findIndex(s=>s[2].some(x=>SOPE.lc(x)===SOPE.lc(f)));return i<0?'':'stage '+SOPE.STAGES[i][0]+' · '};
+  const cur=nx?nx.fam:'';
+  return `<div class="card board"><h3>📊 SOP status — ${done.length} complete · ${ready.length} ready (checks pending) · ${prog.length} in progress · ${todo.length} queued</h3>
+  <p>📍 One SOP family at a time, in OTC order, each finished completely${cur?` — now: ${esc(stageOf(cur))}<b>${esc(cur)}</b> (${esc(famState(cur).t)}) — next part: ${esc(SOPE.LABEL[nx.part])}${nx.variant?' ('+esc(nx.variant)+')':''}`:' — every family is complete'}.</p>
+  <div>${SOPE.STAGES.map(s=>{const c=s[2].filter(f=>famState(f).s===2).length;return `<span class="pill ${c===s[2].length?'okp':''}">${esc(s[1])} ${c}/${s[2].length} complete</span>`}).join(' ')}</div>
+  <p>⚙️ <b>Working now:</b> ${BG.now?esc(BG.now):'nothing right now'}</p>
+  ${nx?`<p>⏭️ <b>Up next:</b> ${chip(nx.fam,SOPE.LABEL[nx.part]+(nx.variant?' · '+nx.variant:''))}</p>`:''}
+  ${failed.length?`<p>⚠️ <b>Couldn't build:</b> ${failed.slice(0,6).map(p=>chip(cap(p[0]),SOPE.LABEL[p[1]]+(p[2]?' · '+p[2]:'')+' · will retry')).join(' ')}</p>`:''}
+  ${prog.length||ready.length?`<p>🔨 <b>In progress:</b> ${ready.concat(prog).slice(0,24).map(x=>chip(x[0],x[1].t.replace('Ready (checks pending) · ',''))).join(' ')}</p>`:''}
+  ${done.length?`<p>✅ <b>Complete:</b> ${done.map(x=>chip(x[0])).join(' ')}</p>`:''}
+  ${arr(S.customFams).length?`<p>🧾 <b>Your SOPs:</b> ${S.customFams.map(f=>chip(f,famState2(f).t)).join(' ')}</p>`:''}</div>`;
+}
+function famCard(f){
+  const st=famState2(f),v=sget(SOPE.key('variants',f)),n=v&&v!==true?arr(v.variants).length:0,left=partsLeft(f),ch=(S.libChanged||{})[SOPE.lc(f)],ad=arr(S.libAdded).find(x=>SOPE.lc(x.scenario)===SOPE.lc(f));
+  const title=v&&v!==true&&v.family_title?v.family_title:f;
+  return `<button class="fcard s${Math.floor(st.s)} ${U.sop.fam===f?'on':''}" data-a="sopOpen" data-f="${esc(f)}"><b>${st.s===2?'✓':st.s>=1?'●':'○'} ${esc(title)}</b>
+  <span class="st">${esc(st.t)}</span>${n?`<span>${n} variant${n>1?'s':''} found${st.s===2?' · complete, opens instantly':''}</span>`:'<span>Not started yet — written in OTC order</span>'}
+  ${left.length&&st.s!==2?`<span>Still to write: ${esc(left.slice(0,5).join(' + '))}${left.length>5?' …':''}</span>`:''}
+  ${ch?`<span class="chg">🔄 Changed in SAP (${esc(ch.date)}) — ${esc(ch.what_changed)}${ch.redone?' — checked and updated by itself':' — being rewritten'}</span>`:''}
+  ${ad?`<span class="chg">➕ Added by itself (weekly check ${esc(ad.date||'')}): ${esc(ad.why_now||'')}</span>`:''}</button>`;
+}
+function libraryHtml(){
+  const added=arr(S.libAdded),groups=SOPE.STAGES.map(s=>['Stage '+s[0]+' · '+s[1],s[2]]);
+  const extraAreas={};added.forEach(a=>{(extraAreas[a.area]=extraAreas[a.area]||[]).push(a.scenario)});
+  Object.keys(extraAreas).forEach(a=>{const g=groups.find(x=>x[0].endsWith(' · '+a));if(g)g[1]=g[1].concat(extraAreas[a]);else groups.push([a,extraAreas[a]])});
+  if(arr(S.customFams).length)groups.unshift(['Scenarios you asked for',S.customFams]);
+  const total=groups.reduce((n,g)=>n+g[1].length,0),full=groups.reduce((n,g)=>n+g[1].filter(f=>famState(f).s===2).length,0),mapped=groups.reduce((n,g)=>n+g[1].filter(f=>sget(SOPE.key('variants',f))).length,0);
+  const W=S.weekly||{};
+  return `<details class="card" ${U.libOpen===false?'':'open'} data-lib="1"><summary style="font-size:17px">📚 SOP library — every common OTC scenario family, by area · ${total} families (${added.length} added by itself) · ${mapped} mapped · ${full} full</summary>
+  <p class="mut">Every common order-to-cash scenario family, stage by stage (pre-sales → order types → order controls → fulfilment → billing → finance and integration). The builder works through it in this order and finishes each family completely before the next: the variants, a click-by-click setup per variant, setup errors, production issues, panel Q&amp;A, comparisons, a test script and a fact-check. ✓ complete · ● in progress · ○ not started. Once a week it checks SAP Help, SAP Community and the web for new scenarios (added by itself) and for families that changed in a new SAP release (rewritten by itself).</p>
+  <div class="card weekly"><b>🗓️ Weekly check</b> (SAP Help, SAP Community, the web): ${W.date?`last run ${esc(W.date)} — ${arr(W.added).length} new famil${arr(W.added).length===1?'y':'ies'} added, ${arr(W.changed).length} changed${W.error?' · last error: '+esc(W.error):''}. Next ${esc(addDays(W.date,7))}.`:'not run yet. It runs by itself once a week while the page is open.'}
+  ${arr(W.added).length||arr(W.changed).length?`<ul>${arr(W.added).map(a=>`<li>➕ <b>${esc(a.scenario)}</b> (${esc(a.area)}) — ${esc(a.why_now)} ${a.source_url?link(a.source_url,'source'):''}</li>`).join('')}${arr(W.changed).map(c=>`<li>🔄 <b>${esc(c.scenario)}</b> — ${esc(c.what_changed)} ${c.source_url?link(c.source_url,'source'):''}</li>`).join('')}</ul>`:''}
+  <button class="btn sm" data-a="weeklyNow">Run the weekly check now</button></div>
+  ${groups.map(([name,fams])=>`<h3 class="stg">${esc(name)} · ${fams.filter(f=>sget(SOPE.key('variants',f))).length}/${fams.length} mapped · ${fams.filter(f=>famState(f).s===2).length} full</h3><div class="grid4">${fams.map(famCard).join('')}</div>`).join('')}</details>`;
+}
+const addDays=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+
+async function weeklyCheck(){
+  const areas=SOPE.STAGES.map(s=>s[1]),existing=SOPE.order(S.customFams,arr(S.libAdded).map(x=>x.scenario));
+  const W={date:dkey(),added:[],changed:[],error:''};
+  try{
+    const r=await sopCall(P3.weekly.replace('@@AREAS@@',areas.map(a=>"'"+a+"'").join(', ')),"Today's date: "+dkey()+'\nEXISTING families: '+existing.join('; ').slice(0,6000)+'\nRun the weekly check now and write the json.',{search:true,max:6000});
+    const raw=SOPE.parse(r.text),names=new Set(existing.map(SOPE.lc));
+    arr(raw.new_families).forEach(f=>{
+      if(!f||typeof f!=='object')return;const sc=str(f.scenario).replace(/\s+/g,' ').trim().slice(0,80),area=str(f.area).trim().slice(0,70),src=str(f.source_url);
+      if(sc.length<3||sc.split(' ').length>8||names.has(SOPE.lc(sc))||!/^https?:\/\//.test(src))return;
+      if(!areas.includes(area)&&!/^OTC integration: [^<>{}\[\]\n]{2,50}$/.test(area))return;
+      if(existing.some(n=>SOPE.lc(n).includes(SOPE.lc(sc))||SOPE.lc(sc).includes(SOPE.lc(n))))return;
+      const a={scenario:sc,area,why_now:str(f.why_now).slice(0,300),otc_link:str(f.otc_link).slice(0,300),source_url:src,date:dkey()};
+      S.libAdded=arr(S.libAdded).concat([a]);names.add(SOPE.lc(sc));W.added.push(a);
+    });
+    for(const c of arr(raw.changed_families)){
+      if(!c||typeof c!=='object')continue;const nm=existing.find(n=>SOPE.lc(n)===SOPE.lc(str(c.scenario)));if(!nm||!/^https?:\/\//.test(str(c.source_url)))continue;
+      const ch={scenario:nm,what_changed:str(c.what_changed).slice(0,300),source_url:str(c.source_url),date:dkey()};
+      S.libChanged=Object.assign({},S.libChanged,{[SOPE.lc(nm)]:ch});W.changed.push(ch);
+      await ensureFamily(nm);for(const k of [...DB.keys])if(SOPE.famOfKey(k)===SOPE.lc(nm)&&/^[^|]+\|(core|errors|practice|prereq|uat|verify|stepmap)\|/.test(k))await DB.del(k);
+    }
+  }catch(e){W.error=errMsg(e).slice(0,160);if(e.rate||e.fatal){S.weekly=Object.assign({},S.weekly,{tried:dkey()});save();throw e}}
+  S.weekly=W;save();return W;
+}
+const sopUpdateFor=f=>{const c=(S.libChanged||{})[SOPE.lc(f)];return c&&!c.redone?c.what_changed+' (source: '+c.source_url+')':''};
+
+/* ---- Company Prep (your build_company_instructions) + industry briefing (build_prep_overlay_instructions) ---- */
+async function doCompany(){
+  const co=clean(U.m.coName),role=clean(U.m.coRole)||S.set.role;if(!co)return toast('Type a company name',true);
+  const title=co+' · '+role;let it=libOf('company').find(x=>SOPE.lc(x.title)===SOPE.lc(title));
+  if(!it)await run('Researching '+co+'…',async()=>{
+    const r=await sopCall(P3.company,'Company: '+co+'\nRole the candidate is preparing for: '+role+'\nCandidate background: '+(S.set.background||'not given')+"\nToday's date: "+dkey(),{search:true,max:9000});
+    const d=SOPE.parse(r.text);if(!arr(d.sap_process_map).length&&!d.operating_model)throw new Error('BADJSON');
+    it={id:uid(),kind:'company',title,created:dkey(),data:d,src:r.src};S.lib.unshift(it);save();
+  });
+  if(it){U.open.company=it.id;go('company')}
+}
+async function doIndustry(){
+  const ind=clean(U.m.coInd);if(!ind)return toast('Type an industry',true);
+  let it=libOf('industry').find(x=>SOPE.lc(x.title)===SOPE.lc(ind));
+  if(!it)await run('Researching the '+ind+' industry…',async()=>{
+    const r=await sopCall(P3.industry,'Industry: '+ind+'\nLearner background: '+(S.set.background||'not given')+'\nTarget role: '+S.set.role,{search:true,max:9000});
+    const d=SOPE.parse(r.text);if(!arr(d.scenarios).length)throw new Error('BADJSON');
+    it={id:uid(),kind:'industry',title:ind,created:dkey(),data:d,src:r.src};S.lib.unshift(it);save();
+  });
+  if(it){U.open.industry=it.id;go('company')}
+}
+const conf=c=>`<span class="pill ${/public/i.test(c)?'okp':''}">${esc(c||'')}</span>`;
+views.company=()=>{
+  const it=getOpen('company'),d=it&&it.data,ii=getOpen('industry'),di=ii&&ii.data;
+  let h=`<div class="card"><h2>🏢 Company Prep</h2><p class="mut">Tailor everything to a client: how the business runs, how that runs in SAP, what they'd probe. Set it as your client and every question and lesson is grounded in their business.</p>
+  <div class="row"><div><label>Company</label>${inp('coName','e.g. the company you are interviewing with','coGo')}</div><div><label>Role</label>${inp('coRole',S.set.role,'coGo')}</div></div><button class="btn" data-a="coGo">Research the company</button>${recent('company','openCompany')}
+  <div class="row" style="margin-top:8px"><div><label>Or brief me on an industry</label>${inp('coInd','e.g. beverages DSD, pharma, oil and gas downstream','indGo')}</div></div><button class="btn alt" data-a="indGo">Industry briefing</button>${recent('industry','openIndustry')}</div>`;
+  if(d){
+    h+=`<div class="card"><h2>${esc(str(d.company_name)||it.title)}</h2><button class="btn" data-a="clientSet" data-id="${it.id}">🎯 Use as my client</button><button class="btn alt" data-a="noteSave" data-k="company" data-id="${it.id}">📌 Save to notes</button><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>
+    <p class="fb info">Internal SAP landscapes are rarely public. Rows marked "Likely - not confirmed" are inferences; don't state them as fact in an interview.</p>
+    <h3>How the business runs</h3><p>${esc(str(d.operating_model))} ${say(str(d.operating_model),'Operating model')}</p>
+    <h3>How it runs in SAP</h3>${tbl(['Business process','SAP process','Components','Key objects','Pain points','Confidence'],arr(d.sap_process_map).map(x=>[esc(str(x.business_process)),`<b>${esc(str(x.sap_process))}</b><br><button class="btn sm alt" data-a="sopOpen" data-f="${esc(str(x.sap_process).slice(0,70))}">📋 SOP</button>`,esc(str(x.sap_components)),`<code>${esc(str(x.key_objects))}</code>`,esc(str(x.pain_points)),conf(str(x.confidence))]))}
+    <h3>SAP landscape</h3>${tbl(['System','Evidence','Confidence'],arr(d.sap_landscape).map(x=>[`<b>${esc(str(x.system))}</b>`,esc(str(x.evidence)),conf(str(x.confidence))]))}
+    <h3>What to study for this company</h3>${arr(d.recommended_topics).map(t=>`<div class="row" style="border-bottom:1px solid var(--line)"><div style="flex:1 1 300px"><span class="pill">${esc(str(t.priority))}</span><b>${esc(str(t.topic))}</b><br><span class="mut">${esc(str(t.why_for_this_company))}</span></div><div style="flex:0 0 auto"><button class="btn sm alt" data-a="toCourse" data-t="${esc(str(t.topic))}">🎓</button><button class="btn sm alt" data-a="sopOpen" data-f="${esc(str(t.topic).slice(0,70))}">📋</button><button class="btn sm alt" data-a="toInterview" data-t="${esc(str(t.topic))}">🎙️</button></div></div>`).join('')}
+    ${sec('🎤 What they will probe',li(d.interview_angles))}${sec('⚠️ Do not claim',li(d.watch_outs))}${srcHtml(arr(it.src).concat(arr(d.sources).map(s=>({uri:s.url,title:s.title}))))}</div>`;
+  }
+  if(di){
+    h+=`<div class="card"><h2>🏭 ${esc(str(di.industry)||ii.title)}</h2><button class="btn sm bad" data-a="del" data-id="${ii.id}">🗑️</button><p>${esc(str(di.business_model))}</p>
+    <h3>What is different in their order-to-cash</h3>${li(di.otc_differences)}
+    <h3>Scenarios to know</h3>${arr(di.scenarios).map(s=>`<div class="row" style="border-bottom:1px solid var(--line)"><div style="flex:1 1 300px"><span class="pill">${esc(str(s.priority))}</span><b>${esc(str(s.name))}</b> <span class="mut">${esc(str(s.why))}</span></div><div style="flex:0 0 auto"><button class="btn sm alt" data-a="sopOpen" data-f="${esc(str(s.name).slice(0,70))}">📋 SOP</button><button class="btn sm alt" data-a="toCourse" data-t="${esc(str(s.name))}">🎓</button></div></div>`).join('')}
+    ${sec('🧩 SAP solutions',tbl(['Solution','What it does'],arr(di.sap_solutions).map(x=>[`<b>${esc(str(x.name))}</b>`,esc(str(x.what))])))}${sec('⚖️ Regulations',tbl(['Regulation','Impact on SAP design'],arr(di.regulations).map(x=>[esc(str(x.name)),esc(str(x.impact))])))}
+    ${sec('📈 KPIs',tbl(['KPI','Why'],arr(di.kpis).map(x=>[esc(str(x.kpi)),esc(str(x.why))])))}${sec('🔥 Pain points',li(di.pain_points))}
+    ${arr(di.bridge).length?sec('🌉 Bridge from your background',tbl(['From','To','Say it'],arr(di.bridge).map(x=>[esc(str(x.from)),esc(str(x.to)),esc(str(x.say_it))]))):''}
+    ${sec('🎤 Panel questions for this industry',arr(di.questions).map(q=>`<div><span class="pill">${esc(str(q.who))}</span><span class="pill">${esc(str(q.type))}</span>${esc(str(q.q))} <button class="btn sm alt" data-a="toInterview" data-t="${esc(str(q.q).slice(0,120))}">🎙️</button></div>`).join(''))}${srcHtml(ii.src)}</div>`;
+  }
+  return h;
+};
+
+/* ---- Prep Plan (your build_prep_curriculum_instructions) ---- */
+const PREP_ACT={watch:'▶️',learn:'🎓',sop:'📋',practice:'✏️',panel:'🎤',mock:'🎙️'};
+async function doPrep(){
+  const role=clean(U.m.ppRole)||S.set.role,ind=clean(U.m.ppInd),wk=Math.max(1,Math.min(26,parseInt(U.m.ppWeeks)||6)),hrs=Math.max(0.5,Math.min(8,parseFloat(U.m.ppHours)||1.5));
+  await run('Designing your preparation plan…',async()=>{
+    const r=await sopCall(P3.prep,'Target role and level: '+role+'\nTarget industry: '+(ind||'none given (use cross-industry patterns)')+(S.client&&S.client.name?'\nTarget company: '+S.client.name:'')+'\nBackground: '+(S.set.background||'not given')+'\nTime available: '+wk+' weeks x '+hrs+' hours per day = about '+Math.round(wk*7*hrs*60*0.7)+' minutes in total.\nWrite the json now.',{max:14000});
+    const d=SOPE.parse(r.text);if(!arr(d.phases).length)throw new Error('BADJSON');
+    d.phases.forEach(p=>arr(p.items).forEach(x=>{x.id=uid();x.done=false}));
+    S.prep={created:dkey(),role,industry:ind,weeks:wk,hours:hrs,data:d};
+    const sops=d.phases.flatMap(p=>arr(p.items)).filter(x=>x.type==='sop').map(x=>str(x.topic).slice(0,70)).filter(Boolean);
+    sops.forEach(t=>{if(!sopKnown(t))S.customFams.push(t)});save();
+  });
+}
+function prepGo(x){
+  const t=str(x.topic);
+  if(x.type==='watch')return window.open('https://www.youtube.com/results?search_query='+encodeURIComponent('SAP S/4HANA '+t),'_blank','noopener');
+  if(x.type==='learn'){U.m.cQ=t;return doCourse(t)}
+  if(x.type==='sop')return sopOpen(t);
+  if(x.type==='practice'){U.m.chatIn=`Ask me one hard, realistic interview question on "${t}"${x.focus?' ('+x.focus+')':''}. Wait for my answer, then grade it out of 10, show what was missing and give a model answer.`;go('mentor');return sendChat()}
+  U.m.iQ=t;U.open.interview=null;if(x.type==='mock')U.m.iRound='Executive / VP panel';go('interview');
+}
+views.prep=()=>{
+  const p=S.prep,d=p&&p.data,items=d?d.phases.flatMap(ph=>arr(ph.items)):[],done=items.filter(x=>x.done).length,mins=items.reduce((n,x)=>n+(Number(x.minutes)||0),0);
+  let h=`<div class="card"><h2>🧭 Prep Plan</h2><p class="mut">Start from zero → panel ready, any industry. A complete plan that assumes you know nothing, fitted to your time: watch, learn, build the SOP, practise, rehearse.</p>
+  <div class="row"><div><label>Target role</label>${inp('ppRole',S.set.role)}</div><div><label>Industry (optional)</label>${inp('ppInd','e.g. beverages, pharma, oil and gas')}</div></div>
+  <div class="row"><div><label>Weeks</label><input type="number" min="1" max="26" data-m="ppWeeks" value="${esc(U.m.ppWeeks||6)}"></div><div><label>Hours per day</label><input type="number" min="0.5" max="8" step="0.5" data-m="ppHours" value="${esc(U.m.ppHours||1.5)}"></div></div>
+  <button class="btn" data-a="ppGo">${p?'Make a new plan':'Make my plan'}</button>${S.client&&S.client.name?` <span class="mut">Tailored to your client ${esc(S.client.name)}.</span>`:''}</div>`;
+  if(!d)return h;
+  const nx=items.find(x=>!x.done);
+  h+=`<div class="card"><h2>${esc(str(d.title))}</h2><p>${esc(str(d.summary))}</p><div class="mut">${done}/${items.length} done · about ${Math.round(mins/60)} hours · made ${esc(p.created)}</div>
+  <div style="background:var(--line);border-radius:99px;height:10px;margin:6px 0"><div style="width:${items.length?Math.round(100*done/items.length):0}%;height:10px;border-radius:99px;background:var(--ok)"></div></div>
+  ${nx?`<p>📍 <b>Next:</b> ${PREP_ACT[nx.type]||'•'} ${esc(str(nx.title))} <button class="btn sm" data-a="ppItem" data-id="${nx.id}">Start</button></p>`:'<p>🎉 Plan finished.</p>'}</div>`;
+  d.phases.forEach((ph,i)=>{const its=arr(ph.items),c=its.filter(x=>x.done).length;
+    h+=`<details class="card" ${U.ppOpen===i||(!U.ppOpen&&U.ppOpen!==0&&its.some(x=>x===nx))?'open':''}><summary style="font-size:17px">${esc(str(ph.name))} <span class="mut">${c}/${its.length}</span></summary><p class="mut">${esc(str(ph.goal))}</p>
+    ${its.map(x=>`<div class="row" style="border-bottom:1px solid var(--line);padding:3px 0"><button class="btn sm ${x.done?'':'alt'}" style="flex:0 0 auto" data-a="ppDone" data-id="${x.id}">${x.done?'✅':'⬜'}</button><div style="flex:1 1 260px">${PREP_ACT[x.type]||'•'} <b>${esc(str(x.title))}</b> <span class="mut">${esc(str(x.minutes))} min · ${esc(str(x.why))}</span>${x.focus?`<br><span class="mut">${esc(str(x.focus))}</span>`:''}</div><button class="btn sm" style="flex:0 0 auto" data-a="ppItem" data-id="${x.id}">Start</button></div>`).join('')}</details>`});
+  return h;
+};
+
+/* ---- Certification (your cert profile + MCQ prompts) ---- */
+async function doCert(){
+  const q=clean(U.m.ctQ);if(!q)return toast('Type an exam code or name',true);
+  let it=libOf('cert').find(x=>SOPE.lc(x.title)===SOPE.lc(q));
+  if(!it)await run('Researching the exam…',async()=>{
+    const r=await sopCall(P3.certProfile,'Exam: '+q+"\nToday's date: "+dkey(),{search:true,max:9000});
+    const d=SOPE.parse(r.text);if(!d.title&&!arr(d.areas).length)throw new Error('BADJSON');
+    it={id:uid(),kind:'cert',title:q,created:dkey(),data:d,src:r.src,quiz:null};S.lib.unshift(it);save();
+  });
+  if(it){U.open.cert=it.id;U.ctq=null;go('cert')}
+}
+async function certQuiz(it){
+  await run('Writing warm-up questions…',async()=>{
+    const d=it.data;const r=await sopCall(P3.certMcq,'Exam: '+(d.code||'')+' '+(d.title||it.title)+'\nAreas: '+arr(d.areas).map(a=>str(a.area)+' ('+str(a.weight)+')').join('; ')+'\nWrite 6 questions. Variation '+uid(),{max:8000});
+    const x=SOPE.parse(r.text);const qs=arr(x.questions).filter(q=>q&&arr(q.options).length>=4&&arr(q.correct).length);if(!qs.length)throw new Error('BADJSON');
+    U.ctq={qs,i:0,sel:[],checked:false,score:0};
+  });
+}
+views.cert=()=>{
+  const it=getOpen('cert'),d=it&&it.data;
+  let h=`<div class="card"><h2>🏅 Certification</h2><p class="mut">Exam-style practice + learning path. Type an exam code (for example C_TS462_2023 or its newer version) or its name. It researches the CURRENT format on SAP Learning: SAP moved certifications to practical, open-book formats from November 2025.</p>
+  <div class="row">${inp('ctQ','Exam code or name, e.g. SAP Certified - S/4HANA Sales','ctGo')}<button class="btn" data-a="ctGo">Research the exam</button></div>${recent('cert','openCert')}</div>`;
+  if(!d)return h;
+  h+=`<div class="card"><h2>${esc(str(d.code))} ${esc(str(d.title))}</h2><button class="btn sm bad" data-a="del" data-id="${it.id}">🗑️</button>
+  ${tbl(['Format','Duration','Pass score','Tasks / questions','Open book'],[[esc(str(d.format)),esc(str(d.duration)),esc(str(d.pass_score)),esc(str(d.tasks_or_questions)),d.open_book===true?'Yes':d.open_book===false?'No':'Not published']])}
+  <p>${esc(str(d.how_it_works))}</p>${d.practice_system?`<p class="mut">🧪 ${esc(str(d.practice_system))}</p>`:''}${d.learning_journey_url?`<p>📘 ${link(str(d.learning_journey_url),str(d.learning_journey_title)||'Official learning journey')}</p>`:''}
+  <h3>Topic areas</h3>${tbl(['Area','Weight','Skills tested'],arr(d.areas).map(a=>[`<b>${esc(str(a.area))}</b>`,esc(str(a.weight)),esc(arr(a.skills).map(str).join('; '))]))}
+  <h3>Learning path</h3>${arr(d.learning_path).map((u,i)=>`<div class="row" style="border-bottom:1px solid var(--line)"><div style="flex:1 1 300px">${i+1}. <b>${esc(str(u.unit))}</b> <span class="mut">${esc(str(u.area))} · ${esc(str(u.est_hours))} h — ${esc(str(u.goal))}</span></div><button class="btn sm alt" style="flex:0 0 auto" data-a="toCourse" data-t="${esc(str(u.unit))}">🎓 Learn</button></div>`).join('')}
+  ${sec('💡 Exam tips',li(d.exam_tips))}${srcHtml(arr(it.src).concat(arr(d.sources).map(s=>({uri:s.url,title:s.title}))))}
+  <button class="btn" data-a="ctQuiz">✏️ Warm-up quiz (6 questions)</button></div>`;
+  const Q=U.ctq;
+  if(Q){const q=Q.qs[Q.i],multi=arr(q.correct).length>1,cor=arr(q.correct).map(Number);
+    h+=`<div class="card"><div class="mut">Question ${Q.i+1} of ${Q.qs.length} · score ${Q.score}</div><p style="font-size:18px">${esc(str(q.question))}</p>
+    ${arr(q.options).map((o,i)=>`<button class="opt ${Q.checked?(cor.includes(i)?'ok':(Q.sel.includes(i)?'no':'')):(Q.sel.includes(i)?'sel':'')}" data-a="ctSel" data-i="${i}" ${Q.checked?'disabled':''}>${'ABCDE'[i]}. ${esc(str(o))}${Q.checked&&arr(q.why_not)[i]?`<br><span class="mut">${esc(str(q.why_not[i]))}</span>`:''}</button>`).join('')}
+    ${Q.checked?`<div class="fb ${cor.length===Q.sel.length&&cor.every(i=>Q.sel.includes(i))?'ok':'no'}">${esc(str(q.why))}<br><span class="mut">💡 ${esc(str(q.tip))}</span></div>${Q.i<Q.qs.length-1?'<button class="btn" data-a="ctNext">Next ➡️</button>':`<p><b>Done: ${Q.score}/${Q.qs.length}</b></p><button class="btn" data-a="ctQuiz">New quiz</button>`}`:`<button class="btn" data-a="ctCheck">Check${multi?' (choose 2)':''}</button>`}</div>`;}
+  return h;
+};
+
+/* ---- What's New in SAP (your radar prompt) ---- */
+async function doRadar(){
+  const r=await sopCall(P3.radar,"Today's date: "+dkey()+'\nHome domain: '+(S.set.focus||'Order-to-Cash')+'\nWrite the json now.',{search:true,max:9000});
+  const d=SOPE.parse(r.text);const items=arr(d.items).filter(x=>x&&x.title);if(!items.length)throw new Error('BADJSON');
+  S.radar={date:dkey(),items,src:r.src};save();
+}
+views.whatsnew=()=>{
+  const R=S.radar,cats=R?[...new Set(R.items.map(x=>str(x.category)))]:[],f=U.m.wnCat||'all';
+  let h=`<div class="card"><h2>📰 What's New in SAP</h2><p class="mut">Joule, new releases, roadmap: the ten SAP developments of the last six months an OTC architect must be able to discuss, checked on SAP News, SAP Help and the Road Map Explorer. Refreshes itself weekly.</p>
+  ${R?`<div class="mut">Checked ${esc(R.date)}.</div>`:''}<button class="btn" data-a="wnGo">${R?'Check again now':'Find what is new'}</button>
+  ${R?`<div style="margin-top:6px">${[['all','All']].concat(cats.map(c=>[c,c])).map(([k,l])=>`<button class="tag" style="${f===k?'outline:2px solid var(--pri)':''}" data-a="wnCat" data-k="${esc(k)}">${esc(l)}</button>`).join('')}</div>`:''}</div>`;
+  if(!R)return h;
+  return h+R.items.filter(x=>f==='all'||str(x.category)===f).map((x,i)=>`<div class="card"><div><span class="pill">${esc(str(x.category))}</span><span class="pill">${esc(str(x.status))}</span><span class="pill ${str(x.otc_relevance)==='High'?'okp':''}">OTC relevance: ${esc(str(x.otc_relevance))}</span> <span class="mut">${esc(str(x.date))}</span></div>
+  <h3>${esc(str(x.title))}</h3><p>${esc(str(x.what))}</p><p>💼 ${esc(str(x.why_it_matters))} ${say(str(x.title)+'. '+str(x.what)+' '+str(x.why_it_matters),"What's new")}</p>${x.source_url?`<div class="mut">📄 ${link(str(x.source_url),str(x.source_title)||'source')}</div>`:''}
+  <button class="btn sm alt" data-a="toCourse" data-t="${esc(str(x.title))}">🎓 Teach me</button><button class="btn sm alt" data-a="toInterview" data-t="${esc(str(x.title))}">🎙️ Panel question</button><button class="btn sm alt" data-a="noteSave" data-k="radar" data-i="${R.items.indexOf(x)}">📌 Save</button></div>`).join('')+srcHtml(R.src);
+};
+
+/* ---- My Notes ---- */
+function addNote(title,text,src,tag){S.notes=arr(S.notes);S.notes.unshift({id:uid(),t:Date.now(),title:str(title).slice(0,200),text:str(text).slice(0,8000),src:arr(src).slice(0,4),tag:tag||''});save();toast('Saved to My Notes 📌')}
+views.notes=()=>{
+  const q=SOPE.lc(U.m.ntQ||''),list=arr(S.notes).filter(n=>!q||SOPE.lc(n.title+' '+n.text+' '+n.tag).includes(q));
+  return `<div class="card"><h2>🗒️ My Notes</h2><p class="mut">Review what you saved: mentor answers, company briefings, what's new, and anything you paste (for example a Joule answer from a real system).</p>
+  <label>Title</label>${inp('ntTitle','e.g. Joule answer: blocked orders for customer 1000')}<label>Note</label><textarea data-m="ntText" placeholder="Paste or type…">${M('ntText')}</textarea>
+  <button class="btn" data-a="ntAdd">📌 Save note</button><button class="btn alt" data-a="ntExport">⬇️ Export (Markdown)</button>
+  <label>Search</label>${inp('ntQ','Search your notes')}<button class="btn sm alt" data-a="ntFind">Search</button></div>
+  ${list.length?list.map(n=>`<div class="card"><div><span class="pill">${esc(n.tag||'note')}</span> <span class="mut">${new Date(n.t).toLocaleString()}</span></div><h3>${esc(n.title)}</h3><p style="white-space:pre-wrap">${esc(n.text)}</p>${srcHtml(n.src)}${say(n.title+'. '+n.text,'Note')}<button class="btn sm bad" data-a="ntDel" data-id="${n.id}">🗑️</button></div>`).join(''):'<div class="card mut">No notes yet. Use 📌 Save on mentor answers, company briefings and what\'s new, or paste one above.</div>'}`;
+};
 
 /* ============ COURSE ============ */
 async function doCourse(q){
@@ -1024,7 +1282,7 @@ views.joule=()=>{
 };
 
 /* ============ MENTOR ============ */
-views.mentor=()=>`<div class="card"><h2>🧑‍🏫 Mentor</h2><div class="chat" id="chat">${S.chat.length?S.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}${m.r==='m'?' '+say(m.t,'Mentor'):''}${arr(m.src).length?`<div class="mut">🔎 ${arr(m.src).map(x=>link(x.uri,x.title||'source')).join(' · ')}</div>`:''}</div>`).join(''):'<p class="mut">Ask anything: "what is a pricing procedure?", "how do I answer why S/4HANA?", "explain ATP like I am five". I explain simply first, then go deeper.</p>'}${U.load?'<div class="msg m">…</div>':''}</div>
+views.mentor=()=>`<div class="card"><h2>🧑‍🏫 Mentor</h2><div class="chat" id="chat">${S.chat.length?S.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}${m.r==='m'?' '+say(m.t,'Mentor')+` <button class="btn sm alt" data-a="noteSave" data-k="chat" data-i="${S.chat.indexOf(m)}">📌</button>`:''}${arr(m.src).length?`<div class="mut">🔎 ${arr(m.src).map(x=>link(x.uri,x.title||'source')).join(' · ')}</div>`:''}</div>`).join(''):'<p class="mut">Ask anything: "what is a pricing procedure?", "how do I answer why S/4HANA?", "explain ATP like I am five". I explain simply first, then go deeper.</p>'}${U.load?'<div class="msg m">…</div>':''}</div>
   <div class="row"><textarea data-m="chatIn" style="min-height:64px" placeholder="Type your question…">${M('chatIn')}</textarea><button class="btn" data-a="send">Send ➤</button><button class="btn alt" data-a="mic">${U.listening?'🔴':'🎤'}</button></div><div><button class="btn alt" data-a="mentorNext">📍 Teach me the next topic</button><button class="btn alt" data-a="mentorQuiz">📝 Quiz me</button><button class="btn alt" data-a="mentorWhy">🤔 Why does this matter in an interview?</button></div><button class="btn sm alt" data-a="chatClear">🧹 Clear chat</button></div>`;
 async function sendChat(){
   const t=clean(U.m.chatIn);if(!t)return;U.m.chatIn='';S.chat.push({r:'u',t});S.chat=S.chat.slice(-60);save();
@@ -1036,7 +1294,7 @@ async function sendChat(){
 }
 
 /* ============ LIBRARY + SETTINGS ============ */
-const KNAME={joule:['✨','Joule prompt libraries','openJoule'],agents:['🤖','AI agent use cases','openAgents'],pack:['🔎','Research packs','openPack'],course:['🎓','Courses','openCourse'],interview:['🎙️','Interviews','openInterview']};
+const KNAME={company:['🏢','Company briefings','openCompany'],industry:['🏭','Industry briefings','openIndustry'],cert:['🏅','Certifications','openCert'],joule:['✨','Joule prompt libraries','openJoule'],agents:['🤖','AI agent use cases','openAgents'],pack:['🔎','Research packs','openPack'],course:['🎓','Courses','openCourse'],interview:['🎙️','Interviews','openInterview']};
 views.library=()=>`<div class="card"><h2>📚 My library</h2><p class="mut">Everything you built is saved in this browser and opens instantly, with no new AI call.</p>${Object.entries(KNAME).map(([k,[e,n,act]])=>`<h3>${e} ${n} (${libOf(k).length})</h3>${libOf(k).map(x=>`<div class="row" style="border-bottom:1px solid var(--line)"><button class="lib ready" style="text-align:left" data-a="${act}" data-id="${x.id}">${esc(x.title)}</button><span class="mut" style="flex:0 0 auto">${esc(x.created)}</span><button class="btn sm bad" data-a="del" data-id="${x.id}">🗑️</button></div>`).join('')||'<p class="mut">Nothing yet.</p>'}`).join('')}</div>
   <div class="card"><h2>💾 Backup (move to phone or another laptop)</h2><button class="btn" data-a="backup">⬇️ Download backup</button><label>Restore from a backup file</label><input type="file" accept=".json,application/json" id="restore"></div>`;
 views.settings=()=>{
@@ -1057,11 +1315,13 @@ views.settings=()=>{
 const BG={busy:false,now:'',last:'',note:''};
 const BG_MS=window.__fcBgMs||30000;
 function otherJob(){
-  for(const c of libOf('course')){const i=c.data.lessons.findIndex(l=>!l.body&&(l.tries||0)<3);if(i>=0)return {label:`${c.title} — lesson ${i+1}`,fn:()=>buildLesson(c,i),fail:()=>{c.data.lessons[i].tries=(c.data.lessons[i].tries||0)+1}}}
-  for(const p of libOf('pack')){const part=PARTS.find(x=>!p.data[x]);if(part&&(p.tries||0)<3)return {label:`${p.title} — research`,fn:async()=>{p.data[part]=await aj(packPrompt(part,p.title,p.sub),{search:!!S.set.research});p.built=dkey()},fail:()=>{p.tries=(p.tries||0)+1}}}
-  if(QB.loaded&&QB.list.length<600&&!(BG.qbRest>Date.now())){const t=qbNextBgTarget();return {label:`question bank — 3 ${t.cat} questions`,fn:()=>qbGen(t.cat,t.diff,3),fail:()=>{BG.qbRest=Date.now()+20*60e3}}}
+  if((!S.weekly||S.weekly.date<addDays(dkey(),-6))&&(!S.weekly||S.weekly.tried!==dkey()))return {tab:'sop',label:'weekly check of SAP sources for the SOP library',fn:async()=>{const W=await weeklyCheck();if(W.error)throw new Error(W.error)},fail:()=>{S.weekly=Object.assign({},S.weekly,{tried:dkey()})}};
+  if((!S.radar||S.radar.date<addDays(dkey(),-6))&&S.radarTried!==dkey())return {tab:'whatsnew',label:"What's New in SAP: weekly radar",fn:doRadar,fail:()=>{S.radarTried=dkey()}};
+  for(const c of libOf('course')){const i=c.data.lessons.findIndex(l=>!l.body&&(l.tries||0)<3);if(i>=0)return {tab:'course',label:`${c.title} — lesson ${i+1}`,fn:()=>buildLesson(c,i),fail:()=>{c.data.lessons[i].tries=(c.data.lessons[i].tries||0)+1}}}
+  for(const p of libOf('pack')){const part=PARTS.find(x=>!p.data[x]);if(part&&(p.tries||0)<3)return {tab:'research',label:`${p.title} — research`,fn:async()=>{p.data[part]=await aj(packPrompt(part,p.title,p.sub),{search:!!S.set.research});p.built=dkey()},fail:()=>{p.tries=(p.tries||0)+1}}}
+  if(QB.loaded&&QB.list.length<600&&!(BG.qbRest>Date.now())){const t=qbNextBgTarget();return {tab:'qbank',label:`question bank — 3 ${t.cat} questions`,fn:()=>qbGen(t.cat,t.diff,3),fail:()=>{BG.qbRest=Date.now()+20*60e3}}}
   if(S.set.research){const old=libOf('pack').find(p=>p.built&&(Date.now()-new Date(p.built+'T12:00:00').getTime())>30*864e5&&PARTS.every(x=>p.data[x]));
-    if(old)return {label:`${old.title} — monthly refresh`,fn:async()=>{for(const part of PARTS)old.data[part]=await aj(packPrompt(part,old.title,old.sub),{search:true,nocache:true});old.built=dkey();old.refreshed=dkey()},fail:()=>{old.built=dkey()}}}
+    if(old)return {tab:'research',label:`${old.title} — monthly refresh`,fn:async()=>{for(const part of PARTS)old.data[part]=await aj(packPrompt(part,old.title,old.sub),{search:true,nocache:true});old.built=dkey();old.refreshed=dkey()},fail:()=>{old.built=dkey()}}}
   return null;
 }
 /* Your design: the SOP pipeline comes first (one family at a time, in OTC order); other tabs get every 4th turn. */
@@ -1077,33 +1337,57 @@ async function builderTick(){
   if(!job){BG.note='';return}
   BG.busy=true;BG.now=job.label;BG.fam=job.fam||'';BG.note='';softRender();
   const before=S.usage.calls;
-  try{await job.fn();BG.last=job.label}catch(e){if(job.fail)job.fail(e);BG.note=errMsg(e);if(e.rate)BG.pause=Date.now()+5*60e3}
+  try{await job.fn();BG.last=job.label;if(!job.free)logBuilt(job.label,job.tab)}catch(e){if(job.fail)job.fail(e);BG.note=errMsg(e);if(e.rate)BG.pause=Date.now()+5*60e3}
   S.usage.bg=(S.usage.bg||0)+(S.usage.calls-before);BG.busy=false;BG.now='';save();softRender();
 }
-function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(U.tab==='sop'&&U.sop.fam&&BG.fam!==U.sop.fam)return;if(['roadmap','research','course','library','settings','joule','sop','qbank'].includes(U.tab))render()}
+function softRender(){const a=document.activeElement;if(U.load||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))return;if(U.tab==='sop'&&U.sop.fam&&BG.fam!==U.sop.fam)return;if(['roadmap','research','course','library','settings','joule','sop','qbank','prep','cert','whatsnew','company','notes'].includes(U.tab))render()}
 function bgLine(){
   if(!hasKey())return '<div class="bgl">🤖 Waiting for a Gemini key (Settings).</div>';
-  if(!S.set.bg)return '<div class="bgl">🤖 Background builder is off (Settings).</div>';
+  if(!S.set.bg)return '<div class="bgl">🤖 Background builder is off. <button class="btn sm" data-a="bgToggle">Turn on</button></div>';
   const all=sopOrder(),done=all.filter(f=>famState(f).s===2).length;
-  return `<div class="bgl">🤖 <b>Background builder — On</b> (while this page is open) · ${BG.now?'writing: <b>'+esc(BG.now)+'</b>':BG.pause>Date.now()?'paused a few minutes (rate limit)':'idle'} · SOP library ${done}/${all.length} families · ${QB.list.length} questions · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${BG.last?' · last: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''}</div>`;
+  return `<div class="bgl">🤖 <b>Background builder — On</b> (while this page is open) · ${BG.now?'writing: <b>'+esc(BG.now)+'</b>':BG.pause>Date.now()?'paused a few minutes (rate limit)':'idle'} · SOP library ${done}/${all.length} families · ${QB.list.length} questions · ${S.usage.day===dkey()?(S.usage.bg||0):0}/${S.set.bgMax} background calls today${BG.last?' · last: '+esc(BG.last):''}${BG.note?' · '+esc(BG.note):''} <button class="btn sm alt" data-a="bgToggle">Turn off</button></div>`;
 }
 
 /* ============ render + events ============ */
-const TABS=[['roadmap','🗺️','OTC Roadmap','Start here: learn from zero, step by step'],['research','🔎','Research','Topic, industry or company → everything'],['sop','📋','SOP Builder','Every variant, click-by-click config, errors, tests'],['qbank','🗂️','Question Bank','Architect questions, 4 options, model answers'],['course','🎓','Course','Learn a topic from zero, with audio'],['interview','🎙️','Mock Interview','Two voices, then your turn'],['joule','✨','Joule','SAP AI copilot: what it does, prompts'],['mentor','🧑‍🏫','Mentor','Ask anything, explained simply'],['library','📚','Library','Everything you built, backup'],['settings','⚙️','Settings','Key, role, voices, models']];
+const TABS=[['prep','🧭','Prep Plan','Start from zero → panel ready, any industry'],['qbank','✏️','Practice','Get asked a hard question'],['interview','🎙️','Panel Session','A tough live panel, start to finish'],['mentor','🧑‍🏫','Mentor','Be taught the topic'],['sop','📋','SOP Builder','Scenario → config, errors, fixes'],['cert','🏅','Certification','Exam-style practice + learning path'],['whatsnew','📰',"What's New in SAP",'Joule, new releases, roadmap'],['company','🏢','Company Prep','Tailor everything to a client'],['notes','🗒️','My Notes','Review what you saved'],['roadmap','🗺️','Learning path','Know what to study, step by step']];
+const MORE=[['research','🔎','Research'],['course','🎓','Course'],['joule','✨','Joule'],['library','📚','Library'],['settings','⚙️','Settings']];
 function render(){
   for(const k in SPK)delete SPK[k];
   const y=window.scrollY;
   $('#app').innerHTML=`<header><h1>🎯 SAP Coach</h1><span>${S.lib.length} items saved · ${esc(S.set.role)}</span></header>
   <nav>${TABS.map(([k,e,l,d])=>`<button class="${U.tab===k?'on':''}" data-a="tab" data-t="${k}"><b>${e} ${l}</b><span>${d}</span></button>`).join('')}</nav>
-  <main>${U.load?`<div class="load">⏳ ${esc(U.load)}</div>`:''}${views[U.tab]()}</main>`;
+  <div class="subnav">More tools: ${MORE.map(([k,e,l])=>`<button class="tag ${U.tab===k?'on':''}" data-a="tab" data-t="${k}">${e} ${l}</button>`).join('')}</div>
+  <main>${topStrip()}${U.load?`<div class="load">⏳ ${esc(U.load)}</div>`:''}${views[U.tab]()}</main>`;
   const r=$('#restore');if(r)r.onchange=restoreFile;
   const c=$('#chat');if(c)c.scrollTop=c.scrollHeight;
   window.scrollTo(0,y);
 }
-function go(t){U.tab=t;render();window.scrollTo(0,0)}
+function go(t){U.tab=t;S.lastTab=t;render();window.scrollTo(0,0)}
 const openIt=k=>d=>{U.open[k]=d.id;if(k==='course')U.lesson=null;if(k==='interview')U.iv=null;go(k==='pack'?'research':k)};
 const A={
   tab:d=>go(d.t),
+  clientClear:()=>{S.client=null;save();render()},
+  clientSet:d=>{const it=S.lib.find(x=>x.id===d.id);if(!it)return;const x=it.data;S.client={name:str(x.company_name)||it.title.split(' · ')[0],ctx:(str(x.operating_model).slice(0,600)+' Key SAP processes: '+arr(x.sap_process_map).slice(0,6).map(p=>str(p.sap_process)).join('; ')).slice(0,1200)};save();toast('Client set: '+S.client.name);render()},
+  awayToggle:()=>{U.awayOpen=!U.awayOpen;render()},
+  bgToggle:()=>{S.set.bg=!S.set.bg;save();render()},
+  weeklyNow:()=>run('Running the weekly check on SAP sources…',async()=>{const W=await weeklyCheck();toast(W.error?W.error:W.added.length+' new families added, '+W.changed.length+' changed',!!W.error)}),
+  coGo:doCompany,indGo:doIndustry,openCompany:d=>{U.open.company=d.id;go('company')},openIndustry:d=>{U.open.industry=d.id;go('company')},
+  ppGo:doPrep,ppDone:d=>{const x=S.prep.data.phases.flatMap(p=>arr(p.items)).find(i=>i.id===d.id);if(x){x.done=!x.done;save();render()}},
+  ppItem:d=>{const x=S.prep.data.phases.flatMap(p=>arr(p.items)).find(i=>i.id===d.id);if(x)prepGo(x)},
+  ctGo:doCert,openCert:d=>{U.open.cert=d.id;U.ctq=null;go('cert')},ctQuiz:()=>{const it=getOpen('cert');if(it)certQuiz(it)},
+  ctSel:d=>{const Q=U.ctq,i=+d.i,multi=arr(Q.qs[Q.i].correct).length>1;if(multi){Q.sel=Q.sel.includes(i)?Q.sel.filter(x=>x!==i):Q.sel.concat([i]).slice(-2)}else Q.sel=[i];render()},
+  ctCheck:()=>{const Q=U.ctq;if(!Q.sel.length)return toast('Pick an answer',true);const cor=arr(Q.qs[Q.i].correct).map(Number);Q.checked=true;if(cor.length===Q.sel.length&&cor.every(i=>Q.sel.includes(i)))Q.score++;render()},
+  ctNext:()=>{const Q=U.ctq;Q.i++;Q.sel=[];Q.checked=false;render()},
+  wnGo:()=>run("Checking what's new in SAP…",doRadar),wnCat:d=>{U.m.wnCat=d.k;render()},
+  noteSave:d=>{
+    if(d.k==='chat'){const m=S.chat[+d.i],q=S.chat[+d.i-1];if(m)addNote('Mentor: '+(q?q.t.slice(0,90):'answer'),m.t,m.src,'mentor')}
+    else if(d.k==='company'){const it=S.lib.find(x=>x.id===d.id);if(it){const x=it.data;addNote('Company: '+it.title,str(x.operating_model)+'\n\nWhat they will probe:\n- '+arr(x.interview_angles).map(str).join('\n- ')+'\n\nDo not claim:\n- '+arr(x.watch_outs).map(str).join('\n- '),it.src,'company')}}
+    else if(d.k==='radar'){const x=S.radar&&S.radar.items[+d.i];if(x)addNote("What's new: "+str(x.title),str(x.what)+'\n'+str(x.why_it_matters)+(x.source_url?'\n'+str(x.source_url):''),[],"what's new")}
+    else if(d.k==='qb'){const q=QB.list.find(x=>x.id===U.qb.cur);if(q)addNote('Q: '+q.q.slice(0,140),(q.interview_answer||q.answer_summary)+'\n\nKey points:\n- '+arr(q.kp).join('\n- '),q.src,'practice')}
+    render()},
+  ntAdd:()=>{const t=clean(U.m.ntText);if(!t)return toast('Type or paste a note first',true);addNote(clean(U.m.ntTitle)||t.slice(0,60),t,[],'pasted');U.m.ntText='';U.m.ntTitle='';render()},
+  ntFind:()=>render(),ntDel:d=>{if(!confirm('Delete this note?'))return;S.notes=arr(S.notes).filter(n=>n.id!==d.id);save();render()},
+  ntExport:()=>{const md=arr(S.notes).map(n=>'## '+n.title+'\n*'+new Date(n.t).toLocaleString()+' · '+(n.tag||'note')+'*\n\n'+n.text+'\n').join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'}));a.download='My SAP notes.md';document.body.appendChild(a);a.click();a.remove()},
   stg:d=>{U.stg[d.id]=!U.stg[d.id];render()},
   rmDone:d=>{const k=norm(d.t);if(S.prog[k])delete S.prog[k];else{S.prog[k]=dkey();toast('Nice. Topic done ✅')}save();render()},
   mentorNext:()=>{const nx=nextTopic();U.m.chatIn=nx?`Teach me "${nx}" from scratch like I am five and I know nothing about SAP. Start with a story, then the SAP detail, then check my understanding with one question.`:'I finished the core roadmap. What should I master next to be ready for interviews?';go('mentor');sendChat()},
@@ -1117,7 +1401,7 @@ const A={
   sopOpen:d=>sopOpen(d.f),sopClose:()=>{U.sop.fam=null;render()},sopVar:d=>{U.sop.vi=+d.i;render()},
   sopNew:()=>{const q=clean(U.m.sQ);if(!q)return toast('Type a scenario first',true);U.m.sQ='';sopOpen(sopOrder().find(f=>SOPE.lc(f)===SOPE.lc(q))||q)},
   sopNow:async d=>{const fam=U.sop.fam;if(!fam)return;if(!sopKnown(fam)){S.customFams.unshift(fam);save()}
-    await run('Writing: '+fam+(d.v?' › '+d.v:'')+' — '+SOPE.LABEL[d.p]+'…',async()=>{await ensureFamily(fam);await SOPE.generate(d.p,fam,d.v,IO,{focus:S.set.focus});delete S.sopSkip[SOPE.pkey(fam,d.p,d.v)];save()})},
+    await run('Writing: '+fam+(d.v?' › '+d.v:'')+' — '+SOPE.LABEL[d.p]+'…',async()=>{await ensureFamily(fam);await SOPE.generate(d.p,fam,d.v,IO,{focus:S.set.focus,update:sopUpdateFor(fam)});delete S.sopSkip[SOPE.pkey(fam,d.p,d.v)];save()})},
   sopListen:()=>play(sopSpeech(),U.sop.fam),
   sopPdf:d=>{const x=sopDocFor(d.k);if(x)printHtml(x.html,x.name)},sopWord:d=>{const x=sopDocFor(d.k);if(x)dlDoc(x.html,x.name)},
   qbNext:()=>{const q=qbPick();if(!q)return toast('No questions match this filter yet',true);q.seen=(q.seen||0)+1;U.qb={cur:q.id,sel:null,show:false};DB.put('qbank',QB.list);render()},
@@ -1165,11 +1449,15 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};if(d.m)U.m[d
 document.addEventListener('keydown',e=>{const k=e.target.dataset&&e.target.dataset.en;if(k&&e.key==='Enter'){e.preventDefault();U.m[e.target.dataset.m]=e.target.value;const f=A[k];if(f)f({},e.target)}});
 try{speechSynthesis.onvoiceschanged=()=>{if(U.tab==='settings')softRender()}}catch(e){}
 window.SC={get S(){return S},U,PL,A,render,DB,SOPE,QB,BG,sopDocFor,familyDoc};
+if(S.lastTab&&views[S.lastTab])U.tab=S.lastTab;
 if(!hasKey())U.tab='settings';
 render();bar();
 DB.open().then(async()=>{for(const k of [...DB.keys])if(k.indexOf(SOPE.V+'|variants|')===0)await DB.get(k);await qbLoad();render()});
 loadShared();setInterval(loadShared,10*60*1000);
-document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.sec&&U.sop)U.sop.sec[d.dataset.sec]=d.open},true);
+document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.sec&&U.sop)U.sop.sec[d.dataset.sec]=d.open;if(d&&d.dataset&&d.dataset.lib)U.libOpen=d.open},true);
+U.prev=S.lastVisit||Date.now();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){S.lastVisit=Date.now();save()}else{U.prev=S.lastVisit||U.prev;softRender()}});
+window.addEventListener('pagehide',()=>{S.lastVisit=Date.now();save()});
 setInterval(builderTick,BG_MS);setTimeout(builderTick,Math.min(BG_MS,5000));
 </script>
 </body>
