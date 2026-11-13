@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'library/topics.json'
       - 'tools/build_library.mjs'
 permissions:
   contents: write
@@ -16,13 +15,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Build missing or stale SOPs
+      - name: Write the next SOP parts
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node tools/build_library.mjs
