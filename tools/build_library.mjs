@@ -8,7 +8,7 @@ if (!KEY) { console.log('GEMINI_API_KEY secret is not set. Nothing to do.'); pro
 const MODEL = process.env.MODEL || 'gemini-3.8-flash';
 const FALLBACK = process.env.FALLBACK_MODEL || 'gemini-3.5-flash-lite';
 let model = MODEL;
-let noSearch = false;
+let noSearch = /^(1|true|yes)$/i.test(process.env.NO_SEARCH || '');
 const BASE = process.env.GEMINI_BASE || 'https://generativelanguage.googleapis.com/v1beta/models';
 const MAX_CALLS = Number(process.env.MAX_CALLS || 40);
 const MAX_MS = Number(process.env.MAX_MINUTES || 30) * 60000;
@@ -42,7 +42,15 @@ async function call(system, input, o = {}) {
   calls++;
   let last;
   for (let i = 0; i < 3; i++) {
-    const r = await fetch(`${BASE}/${model}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY }, body: JSON.stringify(body) });
+    let r;
+    try {
+      r = await fetch(`${BASE}/${model}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY }, body: JSON.stringify(body), signal: AbortSignal.timeout(280000) });
+    } catch (e) {
+      last = new Error(`network: ${e.name === 'TimeoutError' ? 'no answer within 280 s' : e.message} [${model}]`);
+      if (i === 2 && model !== FALLBACK) { console.log(`${model} keeps timing out; switching this run to ${FALLBACK}.`); model = FALLBACK; i = -1; }
+      else await sleep(Number(process.env.RETRY_MS || 3000) * Math.pow(2, i));
+      continue;
+    }
     if (r.ok) {
       const j = await r.json();
       const text = (j.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
@@ -60,6 +68,7 @@ async function call(system, input, o = {}) {
       if (/quota/i.test(msg)) throw last;
     }
     if ([400, 401, 403, 404].includes(r.status)) { last.fatal = true; throw last; }
+    if (r.status === 503 && i === 2 && model !== FALLBACK) { console.log(`${model} is overloaded; switching this run to ${FALLBACK}.`); model = FALLBACK; i = -1; continue; }
     await sleep(Number(process.env.RETRY_MS || 3000) * Math.pow(2, i));
   }
   throw last;

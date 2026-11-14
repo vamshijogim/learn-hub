@@ -107,10 +107,12 @@ function errMsg(e){
   if(/^HTTP (401|403)/.test(m))return '🔑 Key rejected, or the Gemini API is not enabled for it.';
   if(/^HTTP 404/.test(m))return '🤖 Model name not found. Fix the model names in Settings (see ai.google.dev/gemini-api/docs/models).';
   if(/^HTTP 429/.test(m))return '🐢 Google rate limit hit. Wait a minute and try again.';
+  if(/^HTTP 503/.test(m))return '🐢 Google says this model is busy right now. It retries by itself; or try again in a few minutes.';
   if(m==='BADJSON')return '😕 The AI answer was garbled. Please try again.';
   if(/Failed to fetch|NetworkError|TypeError/i.test(m))return '📡 Cannot reach Google. Check the internet connection.';
   return '⚠️ '+m.slice(0,200);
 }
+const searchOK=()=>S.noSearchDay!==dkey();
 async function callGemini(body,model,fb){
   const key=LS.raw('sc_key');if(!key)throw new Error('NOKEY');
   const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0,bg:0};
@@ -130,6 +132,7 @@ async function callGemini(body,model,fb){
       }
       let msg='';try{msg=(await r.json()).error?.message||''}catch(e){}
       last=new Error('HTTP '+r.status+' '+msg);
+      if(r.status===429&&body.tools&&/quota/i.test(msg)){S.noSearchDay=dkey();save();delete body.tools;i=-1;continue}
       if(![429,500,502,503,504].includes(r.status))throw last;
     }catch(e){
       if(e===last&&!/^HTTP (429|5)/.test(e.message))throw e;
@@ -144,7 +147,7 @@ async function callGemini(body,model,fb){
 function buildBody(prompt,o){
   const contents=o.contents?o.contents.map(c=>({role:c.role,parts:[{text:scrub(c.text)}]})):[{role:'user',parts:[{text:scrub(prompt)}]}];
   const body={systemInstruction:{parts:[{text:sysPrompt()+(o.sys?' '+o.sys:'')}]},contents,generationConfig:{temperature:o.temp??0.5}};
-  if(o.search)body.tools=[{google_search:{}}];else if(o.json)body.generationConfig.responseMimeType='application/json';
+  if(o.search&&searchOK())body.tools=[{google_search:{}}];else if(o.json)body.generationConfig.responseMimeType='application/json';
   return body;
 }
 function parseJSON(t){
@@ -663,7 +666,7 @@ async function ensureFamily(fam){
 async function sopCall(system,input,o){
   o=o||{};
   const body={systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:scrub(input)}]}],generationConfig:{temperature:0.3,maxOutputTokens:Math.min(32000,Math.max(8000,o.max||8000)*2)}};
-  if(o.search&&S.set.research)body.tools=[{google_search:{}}];else body.generationConfig.responseMimeType='application/json';
+  if(o.search&&S.set.research&&searchOK())body.tools=[{google_search:{}}];else body.generationConfig.responseMimeType='application/json';
   try{const text=await callGemini(body,S.set.model);return {text,src:LASTSRC.slice()}}
   catch(e){const m=String(e&&e.message||e);if(/^HTTP 429/.test(m)||m==='LIMIT')e.rate=true;if(m==='NOKEY'||/^HTTP (400|401|403|404)/.test(m))e.fatal=true;throw e}
 }
