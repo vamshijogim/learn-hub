@@ -6,6 +6,8 @@ import fs from 'node:fs';
 const KEY = process.env.GEMINI_API_KEY;
 if (!KEY) { console.log('GEMINI_API_KEY secret is not set. Nothing to do.'); process.exit(0); }
 const MODEL = process.env.MODEL || 'gemini-3.8-flash';
+const FALLBACK = process.env.FALLBACK_MODEL || 'gemini-3.5-flash-lite';
+let model = MODEL;
 const BASE = process.env.GEMINI_BASE || 'https://generativelanguage.googleapis.com/v1beta/models';
 const MAX_CALLS = Number(process.env.MAX_CALLS || 40);
 const MAX_MS = Number(process.env.MAX_MINUTES || 30) * 60000;
@@ -39,7 +41,7 @@ async function call(system, input, o = {}) {
   calls++;
   let last;
   for (let i = 0; i < 3; i++) {
-    const r = await fetch(`${BASE}/${MODEL}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY }, body: JSON.stringify(body) });
+    const r = await fetch(`${BASE}/${model}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY }, body: JSON.stringify(body) });
     if (r.ok) {
       const j = await r.json();
       const text = (j.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
@@ -47,8 +49,14 @@ async function call(system, input, o = {}) {
       await sleep(GAP);
       return { text, src: (j.candidates?.[0]?.groundingMetadata?.groundingChunks || []).map(c => c.web).filter(Boolean).slice(0, 6) };
     }
-    last = new Error(`HTTP ${r.status} ${(await r.text()).slice(0, 160)}`);
-    if (r.status === 429) last.rate = true;
+    const raw = await r.text();
+    let msg = raw; try { msg = JSON.parse(raw).error?.message || raw; } catch {}
+    last = new Error(`HTTP ${r.status} [${model}] ${String(msg).replace(/\s+/g, ' ').slice(0, 600)}`);
+    if (r.status === 429) {
+      last.rate = true;
+      if (/quota/i.test(msg) && model !== FALLBACK) { console.log(`Quota problem on ${model}; switching this run to ${FALLBACK}.`); model = FALLBACK; i = -1; continue; }
+      if (/quota/i.test(msg)) throw last;
+    }
     if ([400, 401, 403, 404].includes(r.status)) { last.fatal = true; throw last; }
     await sleep(Number(process.env.RETRY_MS || 3000) * Math.pow(2, i));
   }
@@ -87,7 +95,7 @@ while (calls < MAX_CALLS && Date.now() - t0 < MAX_MS) {
     delete state.fail[pk]; delete state.skip[pk];
     built++; console.log('written:', label);
   } catch (e) {
-    console.log('failed:', label, '--', String(e.message).slice(0, 140));
+    console.log('failed:', label, '--', String(e.message).slice(0, 700));
     if (e.fatal) { stop = 'key or model problem: ' + String(e.message).slice(0, 120); break; }
     if (e.rate) { stop = 'rate limit or run budget reached'; break; }
     state.fail[pk] = (state.fail[pk] || 0) + 1;
