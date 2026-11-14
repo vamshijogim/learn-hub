@@ -8,6 +8,7 @@ if (!KEY) { console.log('GEMINI_API_KEY secret is not set. Nothing to do.'); pro
 const MODEL = process.env.MODEL || 'gemini-3.8-flash';
 const FALLBACK = process.env.FALLBACK_MODEL || 'gemini-3.5-flash-lite';
 let model = MODEL;
+let noSearch = false;
 const BASE = process.env.GEMINI_BASE || 'https://generativelanguage.googleapis.com/v1beta/models';
 const MAX_CALLS = Number(process.env.MAX_CALLS || 40);
 const MAX_MS = Number(process.env.MAX_MINUTES || 30) * 60000;
@@ -37,7 +38,7 @@ async function call(system, input, o = {}) {
   if (calls >= MAX_CALLS) throw Object.assign(new Error('call budget for this run used'), { rate: true });
   const body = { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: input }] }],
     generationConfig: { temperature: 0.3, maxOutputTokens: Math.min(32000, Math.max(8000, o.max || 8000) * 2) } };
-  if (o.search) body.tools = [{ google_search: {} }]; else body.generationConfig.responseMimeType = 'application/json';
+  if (o.search && !noSearch) body.tools = [{ google_search: {} }]; else body.generationConfig.responseMimeType = 'application/json';
   calls++;
   let last;
   for (let i = 0; i < 3; i++) {
@@ -54,6 +55,7 @@ async function call(system, input, o = {}) {
     last = new Error(`HTTP ${r.status} [${model}] ${String(msg).replace(/\s+/g, ' ').slice(0, 600)}`);
     if (r.status === 429) {
       last.rate = true;
+      if (/quota/i.test(msg) && body.tools && !noSearch) { console.log(`Quota problem on ${model} with Google Search grounding; trying without search.`); noSearch = true; delete body.tools; body.generationConfig.responseMimeType = 'application/json'; i = -1; continue; }
       if (/quota/i.test(msg) && model !== FALLBACK) { console.log(`Quota problem on ${model}; switching this run to ${FALLBACK}.`); model = FALLBACK; i = -1; continue; }
       if (/quota/i.test(msg)) throw last;
     }
