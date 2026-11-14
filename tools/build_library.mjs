@@ -1,4 +1,4 @@
-// Scheduled SOP library builder (runs hourly, on manual dispatch, and when this file changes).
+// Scheduled SOP library builder. It runs the SAME engine as the page (the block between ENGINE-START and
 // ENGINE-END in index.html): one family at a time in OTC order, each finished completely before the next.
 // Output: library/sop2/<family>.json (every part of that family) and library/sop2/index.json.
 import fs from 'node:fs';
