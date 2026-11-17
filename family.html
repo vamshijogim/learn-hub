@@ -462,7 +462,8 @@ views.practice=p=>{
   ${!P.checked?`<button class="btn big" data-a="prCheck">Check ✔️</button><button class="btn alt" data-a="prHint">💡 Hint</button>`:`<button class="btn big" data-a="prNext">Next ➡️</button>`}
   <button class="btn alt" data-a="prStop">🏁 Finish</button></div>`;
 };
-function normQs(r){
+const tex=t=>str(t).replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g,'$1/$2').replace(/\\times/g,'×').replace(/\\div/g,'÷').replace(/\\cdot/g,'·').replace(/\$/g,'').replace(/\\[()\[\]]/g,'');
+function normQs(r){const R=r;r={questions:arr(R.questions).map(q=>q&&typeof q==='object'?Object.assign({},q,{q:tex(q.q),options:arr(q.options).map(tex),hint:tex(q.hint),explain:tex(q.explain),answer:typeof q.answer==='string'?tex(q.answer):q.answer}):q)};
   return arr(r.questions).map(q=>{
     const o=arr(q.options).map(str);let type=(o.length>=2&&q.type!=='num')?'mcq':'num';
     if(type==='mcq'){let a=Number(q.answer);if(!Number.isInteger(a)){a=o.findIndex(x=>norm(x)===norm(q.answer))}if(a<0||a>=o.length)return null;return {q:str(q.q),type,options:o,answer:a,hint:str(q.hint),explain:str(q.explain)}}
