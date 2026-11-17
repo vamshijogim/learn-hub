@@ -143,7 +143,7 @@ async function callGemini(body,model,fb){
   let last;
   for(let i=0;i<3;i++){
     try{
-      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),signal:(typeof AbortSignal!=='undefined'&&AbortSignal.timeout)?AbortSignal.timeout(window.__fcTimeout||120000):undefined});
       if(r.ok){
         const j=await r.json();
         S.usage.calls++;S.usage.tokens+=j.usageMetadata?.totalTokenCount||0;save();
@@ -163,6 +163,7 @@ async function callGemini(body,model,fb){
     }catch(e){
       if(e===last&&!/^HTTP (429|5)/.test(e.message))throw e;
       if(/^The AI gave no/.test(e.message))throw e;
+      if(e&&(e.name==='TimeoutError'||e.name==='AbortError')){last=new Error('HTTP 503 no answer from Google within 2 minutes');if(model!==S.set.fast&&S.set.fast&&!fb)return callGemini(body,S.set.fast,true);throw last}
       last=e;
     }
     if(i<2)await new Promise(r=>setTimeout(r,RETRY_MS()*Math.pow(2,i)));

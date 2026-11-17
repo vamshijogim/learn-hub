@@ -7,7 +7,7 @@ import path from 'node:path';
 const KEY = process.env.GEMINI_API_KEY || '';
 if (!KEY) { console.log('RESULT: GEMINI_API_KEY secret is not set.'); process.exit(0); }
 const STUB = process.env.STUB_FILE ? (await import(path.resolve(process.env.STUB_FILE))).default : null;
-const T = Number(process.env.STEP_TIMEOUT || 240000);
+const T = Number(process.env.STEP_TIMEOUT || 170000);
 const types = { '.html': 'text/html', '.json': 'application/json', '.js': 'text/javascript' };
 const srv = http.createServer((q, r) => {
   const p = path.join(process.cwd(), decodeURIComponent(q.url.split('?')[0]).replace(/^\/+/, '') || 'index.html');
@@ -39,6 +39,8 @@ async function step(page, app, name, fn) {
   const t0 = Date.now(); let ok = true, info = '';
   try { info = String(await fn() || ''); } catch (e) { ok = false; info = String(e.message).split('\n')[0].slice(0, 160); }
   let toast = ''; try { toast = await page.$eval('#toast', e => getComputedStyle(e).display !== 'none' && /err/.test(e.className) ? e.textContent : ''); } catch (e) {}
+  try { await page.waitForFunction(() => { const u = (window.SC || window.FC).U; return !u.load; }, null, { timeout: 150000 }); } catch (e) {}
+  console.log('STEP | ' + (ok ? 'PASS' : 'FAIL') + ' | ' + app + ': ' + name + ' | ' + Math.round((Date.now() - t0) / 1000) + 's | ' + info.replace(/\s+/g, ' ').slice(0, 170) + (toast ? ' | message shown: ' + toast.slice(0, 140) : '') + ' | calls so far: ' + JSON.stringify(net));
   results.push([ok ? 'PASS' : 'FAIL', app + ': ' + name, Math.round((Date.now() - t0) / 1000) + 's', info.replace(/\s+/g, ' ').slice(0, 170) + (toast ? ' | message shown: ' + toast.slice(0, 140) : '')]);
   try { await page.evaluate(() => { const t = document.getElementById('toast'); if (t) t.style.display = 'none'; }); } catch (e) {}
 }
