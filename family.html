@@ -127,7 +127,9 @@ function errMsg(e){
   if(/^HTTP 400/.test(m)&&/key/i.test(m))return '🔑 Google says the key is not valid. Check it in the Parent tab.';
   if(/^HTTP (401|403)/.test(m))return '🔑 Key rejected or the Gemini API is not enabled for it. Check the Parent tab.';
   if(/^HTTP 404/.test(m))return '🤖 Model name not found. Check the models in the Parent tab (see ai.google.dev/gemini-api/docs/models).';
+  if(/^HTTP 429/.test(m)&&/quota/i.test(m))return '🪫 Google says this key has no free quota left for now. Try again later today or tomorrow.';
   if(/^HTTP 429/.test(m))return '🐢 Too many requests right now. Wait a minute and try again.';
+  if(/^HTTP 503/.test(m))return '🐢 Google says the model is busy. Try again in a few minutes.';
   if(m==='BADJSON')return '😕 The AI answer was garbled. Please try again.';
   if(/Failed to fetch|NetworkError|TypeError/i.test(m))return '📡 Cannot reach Google. Check the internet connection.';
   return '⚠️ '+m.slice(0,200);
@@ -136,6 +138,7 @@ async function callGemini(body,model,fb){
   const key=LS.raw('fc_key');if(!key)throw new Error('NOKEY');
   const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0};
   if(Number(S.set.limit)>0&&S.usage.calls>=Number(S.set.limit))throw new Error('LIMIT');
+  if(S.noMainDay===dkey()&&model===S.set.model&&S.set.fast)model=S.set.fast;
   const url=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
   let last;
   for(let i=0;i<3;i++){
@@ -152,6 +155,10 @@ async function callGemini(body,model,fb){
       }
       let msg='';try{msg=(await r.json()).error?.message||''}catch(e){}
       last=new Error('HTTP '+r.status+' '+msg);
+      if(r.status===429&&/quota/i.test(msg)){
+        if(body.tools){S.noSearchDay=dkey();save();delete body.tools;i=-1;continue}
+        if(model!==S.set.fast&&S.set.fast){S.noMainDay=dkey();save();return callGemini(body,S.set.fast,true)}
+      }
       if(![429,500,502,503,504].includes(r.status))throw last;
     }catch(e){
       if(e===last&&!/^HTTP (429|5)/.test(e.message))throw e;
@@ -160,7 +167,7 @@ async function callGemini(body,model,fb){
     }
     if(i<2)await new Promise(r=>setTimeout(r,RETRY_MS()*Math.pow(2,i)));
   }
-  if(/^HTTP 429/.test(String(last&&last.message))&&model!==S.set.fast&&!fb){toast('Main model is busy, using the fast model…');return callGemini(body,S.set.fast,true)}
+  if(/^HTTP (429|503)/.test(String(last&&last.message))&&model!==S.set.fast&&!fb){toast('Main model is busy, using the fast model…');return callGemini(body,S.set.fast,true)}
   throw last;
 }
 function buildBody(prompt,o){
@@ -168,7 +175,7 @@ function buildBody(prompt,o){
   const sys=scrub(SAFETY+' '+(p?ctx(p):'')+(o.sys?' '+o.sys:''));
   const contents=o.contents?o.contents.map(c=>({role:c.role,parts:[{text:scrub(c.text)}]})):[{role:'user',parts:[{text:scrub(prompt)}]}];
   const body={systemInstruction:{parts:[{text:sys}]},contents,generationConfig:{temperature:o.temp??0.6}};
-  if(o.search)body.tools=[{google_search:{}}];
+  if(o.search&&S.noSearchDay!==dkey())body.tools=[{google_search:{}}];
   else if(o.json)body.generationConfig.responseMimeType='application/json';
   return body;
 }

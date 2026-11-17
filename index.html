@@ -149,6 +149,7 @@ async function callGemini(body,model,fb){
   const key=LS.raw('sc_key');if(!key)throw new Error('NOKEY');
   const day=dkey();if(S.usage.day!==day)S.usage={day,calls:0,tokens:0,bg:0};
   if(Number(S.set.limit)>0&&S.usage.calls>=Number(S.set.limit))throw new Error('LIMIT');
+  if(S.noMainDay===dkey()&&model===S.set.model&&S.set.fast)model=S.set.fast;
   const url=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
   let last;
   for(let i=0;i<3;i++){
@@ -165,6 +166,7 @@ async function callGemini(body,model,fb){
       let msg='';try{msg=(await r.json()).error?.message||''}catch(e){}
       last=new Error('HTTP '+r.status+' '+msg);
       if(r.status===429&&body.tools&&/quota/i.test(msg)){S.noSearchDay=dkey();save();delete body.tools;i=-1;continue}
+      if(r.status===429&&/quota/i.test(msg)&&model!==S.set.fast&&S.set.fast){S.noMainDay=dkey();save();return callGemini(body,S.set.fast,true)}
       if(![429,500,502,503,504].includes(r.status))throw last;
     }catch(e){
       if(e===last&&!/^HTTP (429|5)/.test(e.message))throw e;
@@ -173,7 +175,7 @@ async function callGemini(body,model,fb){
     }
     if(i<2)await new Promise(r=>setTimeout(r,RETRY_MS()*Math.pow(2,i)));
   }
-  if(/^HTTP 429/.test(String(last&&last.message))&&model!==S.set.fast&&!fb)return callGemini(body,S.set.fast,true);
+  if(/^HTTP (429|503)/.test(String(last&&last.message))&&model!==S.set.fast&&!fb)return callGemini(body,S.set.fast,true);
   throw last;
 }
 function buildBody(prompt,o){
