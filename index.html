@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SAP Coach</title>
+<title>Study Notes</title>
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--ink:#1d2433;--mut:#5d6b82;--pri:#4f46e5;--pri2:#e0e7ff;--ok:#16a34a;--okbg:#dcfce7;--bad:#dc2626;--badbg:#fee2e2;--line:#d9e0ec;--warn:#fef3c7}
 @media (prefers-color-scheme:dark){:root{--bg:#10141d;--card:#1a2030;--ink:#eef1f8;--mut:#9aa7bf;--pri:#818cf8;--pri2:#2a3050;--ok:#4ade80;--okbg:#14301f;--bad:#f87171;--badbg:#3a1a1a;--line:#2c3550;--warn:#3a321a}}
@@ -57,6 +57,38 @@ a{color:var(--pri)}
 .fcard{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;text-align:left;cursor:pointer;font-size:12.5px;line-height:1.35;display:flex;flex-direction:column;gap:3px;min-height:110px}
 .fcard b{font-size:13.5px}.fcard span{color:var(--mut)}.fcard .st{color:var(--ink);font-weight:600}.fcard .chg{color:#9a6700}.fcard.s2{border-color:var(--ok);background:var(--okbg)}.fcard.s1{border-color:#a78bfa;background:color-mix(in srgb,var(--pri2) 45%,var(--card))}.fcard.on{outline:3px solid var(--pri)}
 h3.stg{color:var(--pri);font-size:15px;margin:14px 0 4px}.weekly{background:color-mix(in srgb,var(--pri2) 35%,var(--card))}
+
+/* ---- clean theme (matches the original Study Notes look) ---- */
+:root{--bg:#fff;--card:#fff;--ink:#1f2430;--mut:#6b7280;--pri:#4a3fd0;--pri2:#eeecff;--ok:#1a7f43;--okbg:#eaf7ef;--bad:#c62828;--badbg:#fdecec;--line:#d9dce3;--warn:#fff8e1}
+@media (prefers-color-scheme:dark){:root{--bg:#12141a;--card:#181b23;--ink:#e8eaf0;--mut:#9aa3b5;--pri:#9d94ff;--pri2:#25254a;--ok:#5fd38d;--okbg:#14301f;--bad:#f28b82;--badbg:#3a1a1a;--line:#2e3340;--warn:#332b12}}
+body{font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+header{background:none;color:var(--ink);display:block;padding:18px 16px 4px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--line)}
+header .kick{font-size:12px;letter-spacing:.12em;color:var(--mut);font-weight:700}header .kick span{letter-spacing:0;font-weight:400;margin-left:12px}
+header h1{font-size:24px;margin:14px 0 2px;color:var(--mut)}header p{margin:0 0 8px;color:var(--mut);font-size:13.5px}header .legend{font-size:13px;color:var(--ink);margin:6px 0 8px}header .legend b{color:var(--pri)}
+nav{grid-template-columns:repeat(5,1fr);gap:8px;padding:14px 16px 6px}
+nav button{border:1px solid var(--line);border-radius:8px;padding:9px 12px;box-shadow:0 1px 2px rgba(0,0,0,.06);font-size:12.5px}
+nav button b{font-size:15px}nav button.on{background:var(--card);border:1.5px solid var(--pri)}nav button.on b,nav button.on span{color:var(--pri)}
+.card{border-radius:10px;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{font-size:19px}h3{font-size:15.5px}
+.btn{background:var(--card);color:var(--ink);border:1px solid #9aa0ad;border-radius:7px;padding:7px 14px;font-size:14px;font-weight:600}
+.btn:not(.alt):not(.bad){border-color:var(--pri);color:var(--pri)}.btn.alt{background:var(--card);color:var(--ink)}.btn.bad{background:var(--card);color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:3px 10px;font-size:13px;border-radius:6px}.btn:hover{background:var(--pri2)}
+input,select,textarea{border:1px solid var(--line);border-radius:7px;padding:8px 11px;font-size:14.5px}
+label{font-size:13px;color:var(--ink);margin-top:10px}
+.tag{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:7px;font-size:13px}
+.pill{background:var(--pri2);color:var(--pri);font-weight:600}.pill.okp{background:var(--okbg);color:var(--ok)}
+.bgl,.strip{background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px}.away{background:var(--card);border:1px solid var(--line)}
+.fb.info{background:var(--warn)}.opt{border:1px solid var(--line);border-radius:8px;font-size:14.5px}
+.lib{border:1px solid var(--line);border-radius:7px;font-size:13px}.lib.ready{border-color:var(--ok);background:var(--okbg)}
+.fcard{border:1px solid var(--line);border-radius:8px}.fcard.s1{background:var(--card);border-color:#b9b2f5}
+details{border-radius:8px}code{background:#f2f3f7;color:#273469}
+@media (prefers-color-scheme:dark){code{background:#232838;color:#c9d2ff}}
+.path{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 26px}.pcol{border:1px solid var(--line);border-radius:8px;padding:8px 10px;position:relative}
+.pcol h4{margin:0 0 6px;font-size:13px;color:#2a3a9c}.pcol:not(:nth-child(4n))::after{content:"→";position:absolute;right:-19px;top:45%;color:var(--mut)}
+.pt{display:flex;gap:5px;align-items:center;margin:5px 0}.pt button.t{flex:0 1 auto;text-align:left;border:1px solid #9aa0ad;border-radius:6px;background:var(--card);color:var(--ink);font-size:12.5px;padding:3px 8px;cursor:pointer}
+.pt button.t.done{border-color:var(--ok)}.pt button.t.here{border:2px solid var(--pri);font-weight:700}.pt button.s{border:1px solid var(--line);border-radius:6px;background:var(--card);cursor:pointer;font-size:12px;padding:2px 6px;color:var(--mut)}
+@media (max-width:900px){.path{grid-template-columns:repeat(2,1fr)}nav{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:640px){.path{grid-template-columns:1fr}nav{grid-template-columns:repeat(2,1fr)}.pcol::after{display:none}}
 </style>
 </head>
 <body>
@@ -281,9 +313,21 @@ function stageHtml(id,s){
   return `<button class="opt ${open?'ok':''}" data-a="stg" data-id="${id}">${s[1]} <b>${esc(s[0])}</b> <span class="mut">${n}/${s[3].length} done${s[2]?' · '+esc(s[2]):''}</span></button>`+(open?`<div class="card">${s[3].map(rowHtml).join('')}<div class="mut">🎓 course · 📋 SOP · 🔎 research · 🎙️ mock interview · • = already built</div></div>`:'');
 }
 const GH=[['SAP-samples/s4hana-ext-migrate-historical-data','https://github.com/SAP-samples/s4hana-ext-migrate-historical-data','Official SAP sample: migrated sales order data (extensibility tutorial code)'],['SAP-archive/teched2023-AD163','https://github.com/SAP-archive/teched2023-AD163','Archived TechEd session: extend the sales order process with SAP Build'],['neurozeljko/sap-cpi-b2b-edifact-orders-tpm-cleancore','https://github.com/neurozeljko/sap-cpi-b2b-edifact-orders-tpm-cleancore','Community: B2B EDIFACT orders into S/4HANA through Integration Suite'],['shardabhavya/sap-s4hana-o2c-design','https://github.com/shardabhavya/sap-s4hana-o2c-design','Community: functional design document for an O2C scenario'],['Jeet313/SAP-SD-implementation','https://github.com/Jeet313/SAP-SD-implementation','Community: end-to-end O2C implementation write-up'],['lahrisaumya/SAP-SD-S2C-Analytics','https://github.com/lahrisaumya/SAP-SD-S2C-Analytics','Community: sold-to-cash case study with KPIs'],['igor-barral/SAP-Order-to-Cash-erp-study','https://github.com/igor-barral/SAP-Order-to-Cash-erp-study','Community: study guide with table references (Portuguese)']];
+
+const PATH0=['SAP S/4HANA basics and navigation','SD enterprise structure','Business partner customer master','Material master for sales','Condition technique basics'];
+function pathStages(){
+  const st=[['Stage 0 · Foundations',PATH0,false]].concat(SOPE.STAGES.map(s=>['Stage '+s[0]+' · '+s[1],s[2].concat(arr(S.libAdded).filter(a=>a.area===s[1]).map(a=>a.scenario)),true]));
+  const integ=arr(S.libAdded).filter(a=>/^OTC integration/.test(a.area)).map(a=>a.scenario).concat(ARCH[0][3]);
+  st.push(['Stage 7 · OTC integrations',integ,true]);return st;
+}
+function pathBoard(){
+  const st=pathStages(),all=st.flatMap(s=>s[1]),done=all.filter(isDone).length,here=all.find(t=>!isDone(t));
+  return `<div class="card"><h2>Your learning path — SAP Order-to-Cash from scratch</h2><p class="mut">Left to right, top to bottom: learn each stage before the next. ✓ = you've opened it (${done} of ${all.length}). The outlined topic is where you are${here?': <b>'+esc(here)+'</b>':''}. Click a topic for its Mentor lesson; ▤ opens its SOP.</p>
+  <div class="path">${st.map(([name,ts,sop])=>`<div class="pcol"><h4>${esc(name)} (${ts.filter(isDone).length}/${ts.length})</h4>${ts.map(t=>`<div class="pt"><button class="t ${isDone(t)?'done':''} ${t===here?'here':''}" data-a="pathGo" data-t="${esc(t)}">${isDone(t)?'✓ ':''}${esc(t.replace(' (SAP Architecture Center reference architecture)',''))}</button>${sop?`<button class="s" title="Open its SOP" data-a="pathSop" data-t="${esc(t)}">▤</button>`:''}</div>`).join('')}</div>`).join('')}</div></div>`;
+}
 views.roadmap=()=>{
   const all=allTopics(),done=all.filter(isDone).length,nx=nextTopic(),e=nx?esc(nx):'';
-  return `<div class="card"><h2>🗺️ OTC Roadmap: learn from zero</h2><p class="mut">Follow it top to bottom like a course. Every topic has a course, an SOP, a research pack and a mock interview. Tick topics off as you learn them and your Mentor knows where you are.</p>
+  return pathBoard()+`<details class="card"><summary style="font-size:16px">Detailed topic list (101 topics, industries, reference architectures)</summary><div class="card"><h2>Detailed roadmap</h2><p class="mut">Follow it top to bottom like a course. Every topic has a course, an SOP, a research pack and a mock interview. Tick topics off as you learn them and your Mentor knows where you are.</p>
   <div class="mut">${done} of ${all.length} core topics done · level: ${esc(({scratch:'Beginner',consultant:'Consultant',lead:'Lead / architect',vp:'VP / executive'})[S.set.level||'scratch'])} (change in Settings)</div>
   <div style="background:var(--line);border-radius:99px;height:10px;margin:6px 0"><div style="width:${all.length?Math.round(100*done/all.length):0}%;height:10px;border-radius:99px;background:var(--ok)"></div></div>
   ${nx?`<h3>📍 Next up: ${e}</h3><button class="btn" data-a="toCourse" data-t="${e}">🎓 Teach me (course)</button><button class="btn alt" data-a="mentorNext">🧑‍🏫 Mentor, teach me like I am five</button><button class="btn alt" data-a="toSop" data-t="${e}">📋 SOP</button><button class="btn alt" data-a="packTag" data-t="${e}">🔎 Research</button><button class="btn alt" data-a="toInterview" data-t="${e}">🎙️ Interview</button><button class="btn alt" data-a="rmDone" data-t="${e}">✅ I got it</button>`:'<p>🎉 Core path finished. Now do the industries below and mock interviews.</p>'}
@@ -292,7 +336,7 @@ views.roadmap=()=>{
   <h2 style="margin-top:14px">Core path</h2>${CORE.map((s,i)=>stageHtml('c'+i,s)).join('')}
   <h2 style="margin-top:14px">🏭 Industry processes</h2><p class="mut">Same OTC flow, different twists: for example DSD in retail, dynamic pricing in oil and gas.</p>${IND.map((s,i)=>stageHtml('i'+i,s)).join('')}
   <h2 style="margin-top:14px">🏛️ SAP reference architectures</h2><p class="mut">From SAP's official Architecture Center (${link('https://architecture.learning.sap.com','architecture.learning.sap.com')}, source on ${link('https://github.com/SAP/architecture-center','GitHub')}, Apache-2.0). Each one opens the official page; the buttons build a course, an OTC-focused SOP, a research pack or a mock interview on it.</p>${ARCH.map((s,i)=>stageHtml('a'+i,s)).join('')}
-  <div class="card"><h3>📦 Public GitHub material (links, not copies)</h3><p class="mut">Found by web search. Only the first is an official SAP sample; the rest are community projects with unchecked licences and accuracy. I link them instead of copying their code, because copying needs each licence checked, and these are mostly developer samples or personal study notes rather than teaching material.</p>${GH.map(g=>`<div>• ${link(g[1],g[0])} <span class="mut">${esc(g[2])}</span></div>`).join('')}</div>`;
+  <div class="card"><h3>📦 Public GitHub material (links, not copies)</h3><p class="mut">Found by web search. Only the first is an official SAP sample; the rest are community projects with unchecked licences and accuracy. I link them instead of copying their code, because copying needs each licence checked, and these are mostly developer samples or personal study notes rather than teaching material.</p>${GH.map(g=>`<div>• ${link(g[1],g[0])} <span class="mut">${esc(g[2])}</span></div>`).join('')}</div></details>`;
 };
 function stageById(id){return id[0]==='c'?CORE[+id.slice(1)]:id[0]==='a'?ARCH[+id.slice(1)]:IND[+id.slice(1)]}
 
@@ -1357,8 +1401,8 @@ const MORE=[['research','🔎','Research'],['course','🎓','Course'],['joule','
 function render(){
   for(const k in SPK)delete SPK[k];
   const y=window.scrollY;
-  $('#app').innerHTML=`<header><h1>🎯 SAP Coach</h1><span>${S.lib.length} items saved · ${esc(S.set.role)}</span></header>
-  <nav>${TABS.map(([k,e,l,d])=>`<button class="${U.tab===k?'on':''}" data-a="tab" data-t="${k}"><b>${e} ${l}</b><span>${d}</span></button>`).join('')}</nav>
+  $('#app').innerHTML=`<header><div class="kick">STUDY NOTES<span>Practice &amp; mentor workspace — runs in this browser</span></div><h1>Study Notes</h1><p>SAP OTC mastery, from consultant to Director / VP — learn it, defend it under pressure, and stay current.</p><div class="legend"><b>Practice</b> = a hard question, with the model answer · <b>Panel Session</b> = a tough panel, then your turn · <b>Mentor</b> = a taught lesson or a full course · <b>What's New</b> = the latest SAP developments · <b>SOP Builder</b> = config, errors, fixes</div></header>
+  <nav>${TABS.map(([k,e,l,d])=>`<button class="${U.tab===k?'on':''}" data-a="tab" data-t="${k}"><b>${l}</b><span>${d}</span></button>`).join('')}</nav>
   <div class="subnav">More tools: ${MORE.map(([k,e,l])=>`<button class="tag ${U.tab===k?'on':''}" data-a="tab" data-t="${k}">${e} ${l}</button>`).join('')}</div>
   <main>${topStrip()}${U.load?`<div class="load">⏳ ${esc(U.load)}</div>`:''}${views[U.tab]()}</main>`;
   const r=$('#restore');if(r)r.onchange=restoreFile;
@@ -1369,6 +1413,8 @@ function go(t){U.tab=t;S.lastTab=t;render();window.scrollTo(0,0)}
 const openIt=k=>d=>{U.open[k]=d.id;if(k==='course')U.lesson=null;if(k==='interview')U.iv=null;go(k==='pack'?'research':k)};
 const A={
   tab:d=>go(d.t),
+  pathGo:d=>{S.prog[norm(d.t)]=S.prog[norm(d.t)]||dkey();save();U.m.cQ=d.t;doCourse(d.t)},
+  pathSop:d=>{S.prog[norm(d.t)]=S.prog[norm(d.t)]||dkey();save();sopOpen(d.t)},
   clientClear:()=>{S.client=null;save();render()},
   clientSet:d=>{const it=S.lib.find(x=>x.id===d.id);if(!it)return;const x=it.data;S.client={name:str(x.company_name)||it.title.split(' · ')[0],ctx:(str(x.operating_model).slice(0,600)+' Key SAP processes: '+arr(x.sap_process_map).slice(0,6).map(p=>str(p.sap_process)).join('; ')).slice(0,1200)};save();toast('Client set: '+S.client.name);render()},
   awayToggle:()=>{U.awayOpen=!U.awayOpen;render()},
